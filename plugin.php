@@ -9,6 +9,8 @@
  * License: TKTK
  */
 
+require __DIR__ . '/vendor/pmpsdk.phar';
+
 /**
  * Plugin set up and init
  *
@@ -16,11 +18,17 @@
  */
 function pmp_init() {
 	define('PMP_PLUGIN_DIR', __DIR__);
+	define('PMP_PLUGIN_DIR_URI', plugins_url(basename(__DIR__), __DIR__));
 	define('PMP_TEMPLATE_DIR', PMP_PLUGIN_DIR . '/templates');
+	define('PMP_VERSION', 0.1);
+
+	include_once PMP_PLUGIN_DIR . '/lib/functions.php';
 
 	$includes = array(
-		'lib/functions.php',
-		'inc/settings.php'
+		'inc/settings.php',
+		'inc/pages.php',
+		'inc/assets.php',
+		'inc/ajax.php',
 	);
 
 	foreach ($includes as $include)
@@ -68,27 +76,3 @@ function pmp_plugin_menu() {
 
 }
 add_action('admin_menu', 'pmp_plugin_menu');
-
-/**
- * Render the plugin's options page
- *
- * @since 0.1
- */
-function pmp_options_page() {
-	if (!current_user_can('manage_options'))
-		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
-
-	pmp_render_template('settings.php');
-}
-
-/**
- * Render the plugin's search page
- *
- * @since 0.1
- */
-function pmp_search_page() {
-	if (!current_user_can('edit_posts'))
-		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
-
-	// TODO: Render the search page
-}
