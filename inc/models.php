@@ -55,7 +55,7 @@ class SDKWrapper {
 
 					$data['items'][] = array_merge((array) $item->attributes, array(
 						'links' => $links,
-						'profileAlias' => $item->getProfileAlias()
+						'items' => (array) $item->items
 					));
 				}
 			}

@@ -25,3 +25,10 @@
 	</div>
 </script>
 
+<script type="text/template" id="pmp-search-results-pagination-tmpl">
+	<div id="pmp-search-results-pagination">
+		<a href="#" class="disabled prev button button-primary">Previous</a>
+		<a href="#" class="disabled next button button-primary">Next</a>
+		<p class="pmp-page-count">Page <span class="pmp-page"></span> of <span class="pmp-total-pages"></span></p>
+	</div>
+</script>
