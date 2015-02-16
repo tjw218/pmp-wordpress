@@ -1,3 +1,22 @@
 #pmp-search-page #pmp-search-form input[type="text"] {
   width: 200px;
 }
+
+.pmp-search-result {
+  margin: 20px 0;
+  border-bottom: 1px solid #ccc;
+}
+
+.pmp-search-result .pmp-title {
+  margin: 1em 0 0 0;
+}
+
+.pmp-search-result .pmp-byline {
+  font-size: 12px;
+  margin: 6px 0;
+}
+
+.pmp-search-result .pmp-teaser {
+  font-size: 14px;
+  margin: 6px 0;
+}

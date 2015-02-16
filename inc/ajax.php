@@ -1,5 +1,7 @@
 <?php
 
+include_once __DIR__ . '/models.php';
+
 /**
  * Ajax search functionality
  *
@@ -8,30 +10,24 @@
 function pmp_search() {
 	$settings = get_option('pmp_settings');
 
-	try {
-		$sdk = new \Pmp\Sdk(
-			$settings['pmp_api_url'], $settings['pmp_client_id'], $settings['pmp_client_secret']);
-	}
-	catch (\Pmp\Sdk\Exception\HostException $e) {
-		echo "Invalid API host specified: $e";
-	}
-	catch (\Pmp\Sdk\Exception\AuthException $e) {
-		echo "Bad client credentials: $e";
-	}
+	$sdk = new SDKWrapper();
 
-	$data = array_merge(array('limit' => 10), $_POST);
-	unset($data['action']);
+	$opts = array_merge(array(
+		'profile' => 'story',
+		'limit' => 10
+	), $_POST);
+	unset($opts['action']);
 
-	$result = $sdk->queryDocs($data);
+	$result = $sdk->query2json('queryDocs', $opts);
 
 	if (!$result) {
 		print json_encode(array(
-			"message" => "Got 0 results for my search - doh!",
+			"message" => "No results found.",
 			"success" => false
 		));
 	} else {
 		print json_encode(array(
-			"items" => $result->items(),
+			"data" => $result,
 			"success" => true
 		));
 	}
