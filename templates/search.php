@@ -2,9 +2,39 @@
 	<h2>Search the Platform</h2>
 
 	<form id="pmp-search-form">
+		<input name="text" placeholder="Enter keywords" type="text"></input>
+		<span id="pmp-show-advanced"><a href="#">Show advanced options</a></span>
+		<div id="pmp-advanced-search">
+			<!-- Collection search (text-field) -->
+			<input type="text" name="collection" placeholder="Search by collection"></input>
+
+			<!-- Creator search (editable dropdown w/ 5 partners) -->
+			<label for="profile">Search by content creator</label>
+			<select name="creator">
+				<option></option>
+			</select>
+
+			<!-- Profile search (static dropdown) -->
+			<label for="profile">Search by content profile</label>
+			<select name="profile">
+				<option></option>
+			</select>
+
+			<!-- Has search (e.g., has image) (static dropdown) -->
+			<label for="profile">Find content that has:</label>
+			<select name="has">
+				<option></option>
+			</select>
+
+			<!-- Tags search (text-field) -->
+			<input type="text" name="tags" placeholder="Search by tag"></input>
+
+			<!-- GUID search -->
+			<input type="text" name="guid" placeholder="Search by GUID"></input>
+
+		</div>
 		<p class="submit">
-			<input name="text" placeholder="Enter keywords" type="text">
-			<input type="submit" name="submit" id="submit" class="button button-primary" value="Search">
+			<input type="submit" name="submit" id="submit" class="button button-primary" value="Search"></input>
 		</p>
 	</form>
 

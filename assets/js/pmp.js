@@ -31,7 +31,7 @@
                 else
                     return null;
             }
-            return null
+            return null;
         },
 
         getProfileAlias: function() {
@@ -71,12 +71,13 @@
             this.sync = this.not_implemented;
             this.save = this.not_implemented;
             this.fetch = this.not_implemented;
+            this.destroy = this.not_implemented;
         },
 
         not_implemented: function() {
             throw 'Not implemented';
         }
-    })
+    });
 
     var DocCollection = Backbone.Collection.extend({
         model: Doc,
@@ -128,7 +129,8 @@
         el: '#pmp-search-form',
 
         events: {
-            "submit": "submit"
+            "submit": "submit",
+            "click #pmp-show-advanced a": "advanced"
         },
 
         initialize: function() {
@@ -141,11 +143,20 @@
 
             var query = {};
             _.each(serialized, function(val, idx) {
-                query[val.name] = val.value;
+                if (val.value !== '')
+                    query[val.name] = val.value;
             });
 
-            this.docs.search(query);
+            console.log(query);
+            //this.docs.search(query);
 
+            return false;
+        },
+
+        advanced: function(e) {
+            var target = $(e.currentTarget);
+            target.remove();
+            this.$el.find('#pmp-advanced-search').show();
             return false;
         }
     });
@@ -186,7 +197,7 @@
 
             return this;
         }
-    })
+    });
 
     var ResultsPagination = Backbone.View.extend({
         initialize: function(options) {
