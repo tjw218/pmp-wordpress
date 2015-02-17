@@ -6,24 +6,33 @@
 		<span id="pmp-show-advanced"><a href="#">Show advanced options</a></span>
 		<div id="pmp-advanced-search">
 			<!-- Collection search (text-field) -->
-			<input type="text" name="collection" placeholder="Search by collection"></input>
+			<?php /* <input type="text" name="collection" placeholder="Search by collection"></input> */ ?>
 
 			<!-- Creator search (editable dropdown w/ 5 partners) -->
 			<label for="profile">Search by content creator</label>
 			<select name="creator">
-				<option></option>
+				<option value=""></option>
+				<?php foreach ($creators as $name => $guid) { ?>
+				<option value="<?php echo $guid; ?>"><?php echo $name; ?></option>
+				<?php } ?>
 			</select>
 
 			<!-- Profile search (static dropdown) -->
 			<label for="profile">Search by content profile</label>
 			<select name="profile">
-				<option></option>
+				<option value=""></option>
+				<?php foreach ($profiles as $name => $value) { ?>
+				<option <?php if ($value == 'story') { ?>selected="selected"<?php } ?> value="<? echo $value; ?>"><? echo $name; ?></option>
+				<?php } ?>
 			</select>
 
 			<!-- Has search (e.g., has image) (static dropdown) -->
-			<label for="profile">Find content that has:</label>
+			<label for="has">Find content that has:</label>
 			<select name="has">
-				<option></option>
+				<option value=""></option>
+				<option value="image">Image</option>
+				<option value="audio">Audio</option>
+				<option value="video">Video</option>
 			</select>
 
 			<!-- Tags search (text-field) -->
@@ -46,6 +55,7 @@
 		<h3 class="pmp-title"><%= title %></h3>
 		<div class="pmp-result-details">
 			<% if (typeof byline != 'undefined') { %><div class="pmp-byline">By <%= byline %></div><% } %>
+			<% if (typeof creator != 'undefined') { %><div class="pmp-creator"><%= creator %></div><% } %>
 			<% if (typeof teaser != 'undefined') { %>
 				<div class="pmp-teaser">
 					<% if (image) { %><img class="pmp-image" src="<%= image %>" /><% } %>
@@ -68,4 +78,9 @@
 		<a href="#" class="disabled next button button-primary">Next</a>
 		<p class="pmp-page-count">Page <span class="pmp-page"></span> of <span class="pmp-total-pages"></span></p>
 	</div>
+</script>
+
+
+<script type="text/javascript">
+	var CREATORS = <?php echo json_encode(array_flip($creators)); ?>;
 </script>

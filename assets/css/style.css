@@ -57,6 +57,11 @@
   margin: 0 16px 16px 0;
 }
 
+/* Results pagination */
+#pmp-search-results-pagination {
+  clear: both;
+}
+
 /* Results actions */
 .pmp-result-actions {
   clear: both;

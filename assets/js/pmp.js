@@ -44,6 +44,34 @@
                 return null;
         },
 
+        creatorAliases: CREATORS,
+
+        getCreator: function() {
+            var links = this.get('links');
+
+            if (links) {
+                var creator = links.creator;
+
+                if (typeof creator[0] !== 'undefined')
+                    return creator[0];
+                else
+                    return null;
+            }
+            return null;
+        },
+
+        getCreatorAlias: function() {
+            var creator = this.getCreator();
+
+            if (creator && creator.href) {
+                var parts = creator.href.split('/'),
+                    last = _.last(parts);
+
+                return (this.creatorAliases[last])? this.creatorAliases[last] : null;
+            } else
+                return null;
+        },
+
         getImage: function() {
             return this.get('items').find(function(item) {
                 if (item.getProfileAlias() == 'image')
@@ -88,7 +116,7 @@
         },
 
         search: function(query) {
-            if (typeof this.ongoing !== 'undefined' && this.ongoing.state() !== 'resolved')
+            if (typeof this.ongoing !== 'undefined' && $.inArray(this.ongoing.state(), ['resolved', 'rejected']) == -1)
                 return false;
 
             var self = this;
@@ -115,6 +143,9 @@
                         self.attributes.clear();
                         self.attributes.set(_attrs);
                     }
+                },
+                error: function(response) {
+                    self.trigger('error', response);
                 }
             };
 
@@ -147,8 +178,7 @@
                     query[val.name] = val.value;
             });
 
-            console.log(query);
-            //this.docs.search(query);
+            this.docs.search(query);
 
             return false;
         },
@@ -167,6 +197,12 @@
         initialize: function(options) {
             this.collection = (typeof options.collection != 'undefined')? options.collection : new DocCollection();
             this.collection.attributes.on('change', this.render.bind(this));
+            this.collection.on('error', this.renderError.bind(this));
+        },
+
+        renderError: function(response) {
+            this.$el.html('');
+            this.$el.append('<p class="error">' + response.responseJSON.message + '</p>');
         },
 
         render: function() {
@@ -178,7 +214,10 @@
 
             this.collection.each(function(model, idx) {
                 var image = (model.getImageCrop('square'))? model.getImageCrop('square').href : null,
-                    tmpl_vars = _.extend(model.toJSON(), { image: image }),
+                    tmpl_vars = _.extend(model.toJSON(), {
+                        image: image,
+                        creator: model.getCreatorAlias()
+                    }),
                     res = $(template(tmpl_vars));
 
                 new ResultActions({

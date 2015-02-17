@@ -21,6 +21,7 @@ function pmp_search() {
 	$result = $sdk->query2json('queryDocs', $opts);
 
 	if (!$result) {
+		header("HTTP/1.0 404 Not Found");
 		print json_encode(array(
 			"message" => "No results found.",
 			"success" => false

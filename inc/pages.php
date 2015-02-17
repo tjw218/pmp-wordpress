@@ -21,5 +21,8 @@ function pmp_search_page() {
 	if (!current_user_can('edit_posts'))
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 
-	pmp_render_template('search.php');
+	pmp_render_template('search.php', array(
+		'creators' => pmp_get_creators(),
+		'profiles' => pmp_get_profiles()
+	));
 }
