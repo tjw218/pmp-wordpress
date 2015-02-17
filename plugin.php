@@ -44,32 +44,32 @@ add_action('widgets_init', 'pmp_init');
 function pmp_plugin_menu() {
 	$page_title = 'Public Media Platform';
 	$menu_title = 'Public Media Platform';
-	$capability = 'manage_options';
-	$menu_slug = 'pmp-options-menu';
-	$function = 'pmp_options_page';
+	$capability = 'edit_posts';
+	$menu_slug = 'pmp-search';
+	$function = 'pmp_search_page';
 
 	add_menu_page($page_title, $menu_title, $capability, $menu_slug, $function);
 
 	$sub_menus = array(
-		array(
-			'page_title' => 'Settings',
-			'menu_title' => 'Settings',
-			'capability' => 'manage_options',
-			'menu_slug' => 'pmp-options-menu',
-			'function' => 'pmp_options_page'
-		),
 		array(
 			'page_title' => 'Search',
 			'menu_title' => 'Search',
 			'capability' => 'edit_posts',
 			'menu_slug' => 'pmp-search',
 			'function' => 'pmp_search_page'
+		),
+		array(
+			'page_title' => 'Settings',
+			'menu_title' => 'Settings',
+			'capability' => 'manage_options',
+			'menu_slug' => 'pmp-options-menu',
+			'function' => 'pmp_options_page'
 		)
 	);
 
 	foreach ($sub_menus as $sub_menu) {
 		add_submenu_page(
-			'pmp-options-menu', $sub_menu['page_title'], $sub_menu['menu_title'],
+			'pmp-search', $sub_menu['page_title'], $sub_menu['menu_title'],
 			$sub_menu['capability'], $sub_menu['menu_slug'], $sub_menu['function']
 		);
 	}

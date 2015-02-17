@@ -21,11 +21,17 @@
         },
 
         getProfile: function() {
-            var links = this.get('links').profile;
-            if (typeof links[0] !== 'undefined')
-                return links[0];
-            else
-                return null;
+            var links = this.get('links');
+
+            if (links) {
+                var profile = links.profile;
+
+                if (typeof profile[0] !== 'undefined')
+                    return profile[0];
+                else
+                    return null;
+            }
+            return null
         },
 
         getProfileAlias: function() {
@@ -36,6 +42,26 @@
                 return (this.profileAliases[guidOrAlias])? this.profileAliases[guidOrAlias] : guidOrAlias;
             } else
                 return null;
+        },
+
+        getImage: function() {
+            return this.get('items').find(function(item) {
+                if (item.getProfileAlias() == 'image')
+                    return item;
+            });
+        },
+
+        getImageCrop: function(crop) {
+            var image = this.getImage(),
+                ret;
+
+            if (image) {
+                ret = _.find(image.get('links').enclosure, function(enc) {
+                    if (enc.meta.crop == crop)
+                        return enc;
+                });
+            }
+            return ret;
         }
     });
 
@@ -140,7 +166,9 @@
             template = _.template($('#pmp-search-result-tmpl').html());
 
             this.collection.each(function(model, idx) {
-                var res = $(template(model.toJSON()));
+                var image = (model.getImageCrop('square'))? model.getImageCrop('square').href : null,
+                    tmpl_vars = _.extend(model.toJSON(), { image: image }),
+                    res = $(template(tmpl_vars));
 
                 new ResultActions({
                     el: res.find('.pmp-result-actions'),

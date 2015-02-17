@@ -2,8 +2,13 @@
   width: 200px;
 }
 
+#pmp-search-results {
+  max-width: 700px;
+}
+
 .pmp-search-result {
-  margin: 20px 0;
+  float: left;
+  margin: 0 0 20px 0;
   border-bottom: 1px solid #ccc;
 }
 
@@ -19,6 +24,17 @@
 .pmp-search-result .pmp-teaser {
   font-size: 14px;
   margin: 6px 0;
+}
+
+.pmp-search-result .pmp-image {
+  width: 125px;
+  height: auto;
+  float: left;
+  margin: 0 16px 16px 0;
+}
+
+.pmp-result-actions {
+  clear: both;
 }
 
 .pmp-result-actions ul li {
