@@ -5,45 +5,52 @@
 		<input name="text" placeholder="Enter keywords" type="text"></input>
 		<span id="pmp-show-advanced"><a href="#">Show advanced options</a></span>
 		<div id="pmp-advanced-search">
-			<!-- Collection search (text-field) -->
-			<?php /* <input type="text" name="collection" placeholder="Search by collection"></input> */ ?>
+			<div class="left">
+				<!-- Collection search (text-field) -->
+				<?php /* <input type="text" name="collection" placeholder="Search by collection"></input> */ ?>
 
-			<!-- Creator search (editable dropdown w/ 5 partners) -->
-			<label for="profile">Search by content creator</label>
-			<select name="creator">
-				<option value=""></option>
-				<?php foreach ($creators as $name => $guid) { ?>
-				<option value="<?php echo $guid; ?>"><?php echo $name; ?></option>
-				<?php } ?>
-			</select>
+				<!-- Creator search (editable dropdown w/ 5 partners) -->
+				<label for="profile">Content creator:</label>
+				<select name="creator">
+					<option value="">Any</option>
+					<?php foreach ($creators as $name => $guid) { ?>
+					<option value="<?php echo $guid; ?>"><?php echo $name; ?></option>
+					<?php } ?>
+				</select>
 
-			<!-- Profile search (static dropdown) -->
-			<label for="profile">Search by content profile</label>
-			<select name="profile">
-				<option value=""></option>
-				<?php foreach ($profiles as $name => $value) { ?>
-				<option <?php if ($value == 'story') { ?>selected="selected"<?php } ?> value="<? echo $value; ?>"><? echo $name; ?></option>
-				<?php } ?>
-			</select>
+				<!-- Profile search (static dropdown) -->
+				<label for="profile">Content profile:</label>
+				<select name="profile">
+					<option value="">Any</option>
+					<?php foreach ($profiles as $name => $value) { ?>
+					<option <?php if ($value == 'story') { ?>selected="selected"<?php } ?> value="<? echo $value; ?>"><? echo $name; ?></option>
+					<?php } ?>
+				</select>
 
-			<!-- Has search (e.g., has image) (static dropdown) -->
-			<label for="has">Find content that has:</label>
-			<select name="has">
-				<option value=""></option>
-				<option value="image">Image</option>
-				<option value="audio">Audio</option>
-				<option value="video">Video</option>
-			</select>
+				<!-- Has search (e.g., has image) (static dropdown) -->
+				<div id="pmp-content-has-search">
+					<label for="has">Find content that contains:</label>
+					<select name="has">
+						<option value="">Any media</option>
+						<option value="image">Image</option>
+						<option value="audio">Audio</option>
+						<option value="video">Video</option>
+					</select>
+				</div>
+			</div>
+			<div class="right">
+				<!-- Tags search (text-field) -->
+				<label for="tag">Search by tag (comma separated list):</label>
+				<input type="text" name="tag" placeholder="Search by tag"></input>
 
-			<!-- Tags search (text-field) -->
-			<input type="text" name="tags" placeholder="Search by tag"></input>
-
-			<!-- GUID search -->
-			<input type="text" name="guid" placeholder="Search by GUID"></input>
-
+				<!-- GUID search -->
+				<label for="guid">Search by GUID:</label>
+				<input type="text" name="guid" placeholder="Search by GUID"></input>
+			</div>
 		</div>
 		<p class="submit">
 			<input type="submit" name="submit" id="submit" class="button button-primary" value="Search"></input>
+			<span class="spinner"></span>
 		</p>
 	</form>
 
@@ -80,6 +87,17 @@
 	</div>
 </script>
 
+<script type="text/template" id="pmp-modal-tmpl">
+	<div class="pmp-modal-header">
+		<div class="pmp-modal-close"><span class="close">&#10005;</span></div>
+	</div>
+	<div class="pmp-modal-content"><% if (message) { %><%= message %><% } %></div>
+	<div class="pmp-modal-actions">
+		<% _.each(actions, function(v, k) { %>
+			<a href="#" class="<%= k %> button button-primary"><%= k %></a>
+		<% }); %>
+	</div>
+</script>
 
 <script type="text/javascript">
 	var CREATORS = <?php echo json_encode(array_flip($creators)); ?>;

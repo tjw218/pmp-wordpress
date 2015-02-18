@@ -32,7 +32,7 @@ class SDKWrapper {
 	 * @since 0.1
 	 */
 	public function query2json($method, $args) {
-		$result = $this->queryDocs($args);
+		$result = $this->{$method}($args);
 
 		if (empty($result))
 			return $result;

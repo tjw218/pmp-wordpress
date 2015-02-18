@@ -73,6 +73,9 @@
         },
 
         getImage: function() {
+            if (this.getProfileAlias() == 'image')
+                return this;
+
             return this.get('items').find(function(item) {
                 if (item.getProfileAlias() == 'image')
                     return item;
@@ -90,6 +93,10 @@
                 });
             }
             return ret;
+        },
+
+        getFirstEnclosure: function() {
+            return (this.get('links').enclosure)? this.get('links').enclosure[0] : null;
         }
     });
 
@@ -161,12 +168,15 @@
 
         events: {
             "submit": "submit",
-            "click #pmp-show-advanced a": "advanced"
+            "click #pmp-show-advanced a": "advanced",
+            "change input": "change",
+            "change select": "change"
         },
 
         initialize: function() {
             this.docs = new DocCollection();
             this.results = new ResultsList({ collection: this.docs });
+            this.docs.on('reset', this.hideSpinner.bind(this));
         },
 
         submit: function() {
@@ -178,6 +188,7 @@
                     query[val.name] = val.value;
             });
 
+            this.showSpinner();
             this.docs.search(query);
 
             return false;
@@ -188,6 +199,29 @@
             target.remove();
             this.$el.find('#pmp-advanced-search').show();
             return false;
+        },
+
+        change: function(e) {
+            var target = $(e.currentTarget);
+
+            if (target.attr('name') == 'profile') {
+                if (target.val() !== '' && target.val() !== 'story') {
+                    this.$el.find('#pmp-content-has-search').hide();
+                    this.$el.find('#pmp-content-has-search select option').prop('selected', false);
+                } else {
+                    this.$el.find('#pmp-content-has-search').show();
+                }
+            }
+
+            return false;
+        },
+
+        showSpinner: function() {
+            this.$el.find('.spinner').css('display', 'inline-block');
+        },
+
+        hideSpinner: function() {
+            this.$el.find('.spinner').css('display', 'none');
         }
     });
 
@@ -213,8 +247,12 @@
             template = _.template($('#pmp-search-result-tmpl').html());
 
             this.collection.each(function(model, idx) {
-                var image = (model.getImageCrop('square'))? model.getImageCrop('square').href : null,
-                    tmpl_vars = _.extend(model.toJSON(), {
+                var image = (model.getImageCrop('square'))? model.getImageCrop('square').href : null;
+
+                if (!image)
+                    image = (model.getFirstEnclosure())? model.getFirstEnclosure().href : null;
+
+                var tmpl_vars = _.extend(model.toJSON(), {
                         image: image,
                         creator: model.getCreatorAlias()
                     }),
@@ -315,14 +353,96 @@
         },
 
         draft: function() {
-            console.log('draft');
-            //this.model.draft();
+            var message = 'Are you sure you want to create a draft of this story?',
+                actions = {
+                    'Yes': this.model.draft,
+                    'Cancel': 'close'
+                };
+
+            if (!this.modal) {
+                this.modal = new Modal({
+                    actions: actions,
+                    message: message
+                });
+            } else {
+                this.modal.actions = actions;
+                this.modal.message = message;
+            }
+
+            this.modal.render();
+
             return false;
         },
 
         publish: function() {
-            console.log('publish');
-            //this.model.publish();
+            var message = 'Are you sure you want to publish this story?',
+                actions = {
+                    'Yes': this.model.publish,
+                    'Cancel': 'close'
+                };
+
+            if (!this.modal) {
+                this.modal = new Modal({
+                    actions: actions,
+                    message: message
+                });
+            } else {
+                this.modal.actions = actions;
+                this.modal.message = message;
+            }
+
+            this.modal.render();
+
+            return false;
+        }
+    });
+
+    var Modal = Backbone.View.extend({
+        id: 'pmp-modal',
+
+        actions: {},
+
+        message: null,
+
+        events: {
+            "click .close": "close"
+        },
+
+        initialize: function(options) {
+            var self = this;
+
+            Backbone.View.prototype.initialize.apply(this, arguments);
+            this.template = _.template($('#pmp-modal-tmpl').html());
+
+            this.message = (typeof options.message !== 'undefined')? options.message : '';
+            this.actions = (typeof options.actions !== 'undefined')? options.actions : {};
+
+            _.each(this.actions, function(v, k) {
+                if (typeof v == 'string')
+                    v = self[v].bind(self);
+
+                self.$el.on('click', '.' + k, v);
+            });
+
+            $('body').append(this.$el);
+            $('body').append('<div id="pmp-modal-overlay" />');
+        },
+
+        render: function() {
+            this.$el.html(this.template({
+                message: this.message,
+                actions: this.actions
+            }));
+            this.open();
+        },
+
+        open: function() {
+            $('body').addClass('pmp-modal-open');
+            return false;
+        },
+
+        close: function() {
+            $('body').removeClass('pmp-modal-open');
             return false;
         }
     });

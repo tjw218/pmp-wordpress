@@ -1,6 +1,33 @@
 /* Basic text search */
+#pmp-search-page #pmp-search-form {
+  float: left;
+  margin: 0;
+  width: 100%;
+}
+#pmp-search-page #pmp-search-form input[type="text"],
+#pmp-search-page #pmp-search-form select {
+  font-size: 16px;
+}
 #pmp-search-page #pmp-search-form input[type="text"] {
   width: 200px;
+}
+
+p.submit {
+  clear: both;
+  float: left;
+  margin: 10px 0;
+  padding: 0;
+}
+
+p.submit input {
+  float: left;
+}
+
+p.submit .spinner {
+  /*display: inline-block;*/
+  float: none;
+  position: relative;
+  top: 2px;
 }
 
 /* Advanced search */
@@ -10,7 +37,22 @@
 }
 
 #pmp-advanced-search {
+  float: left;
   display: none;
+  border-radius: 2px;
+  background: #ddd;
+  padding: 10px;
+}
+
+#pmp-advanced-search .left {
+  border-right: 1px solid #aaa;
+  margin-right: 20px;
+}
+
+#pmp-advanced-search .left,
+#pmp-advanced-search .right {
+  float: left;
+  width: 300px;
 }
 
 #pmp-advanced-search input,
@@ -23,6 +65,16 @@
 #pmp-advanced-search input,
 #pmp-advanced-search select {
   margin: 0 0 20px 0;
+}
+
+#pmp-advanced-search label {
+  margin: 0 0 10px 0;
+}
+
+#pmp-content-has-search {
+  border-left: 3px solid #777;
+  margin-left: 10px;
+  padding-left: 10px;
 }
 
 /* Search results */
@@ -79,4 +131,79 @@
 
 .pmp-result-actions ul li:last-child:after {
   content: "";
+}
+
+@media (max-width: 665px) {
+  #pmp-advanced-search .left {
+    border-right: none;
+    margin: 0;
+  }
+}
+
+/* Modal */
+#pmp-modal {
+  position: absolute;
+  width: 500px;
+  min-height: 180px;
+  background: #fafafa;
+  border: 1px solid #ccc;
+  top: 100px;
+  left: 50%;
+  margin-left: -250px;
+  display: none;
+  z-index: 1000;
+  box-shadow: 0 1px 12px #999;
+  border-radius: 4px;
+}
+
+.pmp-modal-header {
+  background: #eee;
+  width: 100%;
+  float: left;
+  border-bottom: 1px solid #ddd;
+}
+.pmp-modal-close {
+  float: right;
+  margin: 10px;
+  color: #555;
+}
+.pmp-modal-close:hover {
+  color: #222;
+  cursor: pointer;
+}
+
+.pmp-modal-content,
+.pmp-modal-actions {
+  padding: 10px;
+  float: left;
+  clear: both;
+  width: 480px;
+}
+.pmp-modal-content {
+  font-size: 16px;
+  text-align: center;
+  margin-bottom: 50px;
+  padding-top: 20px;
+}
+.pmp-modal-actions {
+  bottom: 0;
+  position: absolute;
+  text-align: right;
+  border-top: 1px solid #eee;
+}
+
+#pmp-modal-overlay {
+  top: 0;
+  left: 0;
+  position: absolute;
+  z-index: 999;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.25);
+  display: none;
+}
+
+body.pmp-modal-open #pmp-modal,
+body.pmp-modal-open #pmp-modal-overlay {
+  display: block;
 }
