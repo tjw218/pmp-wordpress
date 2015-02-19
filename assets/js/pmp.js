@@ -97,58 +97,93 @@
 
         getFirstEnclosure: function() {
             return (this.get('links').enclosure)? this.get('links').enclosure[0] : null;
-        }
-    });
-
-    var DocCollectionAttributes = Backbone.Model.extend({
-        initialize: function() {
-            Backbone.Model.prototype.initialize.apply(this, arguments);
-            this.sync = this.not_implemented;
-            this.save = this.not_implemented;
-            this.fetch = this.not_implemented;
-            this.destroy = this.not_implemented;
         },
 
-        not_implemented: function() {
-            throw 'Not implemented';
+        draft: function() {
+            this.createPost(true);
+            return false;
+        },
+
+        publish: function() {
+            this.createPost(false);
+            return false;
+        },
+
+        createPost: function(draft) {
+            if (typeof this.ongoing !== 'undefined' && $.inArray(this.ongoing.state(), ['resolved', 'rejected']) == -1)
+                return false;
+
+            var self = this,
+                action = (draft)? 'pmp_draft_post' : 'pmp_publish_post',
+                data = {
+                    action: action,
+                    security: AJAX_NONCE,
+                    post_data: this.toJSON()
+                };
+
+            var opts = {
+                url: ajaxurl,
+                dataType: 'json',
+                data: data,
+                method: 'post',
+                success: function(result) {
+                    if (result.success)
+                        window.location = result.data.edit_url;
+                    return false;
+                },
+                error: function(response) {
+                    alert('There was an error processing your request. Message: "' + response.responseJSON.message + '"');
+                    window.location.reload(true);
+                }
+            };
+
+            this.ongoing = $.ajax(opts);
+
+            return this.ongoing;
+        },
+
+        toJSON: function() {
+            var attrs = _.clone(this.attributes);
+            attrs.items = attrs.items.toJSON();
+            return attrs;
         }
     });
+
+    var DocCollectionAttributes = Backbone.Model.extend();
 
     var DocCollection = Backbone.Collection.extend({
         model: Doc,
 
         initialize: function() {
-            Backbone.Collection.prototype.initialize.apply(this, arguments);
             this.attributes = new DocCollectionAttributes();
+            Backbone.Collection.prototype.initialize.apply(this, arguments);
         },
 
         search: function(query) {
             if (typeof this.ongoing !== 'undefined' && $.inArray(this.ongoing.state(), ['resolved', 'rejected']) == -1)
                 return false;
 
-            var self = this;
-
-            query = _.extend({ action: 'pmp_search' }, query);
+            var self = this,
+                data = {
+                    action: 'pmp_search',
+                    security: AJAX_NONCE,
+                    query: query
+                };
 
             var opts = {
                 url: ajaxurl,
                 dataType: 'json',
-                data: query,
+                data: data,
                 method: 'post',
                 success: function(result) {
                     if (result.success) {
                         self.reset(result.data.items);
 
-                        var _attrs = {
+                        var attrs = _.extend({
                             query: query
-                        };
-                        _.each(result.data, function(v, k) {
-                            if (k !== 'items')
-                                _attrs[k] = v;
-                        });
+                        }, result.data);
 
-                        self.attributes.clear();
-                        self.attributes.set(_attrs);
+                        self.attributes.set(attrs);
                     }
                 },
                 error: function(response) {
@@ -242,7 +277,7 @@
         render: function() {
             var self = this;
 
-            this.$el.html('');
+            this.$el.find('.pmp-search-result').remove();
 
             template = _.template($('#pmp-search-result-tmpl').html());
 
@@ -266,13 +301,19 @@
                 self.$el.append(res);
             });
 
-            this.pagination = new ResultsPagination({
-                collection: this.collection
-            });
-            this.$el.append(this.pagination.$el);
-            this.pagination.render();
+            this.renderPagingation();
 
             return this;
+        },
+
+        renderPagingation: function() {
+            if (!this.pagination) {
+                this.pagination = new ResultsPagination({
+                    collection: this.collection
+                });
+                this.$el.after(this.pagination.$el);
+            }
+            this.pagination.render();
         }
     });
 
@@ -353,47 +394,47 @@
         },
 
         draft: function() {
-            var message = 'Are you sure you want to create a draft of this story?',
-                actions = {
-                    'Yes': this.model.draft,
+            var self = this,
+                args = {
+                message: 'Are you sure you want to create a draft of this story?',
+                actions: {
+                    'Yes': self.model.draft.bind(self.model),
                     'Cancel': 'close'
-                };
+                }
+            };
 
-            if (!this.modal) {
-                this.modal = new Modal({
-                    actions: actions,
-                    message: message
-                });
-            } else {
-                this.modal.actions = actions;
-                this.modal.message = message;
-            }
-
-            this.modal.render();
+            this.renderModal(args);
 
             return false;
         },
 
         publish: function() {
-            var message = 'Are you sure you want to publish this story?',
-                actions = {
-                    'Yes': this.model.publish,
+            var self = this,
+                args = {
+                message: 'Are you sure you want to publish this story?',
+                actions: {
+                    'Yes': self.model.publish.bind(self.model),
                     'Cancel': 'close'
-                };
+                }
+            };
 
+            this.renderModal(args);
+
+            return false;
+        },
+
+        renderModal: function(args) {
             if (!this.modal) {
                 this.modal = new Modal({
-                    actions: actions,
-                    message: message
+                    actions: args.actions,
+                    message: args.message
                 });
             } else {
-                this.modal.actions = actions;
-                this.modal.message = message;
+                this.modal.actions = args.actions;
+                this.modal.message = args.message;
             }
 
             this.modal.render();
-
-            return false;
         }
     });
 
@@ -417,12 +458,7 @@
             this.message = (typeof options.message !== 'undefined')? options.message : '';
             this.actions = (typeof options.actions !== 'undefined')? options.actions : {};
 
-            _.each(this.actions, function(v, k) {
-                if (typeof v == 'string')
-                    v = self[v].bind(self);
-
-                self.$el.on('click', '.' + k, v);
-            });
+            this.setEvents();
 
             $('body').append(this.$el);
             $('body').append('<div id="pmp-modal-overlay" />');
@@ -433,7 +469,14 @@
                 message: this.message,
                 actions: this.actions
             }));
+            this.setEvents();
             this.open();
+        },
+
+        setEvents: function() {
+            var events = {};
+            _.each(this.actions, function(v, k) { events['click .' + k] = v; });
+            this.delegateEvents(_.extend(this.events, events));
         },
 
         open: function() {

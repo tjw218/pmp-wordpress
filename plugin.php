@@ -22,9 +22,8 @@ function pmp_init() {
 	define('PMP_TEMPLATE_DIR', PMP_PLUGIN_DIR . '/templates');
 	define('PMP_VERSION', 0.1);
 
-	include_once PMP_PLUGIN_DIR . '/lib/functions.php';
-
 	$includes = array(
+		'inc/functions.php',
 		'inc/settings.php',
 		'inc/pages.php',
 		'inc/assets.php',

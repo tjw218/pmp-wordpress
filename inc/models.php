@@ -20,7 +20,7 @@ class SDKWrapper {
 	}
 
 	public function __call($name, $args) {
-		return call_user_method_array($name, $this->sdk, $args);
+		return call_user_func_array(array($this->sdk, $name), $args);
 	}
 
 	/**
