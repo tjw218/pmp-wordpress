@@ -88,7 +88,7 @@
 
             if (image) {
                 ret = _.find(image.get('links').enclosure, function(enc) {
-                    if (enc.meta.crop == crop)
+                    if (enc.meta && enc.meta.crop == crop)
                         return enc;
                 });
             }
@@ -121,6 +121,8 @@
                     post_data: this.toJSON()
                 };
 
+            data.post_data.attachment = (this.getImage())? this.getImage().toJSON() : null;
+
             var opts = {
                 url: ajaxurl,
                 dataType: 'json',
@@ -138,7 +140,6 @@
             };
 
             this.ongoing = $.ajax(opts);
-
             return this.ongoing;
         },
 
@@ -149,13 +150,11 @@
         }
     });
 
-    var DocCollectionAttributes = Backbone.Model.extend();
-
     var DocCollection = Backbone.Collection.extend({
         model: Doc,
 
         initialize: function() {
-            this.attributes = new DocCollectionAttributes();
+            this.attributes = new Backbone.Model();
             Backbone.Collection.prototype.initialize.apply(this, arguments);
         },
 

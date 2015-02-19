@@ -1,6 +1,6 @@
 <?php
 
-include_once __DIR__ . '/models.php';
+include_once __DIR__ . '/class-sdkwrapper.php';
 
 /**
  * Ajax search functionality
@@ -77,6 +77,39 @@ function _pmp_create_post($draft=false) {
 			"message" => $new_post->get_error_message()
 		));
 		wp_die();
+	}
+
+	if (!empty($data['attachment'])) {
+		$attachment = $data['attachment'];
+
+		$standard = null;
+
+		// Try really hard to find the 'standard' image crop
+		foreach ($attachment['links']['enclosure'] as $enc) {
+			if ($enc['meta']['crop'] == 'standard') {
+				$standard = $enc;
+				break;
+			}
+		}
+
+		// If we couldn't get the 'standard' crop, fallback to the first enclosure
+		if (empty($standard) && !empty($attachment['links']['enclosure'][0]))
+			$standard = $attachment['links']['enclosure'][0];
+
+		// If we were able to get an enclosure proceed with attaching it to the post
+		if (!empty($standard)) {
+			$new_image = pmp_media_sideload_image(
+				$standard['href'], $new_post, $standard['attributes']['description']);
+
+			if (!is_wp_error($new_image)) {
+				$image_update = array(
+					'ID' => $new_image,
+					'post_title' => $standard['attributes']['title']
+				);
+				wp_update_post($image_update);
+				update_post_meta($new_post, '_thumbnail_id', $new_image);
+			}
+		}
 	}
 
 	$post_meta = array(
