@@ -28,6 +28,7 @@ function pmp_init() {
 		'inc/pages.php',
 		'inc/assets.php',
 		'inc/ajax.php',
+		'inc/cron.php'
 	);
 
 	foreach ($includes as $include)

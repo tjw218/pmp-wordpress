@@ -24,7 +24,30 @@ class SDKWrapper {
 	}
 
 	/**
-	 * Convenience method cleans up query results data for use with Backbone.js models and collections.
+	 * Convenience method cleans up query results data and returns serializable version for use with
+	 * Backbone.js models and collections.
+	 *
+	 * Note: as a matter of convenience, this function merges `$item->attributes` with the top-level
+	 * of each `$item` in the result set. That is, where the PMP SDK data structure resembles:
+	 *
+	 * $item
+	 *   $attributes
+	 *     $title
+	 *     $contentencoded
+	 *     $byline
+	 *     ...
+	 *   $links
+	 *   $items
+	 *
+	 * This function will remove $attributes, producing a data structure that looks like:
+	 *
+	 * $item
+	 *   $title
+	 *   $contentencoded
+	 *   $byline
+	 *   ...
+	 *   $links
+	 *   $items
 	 *
 	 * @param $method (string) The query method to call (i.e., queryDocs or queryGroups, etc.)
 	 * @param $arguments (array) The options to be pased to the query method.

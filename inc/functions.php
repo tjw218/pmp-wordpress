@@ -15,7 +15,6 @@ function pmp_render_template($template, $context=false) {
 	include_once PMP_TEMPLATE_DIR . '/' . $template;
 }
 
-
 /**
  * Return a hash where keys are creator names and values are their respective GUIDs.
  *
@@ -81,4 +80,19 @@ function pmp_media_sideload_image($file, $post_id, $desc=null) {
 
 		return $id;
 	}
+}
+
+/**
+ * Calculate the md5 signature for a PMP Document. Useful in determining if an existing post in the
+ * WordPress database differs from the PMP version and needs updating.
+ *
+ * @param (array) $doc array of values (i.e., $doc->attributes) describing the PMP document. Users title, contentencoded and byline.
+ * @since 0.1
+ */
+function pmp_document_md5($doc) {
+	return md5(
+		$doc['title'] .
+		$doc['contentencoded'] .
+		$doc['byline']
+	);
 }
