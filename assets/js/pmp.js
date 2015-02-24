@@ -298,6 +298,7 @@
                 if (!image)
                     image = (model.getFirstEnclosure())? model.getFirstEnclosure().href : null;
 
+                // HACK: get a MUCH smaller thumbnail for NPR images
                 if (model.getCreatorAlias() == 'NPR') {
                     if (image && image.match(/media\.npr\.org/)) {
                         image = image.replace(/\.jpg$/, '-s200-c85.jpg');
