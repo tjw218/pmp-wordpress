@@ -1,12 +1,12 @@
 <?php
 /**
  * Plugin Name: WordPress PMP
- * Plugin URI: TKTK
+ * Plugin URI: https://github.com/publicmediaplatform/pmp-wordpress
  * Description: Integrate PMP.io with WordPress
  * Author: Ryan Nagle (Investigative News Network)
  * Version: 0.1
  * Author URI: http://nerds.investigativenewsnetwork.org/
- * License: TKTK
+ * License: MIT
  */
 
 require __DIR__ . '/vendor/pmpsdk.phar';
