@@ -94,6 +94,7 @@ function pmp_document_md5($doc) {
 	return md5(
 		$doc['title'] .
 		$doc['contentencoded'] .
-		$doc['byline']
+		$doc['byline'],
+		$data['modified']
 	);
 }
