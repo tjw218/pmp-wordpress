@@ -95,6 +95,18 @@
             return ret;
         },
 
+        getBestThumbnail: function() {
+            var thumbnail = null,
+                sizes = ['small', 'thumb', 'standard', 'primary'];
+
+            for (var idx in sizes) {
+                thumbnail = this.getImageCrop(sizes[idx]);
+                if (thumbnail) { break; }
+            }
+
+            return thumbnail;
+        },
+
         getFirstEnclosure: function() {
             return (this.get('links').enclosure)? this.get('links').enclosure[0] : null;
         },
@@ -281,10 +293,16 @@
             template = _.template($('#pmp-search-result-tmpl').html());
 
             this.collection.each(function(model, idx) {
-                var image = (model.getImageCrop('square'))? model.getImageCrop('square').href : null;
+                var image = (model.getBestThumbnail())? model.getBestThumbnail().href : null;
 
                 if (!image)
                     image = (model.getFirstEnclosure())? model.getFirstEnclosure().href : null;
+
+                if (model.getCreatorAlias() == 'NPR') {
+                    if (image && image.match(/media\.npr\.org/)) {
+                        image = image.replace(/\.jpg$/, '-s200-c85.jpg');
+                    }
+                }
 
                 var tmpl_vars = _.extend(model.toJSON(), {
                         image: image,
