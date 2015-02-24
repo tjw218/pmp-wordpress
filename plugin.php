@@ -76,3 +76,23 @@ function pmp_plugin_menu() {
 
 }
 add_action('admin_menu', 'pmp_plugin_menu');
+
+/**
+ * On activation, set a time, frequency and name of an action hook to be scheduled.
+ *
+ * @since 0.1
+ */
+function pmp_setup_cron_on_activation() {
+	wp_schedule_event(time(), 'hourly', 'pmp_hourly_cron');
+}
+register_activation_hook(__FILE__, 'pmp_setup_cron_on_activation');
+
+/**
+ * On the scheduled action hook, run the function.
+ *
+ * @since 0.1
+ */
+function pmp_hourly_cron() {
+	pmp_get_updates();
+}
+add_action('pmp_hourly_cron', 'pmp_hourly_cron');

@@ -1,26 +1,6 @@
 <?php
 
 /**
- * On activation, set a time, frequency and name of an action hook to be scheduled.
- *
- * @since 0.1
- */
-function pmp_setup_cron_on_activation() {
-	wp_schedule_event(time(), 'hourly', 'pmp_hourly_cron');
-}
-register_activation_hook(PMP_PLUGIN_DIR . '/plugin.php', 'pmp_setup_cron_on_activation');
-
-/**
- * On the scheduled action hook, run the function.
- *
- * @since 0.1
- */
-function pmp_hourly_cron() {
-	pmp_get_updates();
-}
-add_action('prefix_hourly_event_hook', 'pmp_hourly_cron');
-
-/**
  * Query for posts with `pmp_guid` -- an indication that the post was pulled from PMP
  *
  * @since 0.1
@@ -37,7 +17,8 @@ function pmp_get_pmp_posts() {
 
 	$query = new WP_Query(array(
 		'meta_query' => $meta_query,
-		'posts_per_page' => -1
+		'posts_per_page' => -1,
+		'post_status' => 'any'
 	));
 
 	return $query->posts;
@@ -81,7 +62,7 @@ function pmp_needs_update($wp_post, $pmp_doc) {
  * @since 0.1
  */
 function pmp_update_post($wp_post, $pmp_doc) {
-	$data = $pmp_doc->attributes;
+	$data = (array) $pmp_doc->attributes;
 
 	$post_data = array(
 		'ID' => $wp_post->ID,

@@ -90,6 +90,7 @@ function pmp_media_sideload_image($file, $post_id, $desc=null) {
  * @since 0.1
  */
 function pmp_document_md5($doc) {
+	$doc = (array) $doc;
 	return md5(
 		$doc['title'] .
 		$doc['contentencoded'] .
