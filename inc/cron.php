@@ -37,11 +37,21 @@ function pmp_get_updates() {
 
 	foreach ($posts as $post) {
 		$custom_fields = get_post_custom($post->ID);
-		$subscribed = (in_array($custom_fields['pmp_subscribe_to_updates'], array('on', '')))? true : false;
+
+		if (empty($custom_fields['pmp_subscribe_to_updates']))
+			$subscribe_to_updates = 'on';
+		else
+			$custom_fields['pmp_subscribe_to_updates'][0];
+
+		if ($subscribe_to_updates == 'on')
+			$subscribed = true;
+		else
+			$subscribed = false;
+
 		if ($subscribed) {
-			$guid = $custom_fields['pmp_guid'];
+			$guid = $custom_fields['pmp_guid'][0];
 			$doc = $sdk->fetchDoc($guid);
-			if (pmp_needs_update($post, $doc))
+			if (!empty($doc) && pmp_needs_update($post, $doc))
 				pmp_update_post($post, $doc);
 		}
 	}
