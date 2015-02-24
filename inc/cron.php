@@ -36,10 +36,14 @@ function pmp_get_updates() {
 	$sdk = new SDKWrapper();
 
 	foreach ($posts as $post) {
-		$guid = get_post_meta($post->ID, 'pmp_guid', true);
-		$doc = $sdk->fetchDoc($guid);
-		if (pmp_needs_update($post, $doc))
-			pmp_update_post($post, $doc);
+		$custom_fields = get_post_custom($post->ID);
+		$subscribed = (in_array($custom_fields['pmp_subscribe_to_updates'], array('on', '')))? true : false;
+		if ($subscribed) {
+			$guid = $custom_fields['pmp_guid'];
+			$doc = $sdk->fetchDoc($guid);
+			if (pmp_needs_update($post, $doc))
+				pmp_update_post($post, $doc);
+		}
 	}
 }
 

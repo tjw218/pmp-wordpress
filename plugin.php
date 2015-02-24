@@ -28,7 +28,8 @@ function pmp_init() {
 		'inc/pages.php',
 		'inc/assets.php',
 		'inc/ajax.php',
-		'inc/cron.php'
+		'inc/cron.php',
+		'inc/meta-boxes.php'
 	);
 
 	foreach ($includes as $include)
@@ -76,6 +77,32 @@ function pmp_plugin_menu() {
 
 }
 add_action('admin_menu', 'pmp_plugin_menu');
+
+/**
+ * Add a meta box to the side column on the Post edit screen to allow users to subscribe
+ * to updates for PMP-sourced posts.
+ *
+ * @since 0.1
+ */
+function pmp_add_meta_boxes() {
+	$screen = get_current_screen();
+
+	if ($screen->id == 'post') {
+		global $post;
+
+		$pmp_guid = get_post_meta($post->ID, 'pmp_guid', true);
+
+		if (!empty($pmp_guid)) {
+			add_meta_box(
+				'pmp_subscribe_to_updates',
+				'PMP: Subscribe to updates',
+				'pmp_subscribe_to_updates_meta_box',
+				'post', 'side'
+			);
+		}
+	}
+}
+add_action('add_meta_boxes', 'pmp_add_meta_boxes');
 
 /**
  * On activation, set a time, frequency and name of an action hook to be scheduled.
