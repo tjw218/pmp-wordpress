@@ -79,10 +79,10 @@
 			<% } else if (image) { %><img class="pmp-image" src="<%= image %>" /><% } %>
 		</div>
 		<div class="pmp-result-actions">
-		  <ul>
-			<li><a class="pmp-draft-action" href="#">Create draft</a></li>
-			<li><a class="pmp-publish-action" href="#">Publish</a></li>
-		  </ul>
+			<ul>
+				<li><a class="pmp-draft-action" href="#">Create draft</a></li>
+				<li><a class="pmp-publish-action" href="#">Publish</a></li>
+			</ul>
 		</div>
 	</div>
 </script>
@@ -91,6 +91,7 @@
 	<div id="pmp-search-results-pagination">
 		<a href="#" class="disabled prev button button-primary">Previous</a>
 		<a href="#" class="disabled next button button-primary">Next</a>
+		<span class="spinner"></span>
 		<p class="pmp-page-count">Page <span class="pmp-page"></span> of <span class="pmp-total-pages"></span></p>
 	</div>
 </script>
@@ -101,6 +102,7 @@
 	</div>
 	<div class="pmp-modal-content"><% if (message) { %><%= message %><% } %></div>
 	<div class="pmp-modal-actions">
+		<span class="spinner"></span>
 		<% _.each(actions, function(v, k) { %>
 			<a href="#" class="<%= k %> button button-primary"><%= k %></a>
 		<% }); %>

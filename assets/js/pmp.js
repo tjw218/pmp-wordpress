@@ -209,7 +209,17 @@
     });
 
     // Views
-    var SearchForm = Backbone.View.extend({
+    var BaseView = Backbone.View.extend({
+        showSpinner: function() {
+            this.$el.find('.spinner').css('display', 'inline-block');
+        },
+
+        hideSpinner: function() {
+            this.$el.find('.spinner').css('display', 'none');
+        }
+    });
+
+    var SearchForm = BaseView.extend({
         el: '#pmp-search-form',
 
         events: {
@@ -260,14 +270,6 @@
             }
 
             return false;
-        },
-
-        showSpinner: function() {
-            this.$el.find('.spinner').css('display', 'inline-block');
-        },
-
-        hideSpinner: function() {
-            this.$el.find('.spinner').css('display', 'none');
         }
     });
 
@@ -335,13 +337,15 @@
         }
     });
 
-    var ResultsPagination = Backbone.View.extend({
+    var ResultsPagination = BaseView.extend({
         initialize: function(options) {
             this.collection = (typeof options.collection != 'undefined')? options.collection : null;
             this.collection.on('reset', this.render.bind(this));
         },
 
         render: function() {
+            this.hideSpinner();
+
             var attrs = this.collection.attributes;
 
             this.$el.html('');
@@ -381,6 +385,7 @@
 
             var query = this.collection.attributes.get('query');
             query.offset = this.collection.attributes.get('offset') + 1;
+            this.showSpinner();
             this.collection.search(query);
             return false;
         },
@@ -393,6 +398,7 @@
 
             var query = this.collection.attributes.get('query');
             query.offset = this.collection.attributes.get('offset') - 1;
+            this.showSpinner();
             this.collection.search(query);
             return false;
         },
@@ -416,7 +422,11 @@
                 args = {
                 message: 'Are you sure you want to create a draft of this story?',
                 actions: {
-                    'Yes': self.model.draft.bind(self.model),
+                    'Yes': function() {
+                        self.modal.showSpinner();
+                        self.model.draft();
+                        return false;
+                    },
                     'Cancel': 'close'
                 }
             };
@@ -431,7 +441,11 @@
                 args = {
                 message: 'Are you sure you want to publish this story?',
                 actions: {
-                    'Yes': self.model.publish.bind(self.model),
+                    'Yes': function() {
+                        self.modal.showSpinner();
+                        self.model.publish();
+                        return false;
+                    },
                     'Cancel': 'close'
                 }
             };
@@ -456,7 +470,7 @@
         }
     });
 
-    var Modal = Backbone.View.extend({
+    var Modal = BaseView.extend({
         id: 'pmp-modal',
 
         actions: {},

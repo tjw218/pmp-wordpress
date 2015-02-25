@@ -23,7 +23,8 @@ p.submit input {
   float: left;
 }
 
-p.submit .spinner {
+.pmp-modal-actions .spinner,
+#pmp-search-page .spinner {
   float: none;
   position: relative;
   top: 2px;
