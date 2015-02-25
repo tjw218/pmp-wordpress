@@ -73,6 +73,7 @@ function _pmp_create_post($draft=false) {
 	$post_data = array(
 		'post_title' => $data['title'],
 		'post_content' => $data['contentencoded'],
+		'post_excerpt' => $data['teaser'],
 		'post_author' => get_current_user_id(),
 		'post_status' => (!empty($draft))? 'draft' : 'publish'
 	);

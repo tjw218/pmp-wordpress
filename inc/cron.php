@@ -81,7 +81,8 @@ function pmp_update_post($wp_post, $pmp_doc) {
 	$post_data = array(
 		'ID' => $wp_post->ID,
 		'post_title' => $data['title'],
-		'post_content' => $data['contentencoded']
+		'post_content' => $data['contentencoded'],
+		'post_excerpt' => $data['teaser']
 	);
 
 	$updated_post = wp_update_post($post_data);
