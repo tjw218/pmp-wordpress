@@ -19,7 +19,13 @@ function pmp_search() {
 		'limit' => 10
 	), $_POST['query']);
 
-	$result = $sdk->query2json('queryDocs', $opts);
+
+	if (isset($opts['guid'])) {
+		$guid = $opts['guid'];
+		unset($opts['guid']);
+		$result = $sdk->query2json('fetchDoc', $guid, $opts);
+	} else
+		$result = $sdk->query2json('queryDocs', $opts);
 
 	if (!$result) {
 		header("HTTP/1.0 404 Not Found");

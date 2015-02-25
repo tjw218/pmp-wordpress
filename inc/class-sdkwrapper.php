@@ -57,9 +57,38 @@ class SDKWrapper {
 	public function query2json($method, $args) {
 		$result = $this->{$method}($args);
 
-		if (empty($result))
+		if (empty($result)) {
 			return $result;
-		else {
+		} else if (preg_match('/^fetch.*$/', $method)) {
+			// There should only be 1 result when using `fetch*` methods
+			$data = array(
+				"total" => 1,
+				"count" => 1,
+				"page" => 1,
+				"offset" => 0,
+				"total_pages" => 1
+			);
+
+			$item = (array) $result->attributes;
+			$links = (array) $result->links;
+			unset($links['auth']);
+			unset($links['query']);
+			$item['links'] = $links;
+
+			$items = $result->items();
+			if ($items) {
+				foreach ($items as $related_item) {
+					$related_links = (array) $related_item->links;
+
+					$item['items'][] = array_merge((array) $related_item->attributes, array(
+						'links' => $related_links,
+						'items' => (array) $related_item->items
+					));
+				}
+			}
+
+			$data['items'][] = $item;
+		} else {
 			$items = $result->items();
 			$data = array(
 				"total" => $result->items()->totalItems(),
