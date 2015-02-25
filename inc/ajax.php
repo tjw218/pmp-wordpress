@@ -107,15 +107,34 @@ function _pmp_create_post($draft=false) {
 
 		// If we were able to get an enclosure proceed with attaching it to the post
 		if (!empty($standard)) {
+			$img_attrs = $attachment['attributes'];
+
+			// Import the image
 			$new_image = pmp_media_sideload_image(
-				$standard['href'], $new_post, $standard['attributes']['description']);
+				$standard['href'], $new_post, $img_attrs['description']);
 
 			if (!is_wp_error($new_image)) {
+				// If import was successful, set basic attachment attributes
 				$image_update = array(
 					'ID' => $new_image,
-					'post_title' => $standard['attributes']['title']
+					'post_excerpt' => $img_attrs['description'], // caption
+					'post_title' => $img_attrs['title']
 				);
 				wp_update_post($image_update);
+
+				// Also set the alt text and various PMP-related attachment meta
+				$image_meta= array(
+					'_wp_attachment_image_alt' => $img_attrs['title'], // alt text
+					'pmp_guid' => $img_attrs['guid'],
+					'pmp_created' => $img_attrs['created'],
+					'pmp_modified' => $img_attrs['modified'],
+					'pmp_byline' => $img_attrs['byline'] // credit
+				);
+
+				foreach ($image_meta as $image_meta_key => $image_meta_value)
+					update_post_meta($new_image, $image_meta_key, $image_meta_value);
+
+				// Actually attach the image to the new post
 				update_post_meta($new_post, '_thumbnail_id', $new_image);
 			}
 		}
