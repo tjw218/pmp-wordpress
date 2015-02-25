@@ -61,8 +61,10 @@
 	<div class="pmp-search-result">
 		<h3 class="pmp-title"><%= title %></h3>
 		<div class="pmp-result-details">
-			<% if (typeof byline != 'undefined') { %><div class="pmp-byline">By <%= byline %></div><% } %>
-			<% if (typeof creator != 'undefined') { %><div class="pmp-creator"><%= creator %></div><% } %>
+			<div class="pmp-byline">
+				<% if (typeof byline != 'undefined' && byline != '') { %>By <%= byline %> | <% } %>
+				<span class="pmp-creator"><%= creator %></span>
+			</div>
 			<% if (typeof teaser != 'undefined') { %>
 				<div class="pmp-teaser">
 					<% if (image) { %><img class="pmp-image" src="<%= image %>" /><% } %>
