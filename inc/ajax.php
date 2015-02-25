@@ -125,7 +125,7 @@ function _pmp_create_post($draft=false) {
 		'pmp_guid' => $data['guid'],
 		'pmp_created' => $data['created'],
 		'pmp_modified' => $data['modified'],
-		'pmp_md5' => pmp_document_md5($data)
+		'pmp_byline' => $data['byline']
 	);
 
 	foreach ($post_meta as $key => $value)

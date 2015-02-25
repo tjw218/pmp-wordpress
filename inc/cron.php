@@ -64,8 +64,8 @@ function pmp_get_updates() {
  * @since 0.1
  */
 function pmp_needs_update($wp_post, $pmp_doc) {
-	$post_md5 = get_post_meta($wp_post->ID, 'pmp_md5', true);
-	if (pmp_document_md5($pmp_doc->attributes) !== $post_md5)
+	$post_modified = get_post_meta($wp_post->ID, 'pmp_modified', true);
+	if ($pmp_doc->attributes->modified !== $post_modified)
 		return true;
 	return false;
 }
@@ -94,7 +94,7 @@ function pmp_update_post($wp_post, $pmp_doc) {
 		'pmp_guid' => $data['guid'],
 		'pmp_created' => $data['created'],
 		'pmp_modified' => $data['modified'],
-		'pmp_md5' => pmp_document_md5($data)
+		'pmp_byline' => $data['byline']
 	);
 
 	foreach ($post_meta as $key => $value)
