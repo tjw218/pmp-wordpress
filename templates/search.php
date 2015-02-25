@@ -1,60 +1,66 @@
 <div id="pmp-search-page" class="wrap">
 	<h2>Search the Platform</h2>
 
-	<form id="pmp-search-form">
-		<input name="text" placeholder="Enter keywords" type="text"></input>
-		<span id="pmp-show-advanced"><a href="#">Show advanced options</a></span>
-		<div id="pmp-advanced-search">
-			<div class="left">
-				<!-- Creator search (editable dropdown w/ 5 partners) -->
-				<label for="profile">Content creator:</label>
-				<select name="creator">
-					<option value="">Any</option>
-					<?php foreach ($creators as $name => $guid) { ?>
-					<option value="<?php echo $guid; ?>"><?php echo $name; ?></option>
-					<?php } ?>
-				</select>
-
-				<!-- Profile search (static dropdown) -->
-				<label for="profile">Content profile:</label>
-				<select disabled name="profile">
-					<?php foreach ($profiles as $name => $value) { ?>
-					<option <?php if ($value == 'story') { ?>selected="selected"<?php } ?> value="<? echo $value; ?>"><? echo $name; ?></option>
-					<?php } ?>
-				</select>
-
-				<!-- Has search (e.g., has image) (static dropdown) -->
-				<div id="pmp-content-has-search">
-					<label for="has">Find content that contains:</label>
-					<select name="has">
-						<option value="">Any media</option>
-						<option value="image">Image</option>
-						<option value="audio">Audio</option>
-						<option value="video">Video</option>
+	<?php if (pmp_verify_settings()) { ?>
+		<form id="pmp-search-form">
+			<input name="text" placeholder="Enter keywords" type="text"></input>
+			<span id="pmp-show-advanced"><a href="#">Show advanced options</a></span>
+			<div id="pmp-advanced-search">
+				<div class="left">
+					<!-- Creator search (editable dropdown w/ 5 partners) -->
+					<label for="profile">Content creator:</label>
+					<select name="creator">
+						<option value="">Any</option>
+						<?php foreach ($creators as $name => $guid) { ?>
+						<option value="<?php echo $guid; ?>"><?php echo $name; ?></option>
+						<?php } ?>
 					</select>
+
+					<!-- Profile search (static dropdown) -->
+					<label for="profile">Content profile:</label>
+					<select disabled name="profile">
+						<?php foreach ($profiles as $name => $value) { ?>
+						<option <?php if ($value == 'story') { ?>selected="selected"<?php } ?> value="<? echo $value; ?>"><? echo $name; ?></option>
+						<?php } ?>
+					</select>
+
+					<!-- Has search (e.g., has image) (static dropdown) -->
+					<div id="pmp-content-has-search">
+						<label for="has">Find content that contains:</label>
+						<select name="has">
+							<option value="">Any media</option>
+							<option value="image">Image</option>
+							<option value="audio">Audio</option>
+							<option value="video">Video</option>
+						</select>
+					</div>
+				</div>
+				<div class="right">
+					<!-- Collection search (text-field) -->
+					<label for="collection">Search by collection GUID:</label>
+					<input type="text" name="collection" placeholder="Search by collection GUID"></input>
+
+					<!-- Tags search (text-field) -->
+					<label for="tag">Search by tag (comma separated list):</label>
+					<input type="text" name="tag" placeholder="Search by tag"></input>
+
+					<!-- GUID search -->
+					<label for="guid">Search by GUID:</label>
+					<input type="text" name="guid" placeholder="Search by GUID"></input>
 				</div>
 			</div>
-			<div class="right">
-				<!-- Collection search (text-field) -->
-				<label for="collection">Search by collection GUID:</label>
-				<input type="text" name="collection" placeholder="Search by collection GUID"></input>
+			<p class="submit">
+				<input type="submit" name="submit" id="submit" class="button button-primary" value="Search"></input>
+				<span class="spinner"></span>
+			</p>
+		</form>
 
-				<!-- Tags search (text-field) -->
-				<label for="tag">Search by tag (comma separated list):</label>
-				<input type="text" name="tag" placeholder="Search by tag"></input>
-
-				<!-- GUID search -->
-				<label for="guid">Search by GUID:</label>
-				<input type="text" name="guid" placeholder="Search by GUID"></input>
-			</div>
+		<div id="pmp-search-results"></div>
+	<?php } else { ?>
+		<div id="pmp-incomplete-settings-notice">
+			Please specify an <strong>API URL<strong>, <strong>Client ID</strong>, <strong>Client Secret</strong> via the <a href="<?php echo admin_url('admin.php?page=pmp-options-menu'); ?>">PMP settings page</a>.
 		</div>
-		<p class="submit">
-			<input type="submit" name="submit" id="submit" class="button button-primary" value="Search"></input>
-			<span class="spinner"></span>
-		</p>
-	</form>
-
-	<div id="pmp-search-results"></div>
+	<?php } ?>
 </div>
 
 <script type="text/template" id="pmp-search-result-tmpl">

@@ -81,3 +81,17 @@ function pmp_media_sideload_image($file, $post_id, $desc=null) {
 		return $id;
 	}
 }
+
+/**
+ * Verify that we have all settings required to successfully query the PMP API.
+ *
+ * @since 0.1
+ */
+function pmp_verify_settings() {
+	$options = get_option('pmp_settings');
+	return (
+		!empty($options['pmp_api_url']) &&
+		!empty($options['pmp_client_id']) &&
+		!empty($options['pmp_client_secret'])
+	);
+}
