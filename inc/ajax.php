@@ -19,7 +19,7 @@ function pmp_search() {
 		'limit' => 10
 	);
 
-	if (isset($_POST['query'])) {
+	if (isset($_POST['query']))
 		$opts = array_merge($opts, $_POST['query']);
 
 	if (isset($opts['guid'])) {
