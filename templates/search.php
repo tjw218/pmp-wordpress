@@ -20,8 +20,7 @@
 
 				<!-- Profile search (static dropdown) -->
 				<label for="profile">Content profile:</label>
-				<select name="profile">
-					<option value="">Any</option>
+				<select disabled name="profile">
 					<?php foreach ($profiles as $name => $value) { ?>
 					<option <?php if ($value == 'story') { ?>selected="selected"<?php } ?> value="<? echo $value; ?>"><? echo $name; ?></option>
 					<?php } ?>
