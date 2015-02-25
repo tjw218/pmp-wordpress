@@ -6,9 +6,6 @@
 		<span id="pmp-show-advanced"><a href="#">Show advanced options</a></span>
 		<div id="pmp-advanced-search">
 			<div class="left">
-				<!-- Collection search (text-field) -->
-				<?php /* <input type="text" name="collection" placeholder="Search by collection"></input> */ ?>
-
 				<!-- Creator search (editable dropdown w/ 5 partners) -->
 				<label for="profile">Content creator:</label>
 				<select name="creator">
@@ -38,6 +35,10 @@
 				</div>
 			</div>
 			<div class="right">
+				<!-- Collection search (text-field) -->
+				<label for="collection">Search by collection GUID:</label>
+				<input type="text" name="collection" placeholder="Search by collection GUID"></input>
+
 				<!-- Tags search (text-field) -->
 				<label for="tag">Search by tag (comma separated list):</label>
 				<input type="text" name="tag" placeholder="Search by tag"></input>

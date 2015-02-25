@@ -14,11 +14,13 @@ function pmp_search() {
 
 	$sdk = new SDKWrapper();
 
-	$opts = array_merge(array(
+	$opts = array(
 		'profile' => 'story',
 		'limit' => 10
-	), $_POST['query']);
+	);
 
+	if (isset($_POST['query'])) {
+		$opts = array_merge($opts, $_POST['query']);
 
 	if (isset($opts['guid'])) {
 		$guid = $opts['guid'];
