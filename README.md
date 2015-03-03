@@ -1,5 +1,7 @@
 # PMP WordPress
 
+[![Latest Release](https://img.shields.io/github/release/publicmediaplatform/pmp-wordpress.svg)](https://github.com/publicmediaplatform/pmp-wordpress/releases/latest)
+
 Integrate [Public Media Platform](http://publicmediaplatform.org/) with WordPress.
 
 ## Using the plugin
@@ -8,7 +10,7 @@ Integrate [Public Media Platform](http://publicmediaplatform.org/) with WordPres
 
 Follow the standard procedure for [installing WordPress plugins](http://codex.wordpress.org/Managing_Plugins#Manual_Plugin_Installation).
 
-You can download the most recent version of the plugin by [clicking here](https://github.com/publicmediaplatform/pmp-wordpress/archive/master.zip).
+You can download the most recent version of the plugin by [clicking here](https://github.com/publicmediaplatform/pmp-wordpress/releases/latest).
 
 Once the plugin files are installed, activate the plugin via the WordPress dashboard.
 
