@@ -95,3 +95,25 @@ function pmp_verify_settings() {
 		!empty($options['pmp_client_secret'])
 	);
 }
+
+/**
+ * Verify that a post's publish date is set according to data retrieved from the PMP API
+ * when a draft post transitions to published post.
+ *
+ * @since 0.2
+ */
+function pmp_on_post_status_transition($new_status, $old_status, $post) {
+	if ($old_status == 'draft' && $new_status == 'publish') {
+		$custom_fields = get_post_custom($post->ID);
+
+		if (!empty($custom_fields['pmp_guid'][0]) && !empty($custom_fields['pmp_published'][0])) {
+			$post_data = array(
+				'ID' => $post->ID,
+				'post_date' => date('Y-m-d H:i:s', strtotime($custom_fields['pmp_published'][0]))
+			);
+
+			$updated_post = wp_update_post($post_data);
+		}
+	}
+}
+add_action('transition_post_status',  'pmp_on_post_status_transition', 10, 3 );

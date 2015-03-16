@@ -75,7 +75,8 @@ function _pmp_create_post($draft=false) {
 		'post_content' => $data['contentencoded'],
 		'post_excerpt' => $data['teaser'],
 		'post_author' => get_current_user_id(),
-		'post_status' => (!empty($draft))? 'draft' : 'publish'
+		'post_status' => (!empty($draft))? 'draft' : 'publish',
+		'post_date' => date('Y-m-d H:i:s', strtotime($data['published']))
 	);
 
 	$new_post = wp_insert_post($post_data);
@@ -144,7 +145,8 @@ function _pmp_create_post($draft=false) {
 		'pmp_guid' => $data['guid'],
 		'pmp_created' => $data['created'],
 		'pmp_modified' => $data['modified'],
-		'pmp_byline' => $data['byline']
+		'pmp_byline' => $data['byline'],
+		'pmp_published' => $data['published']
 	);
 
 	foreach ($post_meta as $key => $value)

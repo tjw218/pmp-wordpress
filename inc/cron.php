@@ -82,7 +82,8 @@ function pmp_update_post($wp_post, $pmp_doc) {
 		'ID' => $wp_post->ID,
 		'post_title' => $data['title'],
 		'post_content' => $data['contentencoded'],
-		'post_excerpt' => $data['teaser']
+		'post_excerpt' => $data['teaser'],
+		'post_date' => date('Y-m-d H:i:s', strtotime($data['published']))
 	);
 
 	$updated_post = wp_update_post($post_data);
@@ -94,7 +95,8 @@ function pmp_update_post($wp_post, $pmp_doc) {
 		'pmp_guid' => $data['guid'],
 		'pmp_created' => $data['created'],
 		'pmp_modified' => $data['modified'],
-		'pmp_byline' => $data['byline']
+		'pmp_byline' => $data['byline'],
+		'pmp_published' => $data['published']
 	);
 
 	foreach ($post_meta as $key => $value)
