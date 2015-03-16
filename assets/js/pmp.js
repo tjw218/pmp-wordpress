@@ -26,10 +26,12 @@
             if (links) {
                 var profile = links.profile;
 
-                if (typeof profile[0] !== 'undefined')
-                    return profile[0];
-                else
-                    return null;
+                if (typeof profile !== 'undefined') {
+                    if (typeof profile[0] !== 'undefined')
+                        return profile[0];
+                    else
+                        return null;
+                }
             }
             return null;
         },
