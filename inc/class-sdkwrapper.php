@@ -94,7 +94,7 @@ class SDKWrapper {
 				"total" => $result->items()->totalItems(),
 				"count" => $result->items()->count(),
 				"page" => $result->items()->pageNum(),
-				"offset" => $result->items()->pageNum() - 1,
+				"offset" => ($result->items()->pageNum() - 1) * $result->items()->count(),
 				"total_pages" => $result->items()->totalPages()
 			);
 

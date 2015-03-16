@@ -235,6 +235,7 @@
             this.docs = new DocCollection();
             this.results = new ResultsList({ collection: this.docs });
             this.docs.on('reset', this.hideSpinner.bind(this));
+            this.docs.on('error', this.hideSpinner.bind(this));
         },
 
         submit: function() {
@@ -280,11 +281,18 @@
 
         initialize: function(options) {
             this.collection = (typeof options.collection != 'undefined')? options.collection : new DocCollection();
-            this.collection.attributes.on('change', this.render.bind(this));
+
+            this.collection.attributes.on('change', this.renderPagingation.bind(this));
+            this.collection.on('reset', this.render.bind(this));
+
             this.collection.on('error', this.renderError.bind(this));
         },
 
         renderError: function(response) {
+            if (this.pagination) {
+                this.pagination.remove();
+                delete(this.pagination);
+            }
             this.$el.html('');
             this.$el.append('<p class="error">' + response.responseJSON.message + '</p>');
         },
@@ -292,6 +300,7 @@
         render: function() {
             var self = this;
 
+            this.$el.find('p.error').remove();
             this.$el.find('.pmp-search-result').remove();
 
             template = _.template($('#pmp-search-result-tmpl').html());
@@ -322,8 +331,6 @@
 
                 self.$el.append(res);
             });
-
-            this.renderPagingation();
 
             return this;
         },
@@ -386,7 +393,9 @@
                 return false;
 
             var query = this.collection.attributes.get('query');
-            query.offset = this.collection.attributes.get('offset') + 1;
+
+            query.offset = this.collection.attributes.get('offset') + this.collection.attributes.get('count');
+
             this.showSpinner();
             this.collection.search(query);
             return false;
@@ -399,7 +408,9 @@
                 return false;
 
             var query = this.collection.attributes.get('query');
-            query.offset = this.collection.attributes.get('offset') - 1;
+
+            query.offset = this.collection.attributes.get('offset') - this.collection.attributes.get('count');
+
             this.showSpinner();
             this.collection.search(query);
             return false;
