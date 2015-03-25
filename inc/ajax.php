@@ -68,7 +68,7 @@ function pmp_publish_post() {
 add_action('wp_ajax_pmp_publish_post', 'pmp_publish_post');
 
 function _pmp_create_post($draft=false) {
-	$data = $_POST['post_data'];
+	$data = json_decode(stripslashes($_POST['post_data']), true);
 
 	$post_data = array(
 		'post_title' => $data['title'],

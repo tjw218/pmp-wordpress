@@ -137,10 +137,11 @@
                 data = {
                     action: action,
                     security: AJAX_NONCE,
-                    post_data: this.toJSON()
                 };
 
-            data.post_data.attachment = (this.getImage())? this.getImage().toJSON() : null;
+            var post_data = this.toJSON();
+            post_data.attachment = (this.getImage())? this.getImage().toJSON() : null;
+            data.post_data = JSON.stringify(post_data);
 
             var opts = {
                 url: ajaxurl,
