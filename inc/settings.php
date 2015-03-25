@@ -47,9 +47,12 @@ function pmp_client_id_input() {
  */
 function pmp_client_secret_input() {
 	$options = get_option('pmp_settings');
-	?>
-		<input id="pmp_client_secret" name="pmp_settings[pmp_client_secret]" type="text" value="<?php echo $options['pmp_client_secret']; ?>" />
-	<?php
+
+	if (empty($options['pmp_client_secret'])) { ?>
+		<input id="pmp_client_secret" name="pmp_settings[pmp_client_secret]" type="password" value="" />
+	<?php } else { ?>
+		<a href="#" id="pmp_client_secret_reset">Change client secret</a>
+	<?php }
 }
 
 /**
@@ -58,10 +61,16 @@ function pmp_client_secret_input() {
  * @since 0.1
  */
 function pmp_settings_validate($input) {
+	$options = get_option('pmp_settings');
+
+	if (empty($input['pmp_client_secret']) && !empty($options['pmp_client_secret']))
+		$input['pmp_client_secret'] = $options['pmp_client_secret'];
+
 	if (!empty($input['pmp_api_url']) && filter_var($input['pmp_api_url'], FILTER_VALIDATE_URL) == false) {
 		add_settings_error('pmp_settings_fields', 'pmp_api_url_error', 'Please enter a valid PMP API URL.', 'error');
 		$input['pmp_api_url'] = '';
 	} else
 		add_settings_error('pmp_settings_fields', 'pmp_settings_updated', 'PMP settings successfully updated!', 'updated');
+
 	return $input;
 }
