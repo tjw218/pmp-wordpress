@@ -106,6 +106,11 @@
                 if (thumbnail) { break; }
             }
 
+            if (!thumbnail && this.getImage()) {
+                var fallback = this.getImage();
+                thumbnail = fallback.get('links').enclosure[0];
+            }
+
             return thumbnail;
         },
 
