@@ -180,7 +180,7 @@
                 data = {
                     action: 'pmp_search',
                     security: AJAX_NONCE,
-                    query: query
+                    query: JSON.stringify(query)
                 };
 
             var opts = {

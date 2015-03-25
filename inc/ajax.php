@@ -11,16 +11,16 @@ function pmp_search() {
 	check_ajax_referer('pmp_ajax_nonce', 'security');
 
 	$settings = get_option('pmp_settings');
-
 	$sdk = new SDKWrapper();
-
 	$opts = array(
 		'profile' => 'story',
 		'limit' => 10
 	);
 
-	if (isset($_POST['query']))
-		$opts = array_merge($opts, $_POST['query']);
+	if (isset($_POST['query'])) {
+		$query = json_decode(stripslashes($_POST['query']), true);
+		$opts = array_merge($opts, $query);
+	}
 
 	if (isset($opts['guid'])) {
 		$guid = $opts['guid'];
