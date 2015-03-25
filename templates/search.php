@@ -20,7 +20,7 @@
 					<label for="profile">Content profile:</label>
 					<select disabled name="profile">
 						<?php foreach ($profiles as $name => $value) { ?>
-						<option <?php if ($value == 'story') { ?>selected="selected"<?php } ?> value="<? echo $value; ?>"><? echo $name; ?></option>
+						<option <?php if ($value == 'story') { ?>selected="selected"<?php } ?> value="<?php echo $value; ?>"><?php echo $name; ?></option>
 						<?php } ?>
 					</select>
 
