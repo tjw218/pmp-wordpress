@@ -49,11 +49,21 @@ class TestFunctions extends WP_UnitTestCase {
 	}
 
 	function test_pmp_media_sideload_image() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		$new_post = $this->factory->post->create();
+		$url = 'http://publicmediaplatform.org/wp-content/uploads/logo1.png';
+		$desc = 'Test description';
+
+		$image_id = pmp_media_sideload_image($url, $new_post, $desc);
+		$this->assertTrue(!is_wp_error($image_id));
+
+		$attachment = get_post($image_id);
+		$this->assertEquals($desc, $attachment->post_title);
 	}
 
 	function test_pmp_verify_settings() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		// Since we're setting the pmp_settings in bootstrap.php, this
+		// should return true
+		$this->assertTrue(pmp_verify_settings());
 	}
 
 	function test_pmp_on_post_status_transition() {
