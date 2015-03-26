@@ -1,11 +1,25 @@
 <?php
 
 class TestPages extends WP_UnitTestCase {
+	function setUp() {
+		$user = wp_get_current_user();
+		$user->set_role('administrator');
+	}
+
 	function test_pmp_options_page() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		// TODO: This test could be better if it checked for the presence of the settings form
+		// element and verified the inputs that should be there, are.
+		$expect = '/<h2>PMP Settings<\/h2>/';
+		$this->expectOutputRegex($expect);
+		pmp_options_page();
 	}
 
 	function test_pmp_search_page() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		// TODO: This could stand to verify that more of the necessary bits are
+		// printed to the page. For example, the search form, the javascript templates,
+		// the necessary javascript globals, etc.
+		$expect = '/<h2>Search the Platform<\/h2>/';
+		$this->expectOutputRegex($expect);
+		pmp_search_page();
 	}
 }
