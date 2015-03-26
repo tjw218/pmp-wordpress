@@ -3,6 +3,8 @@ language: php
 php:
     - "5.3"
 
+sudo: false
+
 env:
     - WP_VERSION=4.1.1 WP_TESTS_DIR=/tmp/wordpress/tests/phpunit WP_CORE_DIR=/tmp/wordpress
 
