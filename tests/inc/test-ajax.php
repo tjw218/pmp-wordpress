@@ -15,6 +15,8 @@ class TestAjax extends WP_Ajax_UnitTestCase {
 			'limit' => 10,
 			'profile' => 'story'
 		);
+
+		parent::setUp();
 	}
 
 	function test_pmp_search() {
@@ -30,7 +32,7 @@ class TestAjax extends WP_Ajax_UnitTestCase {
 		try {
 			$this->_handleAjax("pmp_search");
 		} catch (WPAjaxDieContinueException $e) {
-			$result = json_decode($this->_last_response);
+			$result = json_decode($this->_last_response, true);
 			$this->assertTrue($result['success']);
 		}
 	}

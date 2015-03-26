@@ -2,8 +2,12 @@
 
 class TestPages extends WP_UnitTestCase {
 	function setUp() {
-		$user = wp_get_current_user();
+		parent::setUp();
+
+		$this->admin = $this->factory->user->create();
+		$user = get_user_by('id', $this->admin);
 		$user->set_role('administrator');
+		wp_set_current_user($user->ID);
 	}
 
 	function test_pmp_options_page() {

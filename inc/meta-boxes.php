@@ -22,7 +22,7 @@ function pmp_subscribe_to_updates_meta_box($post) {
  *
  * @since 0.1
  */
-function pmp_subscriber_to_update_meta_box_save($post_id) {
+function pmp_subscribe_to_update_meta_box_save($post_id) {
 	if (!isset($_POST['pmp_subscribe_to_updates_meta_box_nonce']))
 		return;
 
@@ -42,4 +42,4 @@ function pmp_subscriber_to_update_meta_box_save($post_id) {
 
 	update_post_meta($post_id, 'pmp_subscribe_to_updates', $pmp_subscribe_to_updates);
 }
-add_action('save_post', 'pmp_subscriber_to_update_meta_box_save');
+add_action('save_post', 'pmp_subscribe_to_update_meta_box_save');
