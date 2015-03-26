@@ -12,7 +12,7 @@ function pmp_render_template($template, $context=false) {
 	if (!empty($context))
 		extract($context);
 
-	include_once PMP_TEMPLATE_DIR . '/' . $template;
+	include PMP_TEMPLATE_DIR . '/' . $template;
 }
 
 /**
