@@ -24,7 +24,8 @@ class TestAjax extends WP_Ajax_UnitTestCase {
 			return;
 		}
 
-		$_POST['query'] = $this->query;
+		$_POST['query'] = json_encode($this->query);
+		$_POST['security'] = wp_create_nonce('pmp_ajax_nonce');
 
 		try {
 			$this->_handleAjax("pmp_search");

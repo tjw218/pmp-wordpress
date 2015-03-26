@@ -10,7 +10,6 @@ include_once __DIR__ . '/class-sdkwrapper.php';
 function pmp_search() {
 	check_ajax_referer('pmp_ajax_nonce', 'security');
 
-	$settings = get_option('pmp_settings');
 	$sdk = new SDKWrapper();
 	$opts = array(
 		'profile' => 'story',

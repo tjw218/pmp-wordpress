@@ -6,6 +6,13 @@ require_once $wp_tests_dir . '/includes/functions.php';
 function _manually_load_environment() {
 	$plugins_to_active = array(basename(dirname(__DIR__)) . "/plugin.php");
 	update_option('active_plugins', $plugins_to_active);
+
+	$pmp_creds = array(
+		'pmp_api_url' => getenv('PMP_API_URL'),
+		'pmp_client_id' => getenv('PMP_CLIENT_ID'),
+		'pmp_client_secret' => getenv('PMP_CLIENT_SECRET')
+	);
+	update_option('pmp_settings', $pmp_creds);
 }
 tests_add_filter('muplugins_loaded', '_manually_load_environment');
 
