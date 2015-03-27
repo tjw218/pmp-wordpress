@@ -67,6 +67,37 @@ class TestFunctions extends WP_UnitTestCase {
 	}
 
 	function test_pmp_on_post_status_transition() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		$sdk_wrapper = new SDKWrapper();
+
+		// A test query that's all but guaranteed to return at least one result.
+		$query = array(
+			'text' => 'Obama',
+			'limit' => 10,
+			'profile' => 'story'
+		);
+
+		$editor = $this->factory->user->create();
+		$user = get_user_by('id', $editor);
+		$user->set_role('editor');
+		wp_set_current_user($user->ID);
+
+		$result = $sdk_wrapper->query2json('queryDocs', $query);
+		$pmp_story = $result['items'][0];
+		$_POST['post_data'] = addslashes(json_encode($pmp_story));
+
+		// Create the story as a draft
+		$ret = _pmp_create_post(true);
+
+		$pmp_posts = pmp_get_pmp_posts();
+		$pmp_post = $pmp_posts[0];
+		$custom_fields = get_post_custom($pmp_post->ID);
+		$date = date('Y-m-d H:i:s', strtotime($custom_fields['pmp_published'][0]));
+
+		// Transition to published
+		wp_publish_post($pmp_post->ID);
+		$pmp_post_after_transition = get_post($pmp_post->ID);
+
+		// The date should be the same as the original PMP published date, not the current date/time.
+		$this->assertEquals($pmp_post_after_transition->post_date, $date);
 	}
 }
