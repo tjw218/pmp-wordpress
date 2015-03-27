@@ -51,7 +51,7 @@ add_action('wp_ajax_pmp_search', 'pmp_search');
  */
 function pmp_draft_post() {
 	check_ajax_referer('pmp_ajax_nonce', 'security');
-	_pmp_create_post(true);
+	_pmp_ajax_create_post(true);
 }
 add_action('wp_ajax_pmp_draft_post', 'pmp_draft_post');
 
@@ -62,11 +62,19 @@ add_action('wp_ajax_pmp_draft_post', 'pmp_draft_post');
  */
 function pmp_publish_post() {
 	check_ajax_referer('pmp_ajax_nonce', 'security');
-	_pmp_create_post();
+	_pmp_ajax_create_post();
 }
 add_action('wp_ajax_pmp_publish_post', 'pmp_publish_post');
 
+function _pmp_ajax_create_post($draft=false) {
+	print json_encode(_pmp_create_post($draft));
+	wp_die();
+}
+
 function _pmp_create_post($draft=false) {
+	if (!current_user_can('edit_posts'))
+		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+
 	$data = json_decode(stripslashes($_POST['post_data']), true);
 
 	$post_data = array(
@@ -81,11 +89,10 @@ function _pmp_create_post($draft=false) {
 	$new_post = wp_insert_post($post_data);
 
 	if (is_wp_error($new_post)) {
-		print json_encode(array(
+		return array(
 			"success" => false,
 			"message" => $new_post->get_error_message()
-		));
-		wp_die();
+		);
 	}
 
 	if (!empty($data['attachment'])) {
@@ -151,11 +158,10 @@ function _pmp_create_post($draft=false) {
 	foreach ($post_meta as $key => $value)
 		update_post_meta($new_post, $key, $value);
 
-	print json_encode(array(
+	return array(
 		"success" => true,
 		"data" => array(
 			"edit_url" => html_entity_decode(get_edit_post_link($new_post))
 		)
-	));
-	wp_die();
+	);
 }

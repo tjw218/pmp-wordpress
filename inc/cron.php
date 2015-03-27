@@ -50,9 +50,12 @@ function pmp_get_updates() {
 
 		if ($subscribed) {
 			$guid = $custom_fields['pmp_guid'][0];
-			$doc = $sdk->fetchDoc($guid);
-			if (!empty($doc) && pmp_needs_update($post, $doc))
-				pmp_update_post($post, $doc);
+			$results = $sdk->query2json('fetchDoc', $guid);
+			if (count($results['items']) > 0) {
+				$doc = $results['items'][0];
+				if (pmp_needs_update($post, $doc))
+					pmp_update_post($post, $doc);
+			}
 		}
 	}
 }
@@ -65,7 +68,7 @@ function pmp_get_updates() {
  */
 function pmp_needs_update($wp_post, $pmp_doc) {
 	$post_modified = get_post_meta($wp_post->ID, 'pmp_modified', true);
-	if ($pmp_doc->attributes->modified !== $post_modified)
+	if ($pmp_doc['modified'] !== $post_modified)
 		return true;
 	return false;
 }
@@ -76,7 +79,7 @@ function pmp_needs_update($wp_post, $pmp_doc) {
  * @since 0.1
  */
 function pmp_update_post($wp_post, $pmp_doc) {
-	$data = (array) $pmp_doc->attributes;
+	$data = $pmp_doc;
 
 	$post_data = array(
 		'ID' => $wp_post->ID,

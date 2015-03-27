@@ -2,6 +2,8 @@
 
 class TestAjax extends WP_Ajax_UnitTestCase {
 	function setUp() {
+		parent::setUp();
+
 		$settings = get_option('pmp_settings');
 
 		if (empty($settings['pmp_api_url']) || empty($settings['pmp_client_id']) || empty($settings['pmp_client_secret']))
@@ -9,16 +11,19 @@ class TestAjax extends WP_Ajax_UnitTestCase {
 		else {
 			$this->skip = false;
 			$this->sdk_wrapper = new SDKWrapper();
+
+			// A test query that's all but guaranteed to return at least one result.
+			$this->query = array(
+				'text' => 'Obama',
+				'limit' => 10,
+				'profile' => 'story'
+			);
+
+			$this->editor = $this->factory->user->create();
+			$user = get_user_by('id', $this->editor);
+			$user->set_role('editor');
+			wp_set_current_user($user->ID);
 		}
-
-		// A test query that's all but guaranteed to return at least one result.
-		$this->query = array(
-			'text' => 'Obama',
-			'limit' => 10,
-			'profile' => 'story'
-		);
-
-		parent::setUp();
 	}
 
 	function test_pmp_search() {
@@ -28,7 +33,7 @@ class TestAjax extends WP_Ajax_UnitTestCase {
 			return;
 		}
 
-		$_POST['query'] = json_encode($this->query);
+		$_POST['query'] = addslashes(json_encode($this->query));
 		$_POST['security'] = wp_create_nonce('pmp_ajax_nonce');
 
 		try {
@@ -49,7 +54,7 @@ class TestAjax extends WP_Ajax_UnitTestCase {
 		$result = $this->sdk_wrapper->query2json('queryDocs', $this->query);
 		$pmp_story = $result['items'][0];
 
-		$_POST['post_data'] = json_encode($pmp_story);
+		$_POST['post_data'] = addslashes(json_encode($pmp_story));
 		$_POST['security'] = wp_create_nonce('pmp_ajax_nonce');
 
 		try {
@@ -70,7 +75,7 @@ class TestAjax extends WP_Ajax_UnitTestCase {
 		$result = $this->sdk_wrapper->query2json('queryDocs', $this->query);
 		$pmp_story = $result['items'][0];
 
-		$_POST['post_data'] = json_encode($pmp_story);
+		$_POST['post_data'] = addslashes(json_encode($pmp_story));
 		$_POST['security'] = wp_create_nonce('pmp_ajax_nonce');
 
 		try {
@@ -79,6 +84,11 @@ class TestAjax extends WP_Ajax_UnitTestCase {
 			$result = json_decode($this->_last_response, true);
 			$this->assertTrue($result['success']);
 		}
+	}
+
+	function test__pmp_ajax_create_post() {
+		$this->markTestSkipped(
+			'Functional test of `_pmp_ajax_create_post` performed by `test_pmp_draft_post` and `test_pmp_publish_post`');
 	}
 
 	function test__pmp_create_post() {
