@@ -26,3 +26,27 @@ function pmp_search_page() {
 		'profiles' => pmp_get_profiles()
 	));
 }
+
+/**
+ * Render the plugin's groups and permissions page
+ *
+ * @since 0.2
+ */
+function pmp_groups_page() {
+	if (!current_user_can('manage_options'))
+		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+
+	$sdk = new SDKWrapper();
+	$result = $sdk->queryDocs(array(
+		'profile' => 'group',
+		'writeable' => true,
+		'limit' => 20
+	));
+
+	error_log($result->items()->totalItems());
+	error_log($result->items()->count());
+	error_log($result->items()->pageNum());
+
+	$context = array('groups' => $result->items());
+	pmp_render_template('groups.php', $context);
+}

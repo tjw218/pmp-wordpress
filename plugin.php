@@ -65,6 +65,13 @@ function pmp_plugin_menu() {
 			'capability' => 'manage_options',
 			'menu_slug' => 'pmp-options-menu',
 			'function' => 'pmp_options_page'
+		),
+		array(
+			'page_title' => 'Groups &amp; Permissions',
+			'menu_title' => 'Groups &amp; Permissions',
+			'capability' => 'manage_options',
+			'menu_slug' => 'pmp-groups-menu',
+			'function' => 'pmp_groups_page'
 		)
 	);
 
