@@ -43,10 +43,6 @@ function pmp_groups_page() {
 		'limit' => 20
 	));
 
-	error_log($result->items()->totalItems());
-	error_log($result->items()->count());
-	error_log($result->items()->pageNum());
-
 	$context = array('groups' => $result->items());
 	pmp_render_template('groups.php', $context);
 }
