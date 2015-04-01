@@ -117,3 +117,13 @@ function pmp_on_post_status_transition($new_status, $old_status, $post) {
 	}
 }
 add_action('transition_post_status',  'pmp_on_post_status_transition', 10, 3 );
+
+if (!function_exists('var_log')) {
+	/**
+	 * Log anything in a human-friendly format.
+	 *
+	 * @param mixed $stuff the data structure to send to the error log.
+	 * @since 0.2
+	 */
+	function var_log($stuff) { error_log(var_export($stuff, true)); }
+}

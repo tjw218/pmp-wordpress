@@ -6,14 +6,23 @@
  * @since 0.1
  */
 function pmp_enqueue_assets() {
+	wp_register_script('pmp-common', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-common.js',
+		array('jquery', 'underscore', 'backbone'), PMP_VERSION, true);
+
 	if (isset($_GET['page'])) {
 		$page = $_GET['page'];
 
 		if ($page == 'pmp-search') {
 			wp_enqueue_style('pmp-search', PMP_PLUGIN_DIR_URI . '/assets/css/style.css');
 			wp_enqueue_script(
-				'pmp-search', PMP_PLUGIN_DIR_URI . '/assets/js/pmp.js',
-				array('jquery', 'underscore', 'backbone'), PMP_VERSION, true);
+				'pmp-search', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-search.js',
+				array('pmp-common'), PMP_VERSION, true);
+		}
+
+		if ($page == 'pmp-groups-menu') {
+			wp_enqueue_script(
+				'pmp-groups-menu', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-groups-menu.js',
+				array('pmp-common'), PMP_VERSION, true);
 		}
 
 		if ($page == 'pmp-options-menu') {
