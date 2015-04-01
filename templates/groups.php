@@ -17,7 +17,13 @@
 <?php pmp_modal_underscore_template(); ?>
 
 <script type="text/template" id="pmp-create-new-group-form-tmpl">
-	<form>
+	<h2>Create a group</h2>
+	<form id="pmp-group-create-form">
+		<label>Title</label>
+		<input type="text" name="title" id="title" placeholder="Group title">
+
+		<label>Tags</label>
+		<input type="text" name="tags" id="tags" placeholder="Group tags">
 	</form>
 </script>
 

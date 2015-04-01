@@ -69,21 +69,27 @@ class SDKWrapper {
 				"total_pages" => 1
 			);
 
-			$item = (array) $result->attributes;
 			$links = (array) $result->links;
 			unset($links['auth']);
 			unset($links['query']);
-			$item['links'] = $links;
+
+			$item = array(
+				'attributes' => (array) $result->attributes,
+				'links' => $links
+			);
 
 			$items = $result->items();
 			if ($items) {
 				foreach ($items as $related_item) {
 					$related_links = (array) $related_item->links;
+					unset($related_links['auth']);
+					unset($related_links['query']);
 
-					$item['items'][] = array_merge((array) $related_item->attributes, array(
+					$item['items'][] = array(
 						'links' => $related_links,
-						'items' => (array) $related_item->items
-					));
+						'items' => (array) $related_item->items,
+						'attributes' => (array) $related_item->attributes
+					);
 				}
 			}
 
@@ -105,10 +111,11 @@ class SDKWrapper {
 					unset($links['auth']);
 					unset($links['query']);
 
-					$data['items'][] = array_merge((array) $item->attributes, array(
+					$data['items'][] = array(
 						'links' => $links,
-						'items' => (array) $item->items
-					));
+						'items' => (array) $item->items,
+						'attributes' => (array) $item->attributes
+					);
 				}
 			}
 		}

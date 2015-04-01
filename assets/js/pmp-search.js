@@ -88,7 +88,7 @@
             this.$el.find('p.error').remove();
             this.$el.find('.pmp-search-result').remove();
 
-            template = _.template($('#pmp-search-result-tmpl').html());
+            var template = _.template($('#pmp-search-result-tmpl').html());
 
             this.collection.each(function(model, idx) {
                 var image = (model.getBestThumbnail())? model.getBestThumbnail().href : null;
@@ -103,7 +103,7 @@
                     }
                 }
 
-                var tmpl_vars = _.extend(model.toJSON(), {
+                var tmpl_vars = _.extend(model.toJSON().attributes, {
                         image: image,
                         creator: model.getCreatorAlias()
                     }),
@@ -218,16 +218,16 @@
         draft: function() {
             var self = this,
                 args = {
-                content: 'Are you sure you want to create a draft of this story?',
-                actions: {
-                    'Yes': function() {
-                        self.modal.showSpinner();
-                        self.model.draft();
-                        return false;
-                    },
-                    'Cancel': 'close'
-                }
-            };
+                    content: 'Are you sure you want to create a draft of this story?',
+                    actions: {
+                        'Yes': function() {
+                            self.modal.showSpinner();
+                            self.model.draft();
+                            return false;
+                        },
+                        'Cancel': 'close'
+                    }
+                };
 
             this.renderModal(args);
 
@@ -237,16 +237,16 @@
         publish: function() {
             var self = this,
                 args = {
-                content: 'Are you sure you want to publish this story?',
-                actions: {
-                    'Yes': function() {
-                        self.modal.showSpinner();
-                        self.model.publish();
-                        return false;
-                    },
-                    'Cancel': 'close'
-                }
-            };
+                    content: 'Are you sure you want to publish this story?',
+                    actions: {
+                        'Yes': function() {
+                            self.modal.showSpinner();
+                            self.model.publish();
+                            return false;
+                        },
+                        'Cancel': 'close'
+                    }
+                };
 
             this.renderModal(args);
 

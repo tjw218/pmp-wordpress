@@ -208,3 +208,23 @@ body.pmp-modal-open #pmp-modal,
 body.pmp-modal-open #pmp-modal-overlay {
   display: block;
 }
+
+/* Groups & permissions page */
+#pmp-groups-actions,
+#pmp-groups {
+  float: left;
+  clear: both;
+}
+.pmp-create-group-modal .pmp-modal-content {
+  text-align: left;
+}
+.pmp-create-group-modal h2 {
+  margin: 0 0 20px 0;
+}
+.pmp-create-group-modal form label {
+  margin: 10px 0;
+  display: block;
+}
+.pmp-create-group-modal form input {
+  width: 100%;
+}

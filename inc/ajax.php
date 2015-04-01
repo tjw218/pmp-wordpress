@@ -78,12 +78,12 @@ function _pmp_create_post($draft=false) {
 	$data = json_decode(stripslashes($_POST['post_data']), true);
 
 	$post_data = array(
-		'post_title' => $data['title'],
-		'post_content' => $data['contentencoded'],
-		'post_excerpt' => $data['teaser'],
+		'post_title' => $data['attributes']['title'],
+		'post_content' => $data['attributes']['contentencoded'],
+		'post_excerpt' => $data['attributes']['teaser'],
 		'post_author' => get_current_user_id(),
 		'post_status' => (!empty($draft))? 'draft' : 'publish',
-		'post_date' => date('Y-m-d H:i:s', strtotime($data['published']))
+		'post_date' => date('Y-m-d H:i:s', strtotime($data['attributes']['published']))
 	);
 
 	$new_post = wp_insert_post($post_data);
@@ -148,11 +148,11 @@ function _pmp_create_post($draft=false) {
 	}
 
 	$post_meta = array(
-		'pmp_guid' => $data['guid'],
-		'pmp_created' => $data['created'],
-		'pmp_modified' => $data['modified'],
-		'pmp_byline' => $data['byline'],
-		'pmp_published' => $data['published']
+		'pmp_guid' => $data['attributes']['guid'],
+		'pmp_created' => $data['attributes']['created'],
+		'pmp_modified' => $data['attributes']['modified'],
+		'pmp_byline' => $data['attributes']['byline'],
+		'pmp_published' => $data['attributes']['published']
 	);
 
 	foreach ($post_meta as $key => $value)

@@ -68,7 +68,7 @@ function pmp_get_updates() {
  */
 function pmp_needs_update($wp_post, $pmp_doc) {
 	$post_modified = get_post_meta($wp_post->ID, 'pmp_modified', true);
-	if ($pmp_doc['modified'] !== $post_modified)
+	if ($pmp_doc['attributes']['modified'] !== $post_modified)
 		return true;
 	return false;
 }
@@ -83,10 +83,10 @@ function pmp_update_post($wp_post, $pmp_doc) {
 
 	$post_data = array(
 		'ID' => $wp_post->ID,
-		'post_title' => $data['title'],
-		'post_content' => $data['contentencoded'],
-		'post_excerpt' => $data['teaser'],
-		'post_date' => date('Y-m-d H:i:s', strtotime($data['published']))
+		'post_title' => $data['attributes']['title'],
+		'post_content' => $data['attributes']['contentencoded'],
+		'post_excerpt' => $data['attributes']['teaser'],
+		'post_date' => date('Y-m-d H:i:s', strtotime($data['attributes']['published']))
 	);
 
 	$updated_post = wp_update_post($post_data);
@@ -95,11 +95,11 @@ function pmp_update_post($wp_post, $pmp_doc) {
 		return $updated_post;
 
 	$post_meta = array(
-		'pmp_guid' => $data['guid'],
-		'pmp_created' => $data['created'],
-		'pmp_modified' => $data['modified'],
-		'pmp_byline' => $data['byline'],
-		'pmp_published' => $data['published']
+		'pmp_guid' => $data['attributes']['guid'],
+		'pmp_created' => $data['attributes']['created'],
+		'pmp_modified' => $data['attributes']['modified'],
+		'pmp_byline' => $data['attributes']['byline'],
+		'pmp_published' => $data['attributes']['published']
 	);
 
 	foreach ($post_meta as $key => $value)

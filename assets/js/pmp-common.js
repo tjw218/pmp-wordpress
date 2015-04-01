@@ -232,7 +232,7 @@ var PMP = PMP || {};
     PMP.Modal = PMP.BaseView.extend({
         id: 'pmp-modal',
 
-        actions: {},
+        actions: null,
 
         content: null,
 
