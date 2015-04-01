@@ -43,6 +43,9 @@ function pmp_groups_page() {
 		'limit' => 20
 	));
 
-	$context = array('groups' => $result->items());
+	$context = array(
+		'groups' => $result->items(),
+		'creators' => pmp_get_creators()
+	);
 	pmp_render_template('groups.php', $context);
 }

@@ -1,9 +1,21 @@
 (function() {
-    var $ = jQuery;
+    var $ = jQuery,
+        Modal = PMP.Modal;
 
-    $('#pmp-create-group').on('click', function() {
-        console.log('pew');
-        return false;
+    var CreateGroupModal = Modal.extend({
+        content: _.template($('#pmp-create-new-group-form-tmpl').html(), {}),
+        actions: {
+            'Create': function() {
+                return false;
+            },
+            'Cancel': 'close'
+        }
     });
-    //console.log('test');
+
+    $(document).ready(function() {
+        $('#pmp-create-group').click(function() {
+            var modal = new CreateGroupModal();
+            modal.render();
+        })
+    });
 })();

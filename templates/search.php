@@ -96,18 +96,7 @@
 	</div>
 </script>
 
-<script type="text/template" id="pmp-modal-tmpl">
-	<div class="pmp-modal-header">
-		<div class="pmp-modal-close"><span class="close">&#10005;</span></div>
-	</div>
-	<div class="pmp-modal-content"><% if (message) { %><%= message %><% } %></div>
-	<div class="pmp-modal-actions">
-		<span class="spinner"></span>
-		<% _.each(actions, function(v, k) { %>
-			<a href="#" class="<%= k %> button button-primary"><%= k %></a>
-		<% }); %>
-	</div>
-</script>
+<?php pmp_modal_underscore_template(); ?>
 
 <script type="text/javascript">
 	var CREATORS = <?php echo json_encode(array_flip($creators)); ?>,

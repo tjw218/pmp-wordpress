@@ -218,7 +218,7 @@
         draft: function() {
             var self = this,
                 args = {
-                message: 'Are you sure you want to create a draft of this story?',
+                content: 'Are you sure you want to create a draft of this story?',
                 actions: {
                     'Yes': function() {
                         self.modal.showSpinner();
@@ -237,7 +237,7 @@
         publish: function() {
             var self = this,
                 args = {
-                message: 'Are you sure you want to publish this story?',
+                content: 'Are you sure you want to publish this story?',
                 actions: {
                     'Yes': function() {
                         self.modal.showSpinner();
@@ -257,11 +257,11 @@
             if (!this.modal) {
                 this.modal = new Modal({
                     actions: args.actions,
-                    message: args.message
+                    content: args.content
                 });
             } else {
                 this.modal.actions = args.actions;
-                this.modal.message = args.message;
+                this.modal.content = args.content;
             }
 
             this.modal.render();

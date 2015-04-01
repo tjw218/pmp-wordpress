@@ -234,7 +234,7 @@ var PMP = PMP || {};
 
         actions: {},
 
-        message: null,
+        content: null,
 
         events: {
             "click .close": "close"
@@ -246,8 +246,11 @@ var PMP = PMP || {};
             Backbone.View.prototype.initialize.apply(this, arguments);
             this.template = _.template($('#pmp-modal-tmpl').html());
 
-            this.message = (typeof options.message !== 'undefined')? options.message : '';
-            this.actions = (typeof options.actions !== 'undefined')? options.actions : {};
+            if (!this.content)
+                this.content = (typeof options.content !== 'undefined')? options.content : '';
+
+            if (!this.actions)
+                this.actions = (typeof options.actions !== 'undefined')? options.actions : {};
 
             this.setEvents();
 
@@ -257,7 +260,7 @@ var PMP = PMP || {};
 
         render: function() {
             this.$el.html(this.template({
-                message: this.message,
+                content: this.content,
                 actions: this.actions
             }));
             this.setEvents();

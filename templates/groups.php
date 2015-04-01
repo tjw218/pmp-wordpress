@@ -13,3 +13,14 @@
 	<?php } ?>
 	</div>
 </div>
+
+<?php pmp_modal_underscore_template(); ?>
+
+<script type="text/template" id="pmp-create-new-group-form-tmpl">
+	<form>
+	</form>
+</script>
+
+<script type="text/javascript">
+	var CREATORS = <?php echo json_encode(array_flip($creators)); ?>;
+</script>
