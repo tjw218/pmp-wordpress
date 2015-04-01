@@ -26,4 +26,8 @@ class TestPages extends WP_UnitTestCase {
 		$this->expectOutputRegex($expect);
 		pmp_search_page();
 	}
+
+	function test_pmp_groups_page() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
 }

@@ -100,4 +100,8 @@ class TestFunctions extends WP_UnitTestCase {
 		// The date should be the same as the original PMP published date, not the current date/time.
 		$this->assertEquals($pmp_post_after_transition->post_date, $date);
 	}
+
+	function test_var_log() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
 }
