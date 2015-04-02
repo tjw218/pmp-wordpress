@@ -230,8 +230,6 @@ var PMP = PMP || {};
     });
 
     PMP.Modal = PMP.BaseView.extend({
-        id: 'pmp-modal',
-
         actions: null,
 
         content: null,
@@ -242,6 +240,8 @@ var PMP = PMP || {};
 
         initialize: function(options) {
             var self = this;
+
+            this.$el.addClass('pmp-modal');
 
             Backbone.View.prototype.initialize.apply(this, arguments);
             this.template = _.template($('#pmp-modal-tmpl').html());
@@ -275,11 +275,15 @@ var PMP = PMP || {};
 
         open: function() {
             $('body').addClass('pmp-modal-open');
+            this.$el.removeClass('hide');
+            this.$el.addClass('show');
             return false;
         },
 
         close: function() {
             $('body').removeClass('pmp-modal-open');
+            this.$el.removeClass('show');
+            this.$el.addClass('hide');
             return false;
         }
     });

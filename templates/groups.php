@@ -11,11 +11,15 @@
 		</div>
 
 		<?php foreach ($groups as $group) { ?>
-			<div data-guid="<?php echo $group->attributes->guid; ?>" class="pmp-group-container">
+			<div class="pmp-group-container">
 				<h4><?php echo $group->attributes->title; ?></h4>
 				<div class="pmp-group-actions">
 					<ul>
-						<li><a class="pmp-group-modify" href="#">Modify</a></li>
+						<li><a
+							data-guid="<?php echo $group->attributes->guid; ?>"
+							data-title="<?php echo $group->attributes->title; ?>"
+							data-tags="<?php if (is_array($group->attributes->tags)) { echo join(',', $group->attributes->tags); } ?>"
+							class="pmp-group-modify" href="#">Modify</a></li>
 					</ul>
 				</div>
 			</div>
@@ -33,6 +37,19 @@
 
 		<label>Tags</label>
 		<input type="text" name="tags" id="tags" placeholder="Group tags">
+	</form>
+</script>
+
+<script type="text/template" id="pmp-modify-group-form-tmpl">
+	<h2>Modify group</h2>
+	<form id="pmp-group-modify-form">
+		<label>Title (required)</label>
+		<input type="text" name="title" id="title" placeholder="Group title" required
+			<% if (group.title) { %>value="<%= group.title %>"<% } %>>
+
+		<label>Tags</label>
+		<input type="text" name="tags" id="tags" placeholder="Group tags"
+			<% if (group.tags) { %>value="<%= group.tags %>"<% } %>>
 	</form>
 </script>
 

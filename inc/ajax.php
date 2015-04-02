@@ -169,15 +169,40 @@ function _pmp_create_post($draft=false) {
 /**
  * Ajax function to create new group
  *
- * @since 0.1
+ * @since 0.2
  */
 function pmp_create_group() {
 	check_ajax_referer('pmp_ajax_nonce', 'security');
+
 	$group = json_decode(stripslashes($_POST['group']));
 	$sdk = new SDKWrapper();
 	$doc = $sdk->newDoc('group', $group);
+
 	$result = $doc->save();
+
 	print json_encode(array("success" => true));
 	wp_die();
 }
 add_action('wp_ajax_pmp_create_group', 'pmp_create_group');
+
+/**
+ * Ajax function to modify an existing group
+ *
+ * @since 0.2
+ */
+function pmp_modify_group() {
+	check_ajax_referer('pmp_ajax_nonce', 'security');
+
+	$group = json_decode(stripslashes($_POST['group']));
+	$sdk = new SDKWrapper();
+	$doc = $sdk->fetchDoc(array('guid' => $group->attributes->guid));
+
+	$fetched = $doc->items()[0];
+	$fetched->attributes = (object) array_merge((array) $fetched->attributes, (array) $group->attributes);
+
+	$result = $fetched->save();
+
+	print json_encode(array("success" => true));
+	wp_die();
+}
+add_action('wp_ajax_pmp_modify_group', 'pmp_modify_group');
