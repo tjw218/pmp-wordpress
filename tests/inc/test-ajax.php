@@ -95,4 +95,8 @@ class TestAjax extends WP_Ajax_UnitTestCase {
 		$this->markTestSkipped(
 			'Functional test of `_pmp_create_post` performed by `test_pmp_draft_post` and `test_pmp_publish_post`');
 	}
+
+	function test_pmp_create_group() {
+			$this->markTestIncomplete('This test has not been implemented yet.');
+	}
 }

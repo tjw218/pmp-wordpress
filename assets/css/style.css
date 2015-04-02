@@ -228,3 +228,10 @@ body.pmp-modal-open #pmp-modal-overlay {
 .pmp-create-group-modal form input {
   width: 100%;
 }
+
+.pmp-group-container {
+  border-bottom: 1px solid #ccc;
+  float: left;
+  clear: both;
+  min-width: 280px;
+}
