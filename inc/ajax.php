@@ -197,7 +197,8 @@ function pmp_modify_group() {
 	$sdk = new SDKWrapper();
 	$doc = $sdk->fetchDoc(array('guid' => $group->attributes->guid));
 
-	$fetched = $doc->items()[0];
+	$items = $doc->items();
+	$fetched = $items[0];
 	$fetched->attributes = (object) array_merge((array) $fetched->attributes, (array) $group->attributes);
 
 	$result = $fetched->save();
