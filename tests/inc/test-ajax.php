@@ -97,6 +97,14 @@ class TestAjax extends WP_Ajax_UnitTestCase {
 	}
 
 	function test_pmp_create_group() {
-			$this->markTestIncomplete('This test has not been implemented yet.');
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_pmp_modify_group() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_pmp_default_group() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
 	}
 }

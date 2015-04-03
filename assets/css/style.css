@@ -218,6 +218,10 @@ body.pmp-modal-open #pmp-modal-overlay {
   float: left;
   clear: both;
 }
+.pmp-group-actions ul li {
+  display: inline-block;
+  margin-right: 1em;
+}
 .pmp-group-modal .pmp-modal-content {
   text-align: left;
 }
@@ -231,10 +235,20 @@ body.pmp-modal-open #pmp-modal-overlay {
 .pmp-group-modal form input {
   width: 100%;
 }
-
 .pmp-group-container {
   border-bottom: 1px solid #ccc;
   float: left;
   clear: both;
   min-width: 280px;
+}
+.pmp-group-default-container {
+  text-align: center;
+}
+.pmp-group-default-container p {
+  max-width: 320px;
+  margin: 0 auto;
+  font-size: 14px;
+}
+.pmp-default-group {
+  color: green;
 }

@@ -11,15 +11,23 @@
 		</div>
 
 		<?php foreach ($groups as $group) { ?>
-			<div class="pmp-group-container">
-				<h4><?php echo $group->attributes->title; ?></h4>
+			<div class="pmp-group-container"
+				data-guid="<?php echo esc_attr($group->attributes->guid); ?>"
+				data-title="<?php echo esc_attr($group->attributes->title); ?>"
+				data-tags="<?php if (is_array($group->attributes->tags)) { echo esc_attr(join(',', $group->attributes->tags)); } ?>">
+
+				<h3><?php echo $group->attributes->title; ?>
+					<?php if ($group->attributes->guid == $default_group) { ?><span class="pmp-default-group">(default)</span><?php } ?></h3>
 				<div class="pmp-group-actions">
 					<ul>
-						<li><a
-							data-guid="<?php echo $group->attributes->guid; ?>"
-							data-title="<?php echo $group->attributes->title; ?>"
-							data-tags="<?php if (is_array($group->attributes->tags)) { echo join(',', $group->attributes->tags); } ?>"
-							class="pmp-group-modify" href="#">Modify</a></li>
+						<li>
+							<a class="pmp-group-modify" href="#">Modify</a>
+						</li>
+						<?php if ($group->attributes->guid !== $default_group) { ?>
+						<li>
+							<a class="pmp-group-default" href="#">Set as default</a>
+						</li>
+						<?php } ?>
 					</ul>
 				</div>
 			</div>
@@ -51,6 +59,16 @@
 		<input type="text" name="tags" id="tags" placeholder="Group tags"
 			<% if (group.tags) { %>value="<%= group.tags %>"<% } %>>
 	</form>
+</script>
+
+<script type="text/template" id="pmp-default-group-form-tmpl">
+	<div class="pmp-group-default-container">
+		<h2>Set default group for new posts</h2>
+		<p>Do you really want to set the group <strong>"<%= group.title %>"</strong> as the default group for all new posts?</p>
+		<form id="pmp-group-default-form">
+			<input type="hidden" name="guid" id="guid" value="<%= group.guid %>" >
+		</form>
+	</div>
 </script>
 
 <script type="text/javascript">

@@ -206,3 +206,20 @@ function pmp_modify_group() {
 	wp_die();
 }
 add_action('wp_ajax_pmp_modify_group', 'pmp_modify_group');
+
+/**
+ * Ajax function to modify an existing group
+ *
+ * @since 0.2
+ */
+function pmp_default_group() {
+	check_ajax_referer('pmp_ajax_nonce', 'security');
+
+	$group = json_decode(stripslashes($_POST['group']));
+
+	update_option('pmp_default_group', $group->attributes->guid);
+
+	print json_encode(array("success" => true));
+	wp_die();
+}
+add_action('wp_ajax_pmp_default_group', 'pmp_default_group');

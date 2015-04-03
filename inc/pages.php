@@ -45,7 +45,8 @@ function pmp_groups_page() {
 
 	$context = array(
 		'groups' => $result->items(),
-		'creators' => pmp_get_creators()
+		'creators' => pmp_get_creators(),
+		'default_group' => get_option('pmp_default_group', false)
 	);
 	pmp_render_template('groups.php', $context);
 }

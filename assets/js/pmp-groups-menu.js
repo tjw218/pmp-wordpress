@@ -95,6 +95,26 @@
         }
     });
 
+    var DefaultGroupModal = BaseGroupModal.extend({
+        action: 'pmp_default_group',
+
+        actions: {
+            'Yes': 'saveGroup',
+            'Cancel': 'close'
+        },
+
+        initialize: function(options) {
+            this.group = options.group;
+            Modal.prototype.initialize.apply(this, arguments);
+        },
+
+        render: function() {
+            var template = _.template($('#pmp-default-group-form-tmpl').html());
+            this.content = template({ group: this.group });
+            Modal.prototype.render.apply(this, arguments);
+        }
+    });
+
     $(document).ready(function() {
 
         PMP.instances = {};
@@ -106,10 +126,11 @@
         });
 
         $('.pmp-group-modify').click(function() {
-            var group = {
-                    guid: $(this).data('guid'),
-                    title: $(this).data('title'),
-                    tags: $(this).data('tags')
+            var container = $(this).parent().parent().parent().parent(),
+                group = {
+                    guid: container.data('guid'),
+                    title: container.data('title'),
+                    tags: container.data('tags')
                 };
 
             if (!PMP.instances.group_modify_modal)
@@ -118,6 +139,22 @@
                 PMP.instances.group_modify_modal.group = group;
 
             PMP.instances.group_modify_modal.render();
+        });
+
+        $('.pmp-group-default').click(function() {
+            var container = $(this).parent().parent().parent().parent(),
+                group = {
+                    guid: container.data('guid'),
+                    title: container.data('title'),
+                    tags: container.data('tags')
+                };
+
+            if (!PMP.instances.group_default_modal)
+                PMP.instances.group_default_modal = new DefaultGroupModal({ group: group });
+            else
+                PMP.instances.group_default_modal.group = group;
+
+            PMP.instances.group_default_modal.render();
         });
     });
 })();
