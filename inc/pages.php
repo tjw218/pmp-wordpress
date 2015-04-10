@@ -36,15 +36,7 @@ function pmp_groups_page() {
 	if (!current_user_can('manage_options'))
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 
-	$sdk = new SDKWrapper();
-	$result = $sdk->queryDocs(array(
-		'profile' => 'group',
-		'writeable' => true,
-		'limit' => 20
-	));
-
 	$context = array(
-		'groups' => $result->items(),
 		'creators' => pmp_get_creators(),
 		'default_group' => get_option('pmp_default_group', false)
 	);

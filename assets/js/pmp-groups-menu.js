@@ -1,9 +1,96 @@
-(function() {
-    var $ = jQuery,
-        Modal = PMP.Modal,
-        Doc = PMP.Doc;
+var PMP = PMP || {};
 
-    var BaseGroupModal = Modal.extend({
+(function() {
+    var $ = jQuery;
+
+    // Models & Collections
+    PMP.GroupCollection = PMP.DocCollection.extend({
+        search: function(query) {
+            query = _.defaults(query || {}, {
+                writeable: 'true',
+                profile: 'group',
+                limit: 100
+            });
+            PMP.DocCollection.prototype.search.apply(this, [query, ]);
+        }
+    });
+
+    // Views
+    PMP.GroupList = PMP.BaseView.extend({
+
+        events: {
+            'click .pmp-group-modify': 'modify_group',
+            'click .pmp-group-default': 'set_default',
+            'click .pmp-manage-users': 'manage_users'
+        },
+
+        initialize: function(options) {
+            options = options || {};
+            this.collection = options.collection || new PMP.GroupCollection();
+            this.collection.attributes.on('change', this.render.bind(this));
+
+            this.showSpinner();
+            this.collection.search();
+
+            PMP.BaseView.prototype.initialize.apply(this, arguments);
+        },
+
+        render: function() {
+            var self = this,
+                template = _.template($('#pmp-groups-items-tmpl').html());
+
+            this.$el.append(template({ groups: this.collection }));
+            this.hideSpinner();
+            return this;
+        },
+
+        modify_group: function(e) {
+            var target = e.currentTarget,
+                guid = $(target).data('guid'),
+                group = this.collection.find(function(g) {
+                    return g.get('attributes').guid == guid;
+                });
+
+            if (!this.group_modify_modal)
+                this.group_modify_modal = new PMP.ModifyGroupModal({ group: group });
+            else
+                this.group_modify_modal.group = group;
+
+            this.group_modify_modal.render();
+        },
+
+        set_default: function(e) {
+            var target = e.currentTarget,
+                guid = $(target).data('guid'),
+                group = this.collection.find(function(g) {
+                    return g.get('attributes').guid == guid;
+                });
+
+            if (!this.group_default_modal)
+                this.group_default_modal = new PMP.DefaultGroupModal({ group: group });
+            else
+                this.group_default_modal.group = group;
+
+            this.group_default_modal.render();
+        },
+
+        manage_users: function(e) {
+            var target = e.currentTarget,
+                guid = $(target).data('guid'),
+                group = this.collection.find(function(g) {
+                    return g.get('attributes').guid == guid;
+                });
+
+            if (!this.manage_users_modal)
+                this.manage_users_modal = new PMP.ManageUsersModal({ group: group });
+            else
+                this.manage_users_modal.group = group;
+
+            this.manage_users_modal.render();
+        }
+    });
+
+    PMP.BaseGroupModal = PMP.Modal.extend({
         className: 'pmp-group-modal',
 
         saveGroup: function() {
@@ -64,7 +151,7 @@
         }
     });
 
-    var CreateGroupModal = BaseGroupModal.extend({
+    PMP.CreateGroupModal = PMP.BaseGroupModal.extend({
         content: _.template($('#pmp-create-new-group-form-tmpl').html(), {}),
 
         action: 'pmp_create_group',
@@ -75,7 +162,7 @@
         }
     });
 
-    var ModifyGroupModal = BaseGroupModal.extend({
+    PMP.ModifyGroupModal = PMP.BaseGroupModal.extend({
         action: 'pmp_modify_group',
 
         actions: {
@@ -85,17 +172,17 @@
 
         initialize: function(options) {
             this.group = options.group;
-            Modal.prototype.initialize.apply(this, arguments);
+            PMP.Modal.prototype.initialize.apply(this, arguments);
         },
 
         render: function() {
             var template = _.template($('#pmp-modify-group-form-tmpl').html());
             this.content = template({ group: this.group });
-            Modal.prototype.render.apply(this, arguments);
+            PMP.Modal.prototype.render.apply(this, arguments);
         }
     });
 
-    var DefaultGroupModal = BaseGroupModal.extend({
+    PMP.DefaultGroupModal = PMP.BaseGroupModal.extend({
         action: 'pmp_default_group',
 
         actions: {
@@ -105,13 +192,38 @@
 
         initialize: function(options) {
             this.group = options.group;
-            Modal.prototype.initialize.apply(this, arguments);
+            PMP.Modal.prototype.initialize.apply(this, arguments);
         },
 
         render: function() {
             var template = _.template($('#pmp-default-group-form-tmpl').html());
             this.content = template({ group: this.group });
-            Modal.prototype.render.apply(this, arguments);
+            PMP.Modal.prototype.render.apply(this, arguments);
+        }
+    });
+
+    PMP.ManageUsersModal = PMP.Modal.extend({
+        className: 'pmp-group-modal',
+
+        initialize: function(options) {
+            this.group = options.group;
+            PMP.Modal.prototype.initialize.apply(this, arguments);
+        },
+
+        render: function() {
+            var self = this,
+                template = _.template($('#pmp-manage-users-tmpl').html()),
+                group_data = _.filter(GROUPS, function(x) {
+                    return x.attributes.title == self.group.title;
+                })[0];
+
+            console.log(group_data);
+
+            this.content = template({
+                group: this.group,
+                users: group_data.links
+            });
+            PMP.Modal.prototype.render.apply(this, arguments);
         }
     });
 
@@ -119,42 +231,12 @@
 
         PMP.instances = {};
 
+        PMP.instances.group_list = new PMP.GroupList({ el: $('#pmp-groups-container') });
+
         $('#pmp-create-group').click(function() {
             if (!PMP.instances.group_create_modal)
-                PMP.instances.group_create_modal = new CreateGroupModal();
+                PMP.instances.group_create_modal = new PMP.CreateGroupModal();
             PMP.instances.group_create_modal.render();
-        });
-
-        $('.pmp-group-modify').click(function() {
-            var container = $(this).parent().parent().parent().parent(),
-                group = {
-                    guid: container.data('guid'),
-                    title: container.data('title'),
-                    tags: container.data('tags')
-                };
-
-            if (!PMP.instances.group_modify_modal)
-                PMP.instances.group_modify_modal = new ModifyGroupModal({ group: group });
-            else
-                PMP.instances.group_modify_modal.group = group;
-
-            PMP.instances.group_modify_modal.render();
-        });
-
-        $('.pmp-group-default').click(function() {
-            var container = $(this).parent().parent().parent().parent(),
-                group = {
-                    guid: container.data('guid'),
-                    title: container.data('title'),
-                    tags: container.data('tags')
-                };
-
-            if (!PMP.instances.group_default_modal)
-                PMP.instances.group_default_modal = new DefaultGroupModal({ group: group });
-            else
-                PMP.instances.group_default_modal.group = group;
-
-            PMP.instances.group_default_modal.render();
         });
     });
 })();

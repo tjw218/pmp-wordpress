@@ -24,6 +24,7 @@ p.submit input {
 }
 
 .pmp-modal-actions .spinner,
+#pmp-groups-container .spinner,
 #pmp-search-page .spinner {
   float: none;
   position: relative;
@@ -227,6 +228,7 @@ body.pmp-modal-open #pmp-modal-overlay {
 }
 .pmp-group-modal h2 {
   margin: 0 0 20px 0;
+  line-height: 1.2em;
 }
 .pmp-group-modal form label {
   margin: 10px 0;
