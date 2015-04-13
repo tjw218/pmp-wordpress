@@ -28,6 +28,14 @@ function pmp_enqueue_assets() {
 				array('pmp-common'), PMP_VERSION, true);
 		}
 
+
+		if ($page == 'pmp-series-properties-menu') {
+			wp_enqueue_style('pmp-common');
+			wp_enqueue_script(
+				'pmp-series-properties-menu', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-series-properties-menu.js',
+				array('pmp-common'), PMP_VERSION, true);
+		}
+
 		if ($page == 'pmp-options-menu') {
 			wp_enqueue_script(
 				'pmp-options-menu', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-options.js',

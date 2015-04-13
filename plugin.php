@@ -72,6 +72,13 @@ function pmp_plugin_menu() {
 			'capability' => 'manage_options',
 			'menu_slug' => 'pmp-groups-menu',
 			'function' => 'pmp_groups_page'
+		),
+		array(
+			'page_title' => 'Series &amp; Properties',
+			'menu_title' => 'Series &amp; Properties',
+			'capability' => 'manage_options',
+			'menu_slug' => 'pmp-series-properties-menu',
+			'function' => 'pmp_series_properties_page'
 		)
 	);
 
