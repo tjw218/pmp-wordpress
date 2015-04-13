@@ -2,8 +2,6 @@
 	<h2>PMP Groups &amp; Permissions</h2>
 
 	<div id="pmp-groups">
-		<h3>Your groups</h3>
-
 		<div id="pmp-groups-actions">
 			<p class="submit">
 				<input type="submit" name="pmp-create-group" id="pmp-create-group" class="button button-primary" value="Create new group">
@@ -12,6 +10,7 @@
 
 		<div id="pmp-groups-container">
 			<span class="spinner"></span>
+			<div id="pmp-groups-list"></div>
 		</div>
 	</div>
 </div>
@@ -56,7 +55,9 @@
 	<div class="pmp-manage-users-container">
 		<h2>Manage users for group:<br /> "<%= group.get('attributes').title %>"</h2>
 		<form id="pmp-manage-users-form">
-			<% _.each(users, function(user) { %><% console.log(user); %><% }); %>
+			<% group.get('items').each(function(user) { %>
+				<p><%= user.get('attributes').title %></p>
+			<% }); %>
 		</form>
 	</div>
 </script>

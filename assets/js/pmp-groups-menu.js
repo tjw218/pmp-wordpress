@@ -39,7 +39,8 @@ var PMP = PMP || {};
             var self = this,
                 template = _.template($('#pmp-groups-items-tmpl').html());
 
-            this.$el.append(template({ groups: this.collection }));
+            this.$el.find('#pmp-groups-list').html('');
+            this.$el.find('#pmp-groups-list').append(template({ groups: this.collection }));
             this.hideSpinner();
             return this;
         },
@@ -125,7 +126,9 @@ var PMP = PMP || {};
                 method: 'post',
                 success: function(data) {
                     self.hideSpinner();
-                    window.location.reload(true);
+                    self.close();
+                    PMP.instances.group_list.showSpinner();
+                    PMP.instances.group_list.collection.search();
                 },
                 error: function() {
                     self.hideSpinner();
@@ -212,17 +215,9 @@ var PMP = PMP || {};
 
         render: function() {
             var self = this,
-                template = _.template($('#pmp-manage-users-tmpl').html()),
-                group_data = _.filter(GROUPS, function(x) {
-                    return x.attributes.title == self.group.title;
-                })[0];
+                template = _.template($('#pmp-manage-users-tmpl').html());
 
-            console.log(group_data);
-
-            this.content = template({
-                group: this.group,
-                users: group_data.links
-            });
+            this.content = template({ group: this.group });
             PMP.Modal.prototype.render.apply(this, arguments);
         }
     });
