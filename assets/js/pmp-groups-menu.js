@@ -19,9 +19,9 @@ var PMP = PMP || {};
     PMP.GroupList = PMP.BaseView.extend({
 
         events: {
-            'click .pmp-group-modify': 'modify_group',
-            'click .pmp-group-default': 'set_default',
-            'click .pmp-manage-users': 'manage_users'
+            'click .pmp-group-modify': 'modifyGroup',
+            'click .pmp-group-default': 'setDefault',
+            'click .pmp-manage-users': 'manageUsers'
         },
 
         initialize: function(options) {
@@ -45,7 +45,7 @@ var PMP = PMP || {};
             return this;
         },
 
-        modify_group: function(e) {
+        modifyGroup: function(e) {
             var target = e.currentTarget,
                 guid = $(target).data('guid'),
                 group = this.collection.find(function(g) {
@@ -60,7 +60,7 @@ var PMP = PMP || {};
             this.group_modify_modal.render();
         },
 
-        set_default: function(e) {
+        setDefault: function(e) {
             var target = e.currentTarget,
                 guid = $(target).data('guid'),
                 group = this.collection.find(function(g) {
@@ -75,7 +75,7 @@ var PMP = PMP || {};
             this.group_default_modal.render();
         },
 
-        manage_users: function(e) {
+        manageUsers: function(e) {
             var target = e.currentTarget,
                 guid = $(target).data('guid'),
                 group = this.collection.find(function(g) {
@@ -208,6 +208,19 @@ var PMP = PMP || {};
     PMP.ManageUsersModal = PMP.Modal.extend({
         className: 'pmp-group-modal',
 
+        users: new Backbone.Collection(PMP_USERS.items),
+
+        events: {
+            'typeahead:selected': 'addUser',
+            "click .close": "close",
+            "click .remove": 'removeUser'
+        },
+
+        actions: {
+            'Save': 'saveUsers',
+            'Cancel': 'close'
+        },
+
         initialize: function(options) {
             this.group = options.group;
             PMP.Modal.prototype.initialize.apply(this, arguments);
@@ -219,6 +232,63 @@ var PMP = PMP || {};
 
             this.content = template({ group: this.group });
             PMP.Modal.prototype.render.apply(this, arguments);
+
+            this.$el.find('a.Save').addClass('disabled');
+            this.on('usersChange', this.usersChange.bind(this));
+
+            this.searchForm = this.$el.find('#pmp-user-search').typeahead({
+                minLength: 3, highlight: true
+            }, {
+                name: 'pmp-users',
+                source: this.userSearch.bind(this),
+                displayKey: 'title'
+            });
+        },
+
+        userSearch: function(query, cb) {
+            var regex = new RegExp(query, 'gi');
+                map = this.users.map(function(user) {
+                    if (regex.test(user.get('attributes').title)) {
+                        return {
+                            title: user.get('attributes').title,
+                            value: user.get('attributes').guid
+                        };
+                    }
+                    return null;
+                }),
+                results = _.filter(map, function(obj) { return obj !== null; });
+
+            return cb(results);
+        },
+
+        addUser: function(event, obj, selector) {
+            var tmpl = _.template('<div class="pmp-user"><%= obj.title %>' +
+                                  '<input type="hidden" name="pmp-users[]" value="<%= obj.value %>" />' +
+                                  '<span class="remove">&#10005;</span></div>');
+            this.$el.find('#pmp-users-form').append(tmpl({ obj: obj }));
+            this.searchForm.typeahead('val', null);
+            this.$el.find('.error').remove();
+            this.trigger('usersChange');
+        },
+
+        removeUser: function(e) {
+            var target = $(e.currentTarget);
+                target.parent().remove();
+            this.trigger('usersChange');
+        },
+
+        saveUsers: function(e) {
+            var target = $(e.currentTarget);
+
+            if (target.hasClass('disabled'))
+                return false;
+
+            return false;
+        },
+
+        usersChange: function(e) {
+            this.$el.find('a.Save').removeClass('disabled');
+            return false;
         }
     });
 

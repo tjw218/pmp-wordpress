@@ -254,3 +254,60 @@ body.pmp-modal-open #pmp-modal-overlay {
 .pmp-default-group {
   color: green;
 }
+.pmp-label {
+  color: #777;
+  font-size: 12px;
+  margin: 0 0 8px 0;
+}
+#pmp-users-list {
+  margin: 10px 0;
+  border-bottom: 1px solid #ddd;
+  font-size: 16px;
+}
+#pmp-users-form p {
+  font-size: 16px;
+}
+#pmp-users-form .pmp-user {
+  display: block;
+  padding: 10px 5px;
+}
+#pmp-users-form .pmp-user .remove {
+  float: right;
+  margin-right: 5px;
+  font-size: 14px;
+}
+#pmp-users-form .pmp-user .remove:hover {
+  cursor: pointer;
+}
+#pmp-users-form .pmp-user:nth-child(odd) {
+  background: #efefef;
+}
+
+/* User typeahead search */
+.twitter-typeahead {
+  width: 100%;
+}
+#pmp-add-users input {
+  width: 50%;
+}
+.tt-dropdown-menu {
+  background: #f1f1f1;
+  border: 1px solid #ccc;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  max-height: 300px;
+}
+.tt-suggestion {
+  border-bottom: 1px solid #ddd;
+  margin: 0;
+  padding: 4px 8px;
+}
+.tt-suggestion:hover {
+  cursor: pointer;
+  background: #0b6090;
+  color: white;
+}
+.tt-suggestion:last-child {
+  border: none;
+}

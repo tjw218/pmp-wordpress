@@ -53,12 +53,28 @@
 
 <script type="text/template" id="pmp-manage-users-tmpl">
 	<div class="pmp-manage-users-container">
-		<h2>Manage users for group:<br /> "<%= group.get('attributes').title %>"</h2>
-		<form id="pmp-manage-users-form">
-			<% group.get('items').each(function(user) { %>
-				<p><%= user.get('attributes').title %></p>
-			<% }); %>
-		</form>
+		<p class="pmp-label">Manage users for group:</p>
+		<h2><%= group.get('attributes').title %></h2>
+		<div id="pmp-users-list">
+			<form id="pmp-users-form">
+				<% group.get('items').each(function(user) { %>
+					<div class="pmp-user">
+						<%= user.get('attributes').title %>
+						<input type="hidden" name="pmp-users[]" value="<%= user.get('attributes').guid %>" />
+						<span class="remove">&#10005;</span>
+					</div>
+				<% }); %>
+				<% if (group.get('items').length == 0) { %>
+					<p class="error">No users found.</p>
+				<% } %>
+			</form>
+		</div>
+		<div id="pmp-add-users">
+			<p class="pmp-label">Add users</p>
+			<form id="pmp-add-users-form">
+				<input type="text" id="pmp-user-search" name="pmp-user-search" placeholder="Start typing a user's name">
+			</form>
+		</div>
 	</div>
 </script>
 
@@ -89,5 +105,6 @@
 <script type="text/javascript">
 	var CREATORS = <?php echo json_encode(array_flip($creators)); ?>,
 		AJAX_NONCE = '<?php echo wp_create_nonce('pmp_ajax_nonce'); ?>';
-		DEFAULT_GROUP = '<?php echo $default_group; ?>';
+		DEFAULT_GROUP = '<?php echo $default_group; ?>',
+		PMP_USERS = <?php echo json_encode($pmp_users); ?>;
 </script>

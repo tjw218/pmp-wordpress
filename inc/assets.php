@@ -11,6 +11,9 @@ function pmp_enqueue_assets() {
 
 	wp_register_style('pmp-common', PMP_PLUGIN_DIR_URI . '/assets/css/style.css');
 
+	wp_register_script('pmp-typeahead', PMP_PLUGIN_DIR_URI . '/assets/js/vendor/typeahead.bundle.js',
+		array('jquery'), PMP_VERSION, true);
+
 	if (isset($_GET['page'])) {
 		$page = $_GET['page'];
 
@@ -25,9 +28,8 @@ function pmp_enqueue_assets() {
 			wp_enqueue_style('pmp-common');
 			wp_enqueue_script(
 				'pmp-groups-menu', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-groups-menu.js',
-				array('pmp-common'), PMP_VERSION, true);
+				array('pmp-common', 'pmp-typeahead'), PMP_VERSION, true);
 		}
-
 
 		if ($page == 'pmp-series-properties-menu') {
 			wp_enqueue_style('pmp-common');
