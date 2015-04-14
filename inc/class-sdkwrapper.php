@@ -7,7 +7,7 @@
  */
 class SDKWrapper {
 
-	protected $sdk;
+	public $sdk;
 
 	public function __construct() {
 		$settings = get_option('pmp_settings');
@@ -20,42 +20,23 @@ class SDKWrapper {
 	}
 
 	public function __call($name, $args) {
-		return call_user_func_array(array($this->sdk, $name), $args);
+		return call_user_func_array(array($this->sdk, $name), $args[0]);
 	}
 
 	/**
 	 * Convenience method cleans up query results data and returns serializable version for use with
 	 * Backbone.js models and collections.
 	 *
-	 * Note: as a matter of convenience, this function merges `$item->attributes` with the top-level
-	 * of each `$item` in the result set. That is, where the PMP SDK data structure resembles:
-	 *
-	 * $item
-	 *   $attributes
-	 *     $title
-	 *     $contentencoded
-	 *     $byline
-	 *     ...
-	 *   $links
-	 *   $items
-	 *
-	 * This function will remove $attributes, producing a data structure that looks like:
-	 *
-	 * $item
-	 *   $title
-	 *   $contentencoded
-	 *   $byline
-	 *   ...
-	 *   $links
-	 *   $items
-	 *
 	 * @param $method (string) The query method to call (i.e., queryDocs or queryGroups, etc.)
 	 * @param $arguments (array) The options to be pased to the query method.
 	 *
 	 * @since 0.1
 	 */
-	public function query2json($method, $args) {
-		$result = $this->{$method}($args);
+	public function query2json() {
+		$args = func_get_args();
+		$method = $args[0];
+		$args_array = array_slice($args, 1);
+		$result = $this->{$method}($args_array);
 
 		if (empty($result)) {
 			return $result;
@@ -121,6 +102,16 @@ class SDKWrapper {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Convenience method that takes a guid and returns a full href for said guid
+	 *
+	 * @since 0.2
+	 */
+	public function href4guid($guid) {
+		$link = $this->sdk->home->link(\Pmp\Sdk::FETCH_DOC);
+		return $link->expand(array('guid' => $guid));
 	}
 
 }

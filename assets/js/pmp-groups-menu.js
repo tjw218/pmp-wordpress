@@ -9,7 +9,7 @@ var PMP = PMP || {};
             query = _.defaults(query || {}, {
                 writeable: 'true',
                 profile: 'group',
-                limit: 100
+                limit: 9999
             });
             PMP.DocCollection.prototype.search.apply(this, [query, ]);
         }
@@ -82,11 +82,10 @@ var PMP = PMP || {};
                     return g.get('attributes').guid == guid;
                 });
 
-            if (!this.manage_users_modal)
-                this.manage_users_modal = new PMP.ManageUsersModal({ group: group });
-            else
-                this.manage_users_modal.group = group;
+            if (this.manage_users_modal)
+                this.manage_users_modal.remove();
 
+            this.manage_users_modal = new PMP.ManageUsersModal({ group: group });
             this.manage_users_modal.render();
         }
     });
@@ -208,7 +207,7 @@ var PMP = PMP || {};
     PMP.ManageUsersModal = PMP.Modal.extend({
         className: 'pmp-group-modal',
 
-        users: new Backbone.Collection(PMP_USERS.items),
+        allUsers: new Backbone.Collection(PMP_USERS.items),
 
         events: {
             'typeahead:selected': 'addUser',
@@ -216,12 +215,17 @@ var PMP = PMP || {};
             "click .remove": 'removeUser'
         },
 
+        content: '<h2>Loading...</h2>',
+
+        action: 'pmp_save_users',
+
         actions: {
             'Save': 'saveUsers',
             'Cancel': 'close'
         },
 
         initialize: function(options) {
+            var self = this;
             this.group = options.group;
             PMP.Modal.prototype.initialize.apply(this, arguments);
         },
@@ -230,24 +234,35 @@ var PMP = PMP || {};
             var self = this,
                 template = _.template($('#pmp-manage-users-tmpl').html());
 
-            this.content = template({ group: this.group });
-            PMP.Modal.prototype.render.apply(this, arguments);
+            this.users = new PMP.GroupCollection([]);
+            this.users.on('reset', function() {
+                self.content = template({
+                    group: self.group,
+                    users: self.users
+                });
+                PMP.Modal.prototype.render.apply(self);
 
-            this.$el.find('a.Save').addClass('disabled');
-            this.on('usersChange', this.usersChange.bind(this));
+                self.$el.find('a.Save').addClass('disabled');
+                self.on('usersChange', self.usersChange.bind(self));
 
-            this.searchForm = this.$el.find('#pmp-user-search').typeahead({
-                minLength: 3, highlight: true
-            }, {
-                name: 'pmp-users',
-                source: this.userSearch.bind(this),
-                displayKey: 'title'
+                self.searchForm = self.$el.find('#pmp-user-search').typeahead({
+                    minLength: 3, highlight: true
+                }, {
+                    name: 'pmp-users',
+                    source: self.userSearch.bind(self),
+                    displayKey: 'title'
+                });
+                self.hideSpinner();
             });
+
+            PMP.Modal.prototype.render.apply(self);
+            this.showSpinner();
+            this.users.search({ guid: this.group.get('attributes').guid });
         },
 
         userSearch: function(query, cb) {
             var regex = new RegExp(query, 'gi');
-                map = this.users.map(function(user) {
+                map = this.allUsers.map(function(user) {
                     if (regex.test(user.get('attributes').title)) {
                         return {
                             title: user.get('attributes').title,
@@ -262,12 +277,19 @@ var PMP = PMP || {};
         },
 
         addUser: function(event, obj, selector) {
-            var tmpl = _.template('<div class="pmp-user"><%= obj.title %>' +
-                                  '<input type="hidden" name="pmp-users[]" value="<%= obj.value %>" />' +
+            var list = this.$el.find('#pmp-users-list'),
+                tmpl = _.template('<div class="pmp-user"><%= obj.title %>' +
+                                  '<input type="hidden" name="pmp-users" value="<%= obj.value %>" />' +
                                   '<span class="remove">&#10005;</span></div>');
+
+            this.$el.find('.error').remove();
+            if (list.find('input[value="' + obj.value + '"]').length > 0) {
+                list.after('<p class="error">User: "' + obj.title + '" already exists in this group.</p>');
+                return false;
+            }
+
             this.$el.find('#pmp-users-form').append(tmpl({ obj: obj }));
             this.searchForm.typeahead('val', null);
-            this.$el.find('.error').remove();
             this.trigger('usersChange');
         },
 
@@ -278,12 +300,51 @@ var PMP = PMP || {};
         },
 
         saveUsers: function(e) {
-            var target = $(e.currentTarget);
+            if (typeof this.ongoing !== 'undefined' && $.inArray(this.ongoing.state(), ['resolved', 'rejected']) == -1)
+                return false;
 
+            var target = $(e.currentTarget);
             if (target.hasClass('disabled'))
                 return false;
 
+            var serialized = this.$el.find('form#pmp-users-form').serializeArray();
+
             return false;
+
+            var group = {};
+            _.each(serialized, function(val, idx) {
+                if (val.value !== '')
+                    group[val.name] = val.value;
+            });
+
+            var self = this,
+                data = {
+                    action: this.action,
+                    security: AJAX_NONCE,
+                    group: JSON.stringify({ attributes: group })
+                };
+
+            var opts = {
+                url: ajaxurl,
+                dataType: 'json',
+                data: data,
+                method: 'post',
+                success: function(data) {
+                    self.hideSpinner();
+                    self.close();
+                    PMP.instances.group_list.showSpinner();
+                    PMP.instances.group_list.collection.search();
+                },
+                error: function() {
+                    self.hideSpinner();
+                    alert('Something went wrong. Please try again.');
+                }
+            };
+
+            this.showSpinner();
+            this.ongoing = $.ajax(opts);
+            return this.ongoing;
+
         },
 
         usersChange: function(e) {

@@ -57,16 +57,17 @@
 		<h2><%= group.get('attributes').title %></h2>
 		<div id="pmp-users-list">
 			<form id="pmp-users-form">
-				<% group.get('items').each(function(user) { %>
-					<div class="pmp-user">
-						<%= user.get('attributes').title %>
-						<input type="hidden" name="pmp-users[]" value="<%= user.get('attributes').guid %>" />
-						<span class="remove">&#10005;</span>
-					</div>
-				<% }); %>
-				<% if (group.get('items').length == 0) { %>
-					<p class="error">No users found.</p>
-				<% } %>
+			<% if (users.first().get('items').length > 0) { %>
+					<% users.first().get('items').each(function(user) { %>
+						<div class="pmp-user">
+							<%= user.get('attributes').title %>
+							<input type="hidden" name="pmp-users" value="<%= user.get('attributes').guid %>" />
+							<span class="remove">&#10005;</span>
+						</div>
+					<% }); %>
+			<% } else { %>
+				<p class="error">No users found.</p>
+			<% } %>
 			</form>
 		</div>
 		<div id="pmp-add-users">

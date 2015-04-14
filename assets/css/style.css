@@ -214,6 +214,10 @@ body.pmp-modal-open #pmp-modal-overlay {
 }
 
 /* Groups & permissions page */
+p.error {
+  color: #a94442;
+  font-weight: bold;
+}
 #pmp-groups-actions,
 #pmp-groups {
   float: left;
@@ -261,8 +265,16 @@ body.pmp-modal-open #pmp-modal-overlay {
 }
 #pmp-users-list {
   margin: 10px 0;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #eee;
+  border-top: 1px solid #eee;
   font-size: 16px;
+  max-height: 380px;
+  overflow-y: scroll;
+}
+#pmp-users-list .spinner {
+  float: left;
+  margin: 5px 0 10px 0;
+  display: block;
 }
 #pmp-users-form p {
   font-size: 16px;
