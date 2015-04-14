@@ -24,11 +24,19 @@ p.submit input {
 }
 
 .pmp-modal-actions .spinner,
+#pmp-search-page .spinner,
 #pmp-groups-container .spinner,
-#pmp-search-page .spinner {
+#pmp-series-container .spinner {
   float: none;
   position: relative;
+}
+.pmp-modal-actions .spinner,
+#pmp-search-page .spinner {
   top: 2px;
+}
+#pmp-groups-container .spinner,
+#pmp-series-container .spinner {
+  top: 12px;
 }
 
 /* Advanced search */

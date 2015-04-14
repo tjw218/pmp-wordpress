@@ -195,15 +195,22 @@ function pmp_modify_group() {
 
 	$group = json_decode(stripslashes($_POST['group']));
 	$sdk = new SDKWrapper();
-	$doc = $sdk->fetchDoc(array('guid' => $group->attributes->guid));
+	$doc = $sdk->fetchDoc($group->attributes->guid);
 
-	$items = $doc->items();
-	$fetched = $items[0];
-	$fetched->attributes = (object) array_merge((array) $fetched->attributes, (array) $group->attributes);
+	if (!empty($group->attributes->tags)) {
+		$group->attributes->tags = array_map(
+			function($tag) { return trim($tag); },
+			explode(',', $group->attributes->tags
+		));
+	}
 
-	$result = $fetched->save();
+	$doc->attributes = (object) array_merge((array) $doc->attributes, (array) $group->attributes);
+	$doc->save();
 
-	print json_encode(array("success" => true));
+	print json_encode(array(
+		"success" => true,
+		"data" => $sdk->prepFetchData($doc)
+	));
 	wp_die();
 }
 add_action('wp_ajax_pmp_modify_group', 'pmp_modify_group');

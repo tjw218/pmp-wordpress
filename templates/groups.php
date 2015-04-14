@@ -38,6 +38,8 @@
 		<label>Tags</label>
 		<input type="text" name="tags" id="tags" placeholder="Group tags"
 			<% if (group.get('attributes').tags) { %>value="<%= group.get('attributes').tags %>"<% } %>>
+
+		<input type="hidden" name="guid" id="guid" value="<%= group.get('attributes').guid %>" >
 	</form>
 </script>
 

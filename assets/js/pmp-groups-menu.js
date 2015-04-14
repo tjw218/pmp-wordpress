@@ -55,11 +55,7 @@ var PMP = PMP || {};
                     return g.get('attributes').guid == guid;
                 });
 
-            if (!this.group_modify_modal)
-                this.group_modify_modal = new PMP.ModifyGroupModal({ group: group });
-            else
-                this.group_modify_modal.group = group;
-
+            this.group_modify_modal = new PMP.ModifyGroupModal({ group: group });
             this.group_modify_modal.render();
         },
 
@@ -70,11 +66,7 @@ var PMP = PMP || {};
                     return g.get('attributes').guid == guid;
                 });
 
-            if (!this.group_default_modal)
-                this.group_default_modal = new PMP.DefaultGroupModal({ group: group });
-            else
-                this.group_default_modal.group = group;
-
+            this.group_default_modal = new PMP.DefaultGroupModal({ group: group });
             this.group_default_modal.render();
         },
 
@@ -195,6 +187,11 @@ var PMP = PMP || {};
         actions: {
             'Yes': 'saveGroup',
             'Cancel': 'close'
+        },
+
+        saveGroup: function() {
+            DEFAULT_GROUP = this.group.get('attributes').guid;
+            PMP.BaseGroupModal.prototype.saveGroup.apply(this, arguments);
         },
 
         initialize: function(options) {
