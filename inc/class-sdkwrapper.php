@@ -41,66 +41,86 @@ class SDKWrapper {
 		if (empty($result)) {
 			return $result;
 		} else if (preg_match('/^fetch.*$/', $method)) {
-			// There should only be 1 result when using `fetch*` methods
-			$data = array(
-				"total" => 1,
-				"count" => 1,
-				"page" => 1,
-				"offset" => 0,
-				"total_pages" => 1
-			);
-
-			$links = (array) $result->links;
-			unset($links['auth']);
-			unset($links['query']);
-
-			$item = array(
-				'attributes' => (array) $result->attributes,
-				'links' => $links
-			);
-
-			$items = $result->items();
-			if ($items) {
-				foreach ($items as $related_item) {
-					$related_links = (array) $related_item->links;
-					unset($related_links['auth']);
-					unset($related_links['query']);
-
-					$item['items'][] = array(
-						'links' => $related_links,
-						'items' => (array) $related_item->items,
-						'attributes' => (array) $related_item->attributes
-					);
-				}
-			}
-
-			$data['items'][] = $item;
+			$data = $this->prepFetchData($result);
 		} else {
-			$items = $result->items();
-			$data = array(
-				"total" => $result->items()->totalItems(),
-				"count" => $result->items()->count(),
-				"page" => $result->items()->pageNum(),
-				"offset" => ($result->items()->pageNum() - 1) * $result->items()->count(),
-				"total_pages" => $result->items()->totalPages()
-			);
+			$data = $this->prepQueryData($result);
+		}
 
-			if ($items) {
-				foreach ($items as $item) {
-					$links = (array) $item->links;
+		return $data;
+	}
 
-					unset($links['auth']);
-					unset($links['query']);
+	/**
+	 * Prep results from calls to SDK 'fetch*' methods.
+	 *
+	 * @since 0.2
+	 */
+	public function prepFetchData($result) {
+		// There should only be 1 result when using `fetch*` methods
+		$data = array(
+			"total" => 1,
+			"count" => 1,
+			"page" => 1,
+			"offset" => 0,
+			"total_pages" => 1
+		);
 
-					$data['items'][] = array(
-						'links' => $links,
-						'items' => (array) $item->items,
-						'attributes' => (array) $item->attributes
-					);
-				}
+		$links = (array) $result->links;
+		unset($links['auth']);
+		unset($links['query']);
+
+		$item = array(
+			'attributes' => (array) $result->attributes,
+			'links' => $links
+		);
+
+		$items = $result->items();
+		if ($items) {
+			foreach ($items as $related_item) {
+				$related_links = (array) $related_item->links;
+				unset($related_links['auth']);
+				unset($related_links['query']);
+
+				$item['items'][] = array(
+					'links' => $related_links,
+					'items' => (array) $related_item->items,
+					'attributes' => (array) $related_item->attributes
+				);
 			}
 		}
 
+		$data['items'][] = $item;
+		return $data;
+	}
+
+	/**
+	 * Prep results from calls to SDK 'query*' methods.
+	 *
+	 * @since 0.2
+	 */
+	public function prepQueryData($result) {
+		$items = $result->items();
+		$data = array(
+			"total" => $result->items()->totalItems(),
+			"count" => $result->items()->count(),
+			"page" => $result->items()->pageNum(),
+			"offset" => ($result->items()->pageNum() - 1) * $result->items()->count(),
+			"total_pages" => $result->items()->totalPages()
+		);
+
+		if ($items) {
+			foreach ($items as $item) {
+				$links = (array) $item->links;
+
+				unset($links['auth']);
+				unset($links['query']);
+
+				$data['items'][] = array(
+					'links' => $links,
+					'items' => (array) $item->items,
+					'attributes' => (array) $item->attributes
+				);
+			}
+		}
 		return $data;
 	}
 

@@ -86,7 +86,10 @@ var PMP = PMP || {};
                 });
 
             if (typeof this.modals[group.get('attributes').guid] == 'undefined')
-                this.modals[group.get('attributes').guid] = new PMP.ManageUsersModal({ group: group });
+                this.modals[group.get('attributes').guid] = new PMP.ManageUsersModal({
+                    group: group,
+                    groupList: this
+                });
 
             this.modals[group.get('attributes').guid].render();
         }
@@ -231,6 +234,7 @@ var PMP = PMP || {};
         initialize: function(options) {
             var self = this;
             this.group = options.group;
+            this.groupList = options.groupList;
             this.on('usersChange', function() { self.unsavedChanges = true; });
             PMP.Modal.prototype.initialize.apply(this, arguments);
         },
@@ -331,21 +335,18 @@ var PMP = PMP || {};
             if (target.hasClass('disabled'))
                 return false;
 
-            var serialized = this.$el.find('form#pmp-users-form').serializeArray();
-
-            return false;
-
-            var group = {};
-            _.each(serialized, function(val, idx) {
-                if (val.value !== '')
-                    group[val.name] = val.value;
-            });
+            var serialized = this.$el.find('form#pmp-users-form').serializeArray(),
+                user_guids = _.map(serialized, function(item) { return item.value; }),
+                group_guid = this.group.get('attributes').guid;
 
             var self = this,
                 data = {
                     action: this.action,
                     security: AJAX_NONCE,
-                    group: JSON.stringify({ attributes: group })
+                    data: JSON.stringify({
+                        group_guid: group_guid,
+                        user_guids: user_guids
+                    })
                 };
 
             var opts = {
@@ -355,9 +356,9 @@ var PMP = PMP || {};
                 method: 'post',
                 success: function(data) {
                     self.hideSpinner();
+                    self.unsavedChanges = false;
                     self.close();
-                    PMP.instances.group_list.showSpinner();
-                    PMP.instances.group_list.collection.search();
+                    delete(self.groupList.modals[group_guid]);
                 },
                 error: function() {
                     self.hideSpinner();

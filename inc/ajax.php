@@ -224,3 +224,37 @@ function pmp_default_group() {
 	wp_die();
 }
 add_action('wp_ajax_pmp_default_group', 'pmp_default_group');
+
+/**
+ * Ajax function to save a group's users
+ *
+ * @since 0.2
+ */
+function pmp_save_users() {
+	check_ajax_referer('pmp_ajax_nonce', 'security');
+
+	$group_data = json_decode(stripslashes($_POST['data']));
+
+	$sdk = new SDKWrapper();
+	$group = $sdk->sdk->fetchDoc($group_data->group_guid);
+
+	if (!empty($group_data->user_guids)) {
+		$group->links->item = array();
+
+		foreach ($group_data->user_guids as $user_guid) {
+			$link_item = new \stdClass();
+			$link_item->href = $sdk->href4guid($user_guid);
+			$group->links->item[] = $link_item;
+		}
+	} else
+		unset($group->links->item);
+
+	$group->save();
+
+	print json_encode(array(
+		"success" => true,
+		"data" => $sdk->prepFetchData($group)
+	));
+	wp_die();
+}
+add_action('wp_ajax_pmp_save_users', 'pmp_save_users');
