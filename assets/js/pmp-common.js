@@ -255,7 +255,8 @@ var PMP = PMP || {};
             this.setEvents();
 
             $('body').append(this.$el);
-            $('body').append('<div id="pmp-modal-overlay" />');
+            if ($('#pmp-modal-overlay').length == 0)
+                $('body').append('<div id="pmp-modal-overlay" />');
         },
 
         render: function() {
