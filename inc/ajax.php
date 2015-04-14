@@ -175,13 +175,7 @@ function pmp_create_group() {
 	check_ajax_referer('pmp_ajax_nonce', 'security');
 
 	$group = json_decode(stripslashes($_POST['group']));
-	$sdk = new SDKWrapper();
-
-	if (!empty($group->attributes->tags))
-		$group->attributes->tags = $sdk->commas2array($group->attributes->tags);
-
-	$doc = $sdk->newDoc('group', $group);
-	$doc->save();
+	$doc = _pmp_create_doc($group);
 
 	print json_encode(array(
 		"success" => true,
@@ -200,14 +194,7 @@ function pmp_modify_group() {
 	check_ajax_referer('pmp_ajax_nonce', 'security');
 
 	$group = json_decode(stripslashes($_POST['group']));
-	$sdk = new SDKWrapper();
-	$doc = $sdk->fetchDoc($group->attributes->guid);
-
-	if (!empty($group->attributes->tags))
-		$group->attributes->tags = $sdk->commas2array($group->attributes->tags);
-
-	$doc->attributes = (object) array_merge((array) $doc->attributes, (array) $group->attributes);
-	$doc->save();
+	$doc = _pmp_modify_doc($group);
 
 	print json_encode(array(
 		"success" => true,
@@ -277,13 +264,7 @@ function pmp_create_series() {
 	check_ajax_referer('pmp_ajax_nonce', 'security');
 
 	$series = json_decode(stripslashes($_POST['series']));
-	$sdk = new SDKWrapper();
-
-	if (!empty($series->attributes->tags))
-		$series->attributes->tags = $sdk->commas2array($series->attributes->tags);
-
-	$doc = $sdk->newDoc('series', $series);
-	$doc->save();
+	$doc = _pmp_create_doc($series);
 
 	print json_encode(array(
 		"success" => true,
@@ -302,14 +283,7 @@ function pmp_modify_series() {
 	check_ajax_referer('pmp_ajax_nonce', 'security');
 
 	$series = json_decode(stripslashes($_POST['series']));
-	$sdk = new SDKWrapper();
-	$doc = $sdk->fetchDoc($series->attributes->guid);
-
-	if (!empty($series->attributes->tags))
-		$series->attributes->tags = $sdk->commas2array($series->attributes->tags);
-
-	$doc->attributes = (object) array_merge((array) $doc->attributes, (array) $series->attributes);
-	$doc->save();
+	$doc = _pmp_modify_doc($series);
 
 	print json_encode(array(
 		"success" => true,
@@ -335,3 +309,29 @@ function pmp_default_series() {
 	wp_die();
 }
 add_action('wp_ajax_pmp_default_series', 'pmp_default_series');
+
+/* Helper functions */
+function _pmp_create_doc($data) {
+	$sdk = new SDKWrapper();
+
+	if (!empty($data->attributes->tags))
+		$data->attributes->tags = $sdk->commas2array($data->attributes->tags);
+
+	$doc = $sdk->newDoc('series', $data);
+	$doc->save();
+
+	return $doc;
+}
+
+function _pmp_modify_doc($data) {
+	$sdk = new SDKWrapper();
+	$doc = $sdk->fetchDoc($data->attributes->guid);
+
+	if (!empty($data->attributes->tags))
+		$data->attributes->tags = $sdk->commas2array($data->attributes->tags);
+
+	$doc->attributes = (object) array_merge((array) $doc->attributes, (array) $data->attributes);
+	$doc->save();
+
+	return $doc;
+}
