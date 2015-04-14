@@ -66,9 +66,17 @@ function pmp_series_page() {
 	if (!current_user_can('manage_options'))
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 
+	$sdk = new SDKWrapper();
+	$pmp_series = $sdk->query2json('queryDocs', array(
+		'profile' => 'series',
+		'writeable' => 'true',
+		'limit' => 9999
+	));
+
 	$context = array(
 		'creators' => pmp_get_creators(),
-		'default_series' => get_option('pmp_default_series', false)
+		'default_series' => get_option('pmp_default_series', false),
+		'pmp_series' => $pmp_series
 	);
 	pmp_render_template('series.php', $context);
 }

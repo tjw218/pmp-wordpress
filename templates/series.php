@@ -75,5 +75,6 @@
 <script type="text/javascript">
 	var CREATORS = <?php echo json_encode(array_flip($creators)); ?>,
 		AJAX_NONCE = '<?php echo wp_create_nonce('pmp_ajax_nonce'); ?>';
-		DEFAULT_SERIES= '<?php echo $default_series; ?>';
+		DEFAULT_SERIES= '<?php echo $default_series; ?>',
+		PMP_SERIES = <?php echo json_encode($pmp_series); ?>;
 </script>

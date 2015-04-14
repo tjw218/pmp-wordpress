@@ -209,7 +209,7 @@ function pmp_modify_group() {
 add_action('wp_ajax_pmp_modify_group', 'pmp_modify_group');
 
 /**
- * Ajax function to modify an existing group
+ * Ajax function to the default PMP group
  *
  * @since 0.2
  */
@@ -277,3 +277,20 @@ function pmp_create_series() {
 	wp_die();
 }
 add_action('wp_ajax_pmp_create_series', 'pmp_create_series');
+
+/**
+ * Ajax function to set the default PMP series
+ *
+ * @since 0.2
+ */
+function pmp_default_series() {
+	check_ajax_referer('pmp_ajax_nonce', 'security');
+
+	$group = json_decode(stripslashes($_POST['series']));
+
+	update_option('pmp_default_series', $group->attributes->guid);
+
+	print json_encode(array("success" => true));
+	wp_die();
+}
+add_action('wp_ajax_pmp_default_series', 'pmp_default_series');

@@ -26,11 +26,12 @@ var PMP = PMP || {};
         initialize: function(options) {
             options = options || {};
             this.collection = options.collection || new PMP.SeriesCollection();
-            this.collection.attributes.on('change', this.render.bind(this));
+            this.collection.on('reset', this.render.bind(this));
             this.collection.on('error', this.renderError.bind(this));
 
             this.showSpinner();
-            this.collection.search();
+            if (!options.collection)
+                this.collection.search();
 
             PMP.BaseView.prototype.initialize.apply(this, arguments);
         },
@@ -61,10 +62,10 @@ var PMP = PMP || {};
 
             if (!this.series_modify_modal) {
                 this.series_modify_modal = new PMP.ModifySeriesModal({
-                    series_: series_
+                    series: series
                 });
             } else
-                this.series_modify_modal.group = group;
+                this.series_modify_modal.series = series;
 
             this.series_modify_modal.render();
         },
@@ -72,14 +73,14 @@ var PMP = PMP || {};
         set_default: function(e) {
             var target = e.currentTarget,
                 guid = $(target).data('guid'),
-                collection = this.collection.find(function(g) {
+                series = this.collection.find(function(g) {
                     return g.get('attributes').guid == guid;
                 });
 
             if (!this.collection_default_modal)
-                this.collection_default_modal = new PMP.DefaultGroupModal({ collection: collection });
+                this.collection_default_modal = new PMP.DefaultSeriesModal({ series: series });
             else
-                this.collection_default_modal.collection = collection;
+                this.collection_default_modal.series = series;
 
             this.collection_default_modal.render();
         }
@@ -159,25 +160,25 @@ var PMP = PMP || {};
         }
     });
 
-    //PMP.ModifySeries = PMP.BaseSeriesModal.extend({
-        //action: 'pmp_modify_series_',
+    PMP.ModifySeriesModal = PMP.BaseSeriesModal.extend({
+        action: 'pmp_modify_series',
 
-        //actions: {
-            //'Save': 'saveSeries',
-            //'Cancel': 'close'
-        //},
+        actions: {
+            'Save': 'saveSeries',
+            'Cancel': 'close'
+        },
 
-        //initialize: function(options) {
-            //this.collection = options.collection;
-            //PMP.Modal.prototype.initialize.apply(this, arguments);
-        //},
+        initialize: function(options) {
+            this.series = options.series;
+            PMP.Modal.prototype.initialize.apply(this, arguments);
+        },
 
-        //render: function() {
-            //var template = _.template($('#pmp-modify-series--form-tmpl').html());
-            //this.content = template({ collection: this.collection });
-            //PMP.Modal.prototype.render.apply(this, arguments);
-        //}
-    //});
+        render: function() {
+            var template = _.template($('#pmp-modify-series-form-tmpl').html());
+            this.content = template({ series: this.series });
+            PMP.Modal.prototype.render.apply(this, arguments);
+        }
+    });
 
     PMP.DefaultSeriesModal = PMP.BaseSeriesModal.extend({
         action: 'pmp_default_series',
@@ -194,14 +195,20 @@ var PMP = PMP || {};
 
         render: function() {
             var template = _.template($('#pmp-default-series-form-tmpl').html());
-            this.content = template({ series: this.series});
+            this.content = template({ series: this.series });
             PMP.Modal.prototype.render.apply(this, arguments);
         }
     });
 
     $(document).ready(function() {
         PMP.instances = {};
-        PMP.instances.series_list = new PMP.SeriesList({ el: $('#pmp-series-container') });
+
+        PMP.instances.series_list = new PMP.SeriesList({
+            el: $('#pmp-series-container'),
+            collection: new PMP.SeriesCollection(PMP_SERIES.items)
+        });
+
+        PMP.instances.series_list.render();
 
         $('#pmp-create-series').click(function() {
             if (!PMP.instances.series_create_modal)
