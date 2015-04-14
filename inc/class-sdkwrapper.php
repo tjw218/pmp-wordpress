@@ -134,4 +134,16 @@ class SDKWrapper {
 		return $link->expand(array('guid' => $guid));
 	}
 
+	/**
+	 * Convert a comma-delimited list into an array suitable for use an an attribute of a CollectionDocJson
+	 *
+	 * @since 0.2
+	 */
+	public function commas2array($string) {
+		return array_map(
+			function($tag) { return trim($tag); },
+			explode(',', $string)
+		);
+	}
+
 }

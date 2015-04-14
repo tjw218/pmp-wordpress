@@ -188,6 +188,11 @@ var PMP = PMP || {};
             'Cancel': 'close'
         },
 
+        saveSeries: function() {
+            DEFAULT_SERIES = this.series.get('attributes').guid;
+            PMP.BaseSeriesModal.prototype.saveSeries.apply(this, arguments);
+        },
+
         initialize: function(options) {
             this.series = options.series;
             PMP.Modal.prototype.initialize.apply(this, arguments);

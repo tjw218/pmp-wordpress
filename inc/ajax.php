@@ -177,12 +177,8 @@ function pmp_create_group() {
 	$group = json_decode(stripslashes($_POST['group']));
 	$sdk = new SDKWrapper();
 
-	if (!empty($group->attributes->tags)) {
-		$group->attributes->tags = array_map(
-			function($tag) { return trim($tag); },
-			explode(',', $group->attributes->tags
-		));
-	}
+	if (!empty($group->attributes->tags))
+		$group->attributes->tags = $sdk->commas2array($group->attributes->tags);
 
 	$doc = $sdk->newDoc('group', $group);
 	$doc->save();
@@ -207,12 +203,8 @@ function pmp_modify_group() {
 	$sdk = new SDKWrapper();
 	$doc = $sdk->fetchDoc($group->attributes->guid);
 
-	if (!empty($group->attributes->tags)) {
-		$group->attributes->tags = array_map(
-			function($tag) { return trim($tag); },
-			explode(',', $group->attributes->tags
-		));
-	}
+	if (!empty($group->attributes->tags))
+		$group->attributes->tags = $sdk->commas2array($group->attributes->tags);
 
 	$doc->attributes = (object) array_merge((array) $doc->attributes, (array) $group->attributes);
 	$doc->save();
@@ -286,14 +278,46 @@ function pmp_create_series() {
 
 	$series = json_decode(stripslashes($_POST['series']));
 	$sdk = new SDKWrapper();
+
+	if (!empty($series->attributes->tags))
+		$series->attributes->tags = $sdk->commas2array($series->attributes->tags);
+
 	$doc = $sdk->newDoc('series', $series);
+	$doc->save();
 
-	$result = $doc->save();
-
-	print json_encode(array("success" => true));
+	print json_encode(array(
+		"success" => true,
+		"data" => $sdk->prepFetchData($doc)
+	));
 	wp_die();
 }
 add_action('wp_ajax_pmp_create_series', 'pmp_create_series');
+
+/**
+ * Ajax function to modify a series
+ *
+ * @since 0.2
+ */
+function pmp_modify_series() {
+	check_ajax_referer('pmp_ajax_nonce', 'security');
+
+	$series = json_decode(stripslashes($_POST['series']));
+	$sdk = new SDKWrapper();
+	$doc = $sdk->fetchDoc($series->attributes->guid);
+
+	if (!empty($series->attributes->tags))
+		$series->attributes->tags = $sdk->commas2array($series->attributes->tags);
+
+	$doc->attributes = (object) array_merge((array) $doc->attributes, (array) $series->attributes);
+	$doc->save();
+
+	print json_encode(array(
+		"success" => true,
+		"data" => $sdk->prepFetchData($doc)
+	));
+	wp_die();
+}
+add_action('wp_ajax_pmp_modify_series', 'pmp_modify_series');
 
 /**
  * Ajax function to set the default PMP series
@@ -303,9 +327,9 @@ add_action('wp_ajax_pmp_create_series', 'pmp_create_series');
 function pmp_default_series() {
 	check_ajax_referer('pmp_ajax_nonce', 'security');
 
-	$group = json_decode(stripslashes($_POST['series']));
+	$series = json_decode(stripslashes($_POST['series']));
 
-	update_option('pmp_default_series', $group->attributes->guid);
+	update_option('pmp_default_series', $series->attributes->guid);
 
 	print json_encode(array("success" => true));
 	wp_die();
