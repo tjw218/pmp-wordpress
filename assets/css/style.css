@@ -213,7 +213,7 @@ body.pmp-modal-open #pmp-modal-overlay {
   display: block;
 }
 
-/* Groups & permissions page */
+/* Groups & permissions, Series & properties pages */
 p.error {
   color: #a94442;
   font-weight: bold;

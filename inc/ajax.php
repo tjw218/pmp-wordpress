@@ -236,7 +236,7 @@ function pmp_save_users() {
 	$group_data = json_decode(stripslashes($_POST['data']));
 
 	$sdk = new SDKWrapper();
-	$group = $sdk->sdk->fetchDoc($group_data->group_guid);
+	$group = $sdk->fetchDoc($group_data->group_guid);
 
 	if (!empty($group_data->user_guids)) {
 		$group->links->item = array();
@@ -258,3 +258,22 @@ function pmp_save_users() {
 	wp_die();
 }
 add_action('wp_ajax_pmp_save_users', 'pmp_save_users');
+
+/**
+ * Ajax functions to create a new series
+ *
+ * @since 0.2
+ */
+function pmp_create_series() {
+	check_ajax_referer('pmp_ajax_nonce', 'security');
+
+	$series = json_decode(stripslashes($_POST['series']));
+	$sdk = new SDKWrapper();
+	$doc = $sdk->newDoc('series', $series);
+
+	$result = $doc->save();
+
+	print json_encode(array("success" => true));
+	wp_die();
+}
+add_action('wp_ajax_pmp_create_series', 'pmp_create_series');

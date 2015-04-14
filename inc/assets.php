@@ -31,10 +31,10 @@ function pmp_enqueue_assets() {
 				array('pmp-common', 'pmp-typeahead'), PMP_VERSION, true);
 		}
 
-		if ($page == 'pmp-series-properties-menu') {
+		if ($page == 'pmp-series-menu') {
 			wp_enqueue_style('pmp-common');
 			wp_enqueue_script(
-				'pmp-series-properties-menu', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-series-properties-menu.js',
+				'pmp-series-menu', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-series-menu.js',
 				array('pmp-common'), PMP_VERSION, true);
 		}
 

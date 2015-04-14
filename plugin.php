@@ -74,11 +74,11 @@ function pmp_plugin_menu() {
 			'function' => 'pmp_groups_page'
 		),
 		array(
-			'page_title' => 'Series &amp; Properties',
-			'menu_title' => 'Series &amp; Properties',
+			'page_title' => 'Series',
+			'menu_title' => 'Series',
 			'capability' => 'manage_options',
-			'menu_slug' => 'pmp-series-properties-menu',
-			'function' => 'pmp_series_properties_page'
+			'menu_slug' => 'pmp-series-menu',
+			'function' => 'pmp_series_page'
 		)
 	);
 

@@ -369,7 +369,6 @@ var PMP = PMP || {};
             this.showSpinner();
             this.ongoing = $.ajax(opts);
             return this.ongoing;
-
         },
 
         usersChange: function(e) {
@@ -379,7 +378,6 @@ var PMP = PMP || {};
     });
 
     $(document).ready(function() {
-
         PMP.instances = {};
 
         PMP.instances.group_list = new PMP.GroupList({

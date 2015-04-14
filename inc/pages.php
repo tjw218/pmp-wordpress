@@ -58,17 +58,17 @@ function pmp_groups_page() {
 }
 
 /**
- * Render the plugin's series and properties page
+ * Render the plugin's series page
  *
  * @since 0.2
  */
-function pmp_series_properties_page() {
+function pmp_series_page() {
 	if (!current_user_can('manage_options'))
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 
 	$context = array(
 		'creators' => pmp_get_creators(),
-		'default_collection' => get_option('pmp_default_collection', false)
+		'default_series' => get_option('pmp_default_series', false)
 	);
-	pmp_render_template('series_property.php', $context);
+	pmp_render_template('series.php', $context);
 }

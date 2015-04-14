@@ -4,11 +4,11 @@ var PMP = PMP || {};
     var $ = jQuery;
 
     // Models & Collections
-    PMP.SeriesPropertiesCollection = PMP.DocCollection.extend({
+    PMP.SeriesCollection = PMP.DocCollection.extend({
         search: function(query) {
             query = _.defaults(query || {}, {
                 writeable: 'true',
-                profile: 'property',
+                profile: 'series',
                 limit: 100
             });
             PMP.DocCollection.prototype.search.apply(this, [query, ]);
@@ -16,17 +16,18 @@ var PMP = PMP || {};
     });
 
     // Views
-    PMP.SeriesPropertiesList = PMP.BaseView.extend({
+    PMP.SeriesList = PMP.BaseView.extend({
 
         events: {
-            'click .pmp-series-property-modify': 'modify_series_property',
-            'click .pmp-series-property-default': 'set_default',
+            'click .pmp-series-modify': 'modify_series',
+            'click .pmp-series-default': 'set_default',
         },
 
         initialize: function(options) {
             options = options || {};
-            this.collection = options.collection || new PMP.SeriesPropertiesCollection();
+            this.collection = options.collection || new PMP.SeriesCollection();
             this.collection.attributes.on('change', this.render.bind(this));
+            this.collection.on('error', this.renderError.bind(this));
 
             this.showSpinner();
             this.collection.search();
@@ -34,33 +35,38 @@ var PMP = PMP || {};
             PMP.BaseView.prototype.initialize.apply(this, arguments);
         },
 
+        renderError: function(response) {
+            this.hideSpinner();
+            this.$el.find('#pmp-series-list').html(response.responseJSON.message);
+        },
+
         render: function() {
             var self = this,
-                template = _.template($('#pmp-series-properties-items-tmpl').html());
+                template = _.template($('#pmp-series-items-tmpl').html());
 
-            this.$el.find('#pmp-series-properties-list').html('');
-            this.$el.find('#pmp-series-properties-list').append(template({
+            this.$el.find('#pmp-series-list').html('');
+            this.$el.find('#pmp-series-list').append(template({
                 collection: this.collection
             }));
             this.hideSpinner();
             return this;
         },
 
-        modify_series_property: function(e) {
+        modify_series: function(e) {
             var target = e.currentTarget,
                 guid = $(target).data('guid'),
-                series_property = this.collection.find(function(g) {
+                series = this.collection.find(function(g) {
                     return g.get('attributes').guid == guid;
                 });
 
-            if (!this.series_property_modify_modal) {
-                this.series_property_modify_modal = new PMP.ModifySeriesPropertyModal({
-                    series_property: series_property
+            if (!this.series_modify_modal) {
+                this.series_modify_modal = new PMP.ModifySeriesModal({
+                    series_: series_
                 });
             } else
-                this.series_property_modify_modal.group = group;
+                this.series_modify_modal.group = group;
 
-            this.series_property_modify_modal.render();
+            this.series_modify_modal.render();
         },
 
         set_default: function(e) {
@@ -79,10 +85,10 @@ var PMP = PMP || {};
         }
     });
 
-    PMP.BaseSeriesPropertyModal = PMP.Modal.extend({
-        className: 'pmp-series-property-modal',
+    PMP.BaseSeriesModal = PMP.Modal.extend({
+        className: 'pmp-series-modal',
 
-        saveSeriesProperty: function() {
+        saveSeries: function() {
             if (typeof this.ongoing !== 'undefined' && $.inArray(this.ongoing.state(), ['resolved', 'rejected']) == -1)
                 return false;
 
@@ -94,17 +100,17 @@ var PMP = PMP || {};
 
             var serialized = this.$el.find('form').serializeArray();
 
-            var series_property = {};
+            var series = {};
             _.each(serialized, function(val, idx) {
                 if (val.value !== '')
-                    series_property[val.name] = val.value;
+                    series[val.name] = val.value;
             });
 
             var self = this,
                 data = {
                     action: this.action,
                     security: AJAX_NONCE,
-                    series_property: JSON.stringify({ attributes: series_property })
+                    series: JSON.stringify({ attributes: series })
                 };
 
             var opts = {
@@ -115,8 +121,8 @@ var PMP = PMP || {};
                 success: function(data) {
                     self.hideSpinner();
                     self.close();
-                    PMP.instances.series_properties_list.showSpinner();
-                    PMP.instances.series_properties_list.collection.search();
+                    PMP.instances.series_list.showSpinner();
+                    PMP.instances.series_list.collection.search();
                 },
                 error: function() {
                     self.hideSpinner();
@@ -142,67 +148,65 @@ var PMP = PMP || {};
         }
     });
 
-    PMP.CreateSeriesPropertyModal = PMP.BaseSeriesPropertyModal.extend({
-        content: _.template($('#pmp-create-new-series-property-form-tmpl').html(), {}),
+    PMP.CreateSeriesModal = PMP.BaseSeriesModal.extend({
+        content: _.template($('#pmp-create-new-series-form-tmpl').html(), {}),
 
-        action: 'pmp_create_series_property',
+        action: 'pmp_create_series',
 
         actions: {
-            'Create': 'saveSeriesProperty',
+            'Create': 'saveSeries',
             'Cancel': 'close'
         }
     });
 
-    PMP.ModifySeriesProperty = PMP.BaseSeriesPropertyModal.extend({
-        action: 'pmp_modify_series_property',
+    //PMP.ModifySeries = PMP.BaseSeriesModal.extend({
+        //action: 'pmp_modify_series_',
+
+        //actions: {
+            //'Save': 'saveSeries',
+            //'Cancel': 'close'
+        //},
+
+        //initialize: function(options) {
+            //this.collection = options.collection;
+            //PMP.Modal.prototype.initialize.apply(this, arguments);
+        //},
+
+        //render: function() {
+            //var template = _.template($('#pmp-modify-series--form-tmpl').html());
+            //this.content = template({ collection: this.collection });
+            //PMP.Modal.prototype.render.apply(this, arguments);
+        //}
+    //});
+
+    PMP.DefaultSeriesModal = PMP.BaseSeriesModal.extend({
+        action: 'pmp_default_series',
 
         actions: {
-            'Save': 'saveSeriesProperty',
+            'Yes': 'saveSeries',
             'Cancel': 'close'
         },
 
         initialize: function(options) {
-            this.collection = options.collection;
+            this.series = options.series;
             PMP.Modal.prototype.initialize.apply(this, arguments);
         },
 
         render: function() {
-            var template = _.template($('#pmp-modify-series-property-form-tmpl').html());
-            this.content = template({ collection: this.collection });
-            PMP.Modal.prototype.render.apply(this, arguments);
-        }
-    });
-
-    PMP.DefaultCollectionModal = PMP.BaseSeriesPropertyModal.extend({
-        action: 'pmp_default_collection',
-
-        actions: {
-            'Yes': 'saveSeriesProperty',
-            'Cancel': 'close'
-        },
-
-        initialize: function(options) {
-            this.collection = options.collection;
-            PMP.Modal.prototype.initialize.apply(this, arguments);
-        },
-
-        render: function() {
-            var template = _.template($('#pmp-default-collection-form-tmpl').html());
-            this.content = template({ collection: this.collection });
+            var template = _.template($('#pmp-default-series-form-tmpl').html());
+            this.content = template({ series: this.series});
             PMP.Modal.prototype.render.apply(this, arguments);
         }
     });
 
     $(document).ready(function() {
-
         PMP.instances = {};
+        PMP.instances.series_list = new PMP.SeriesList({ el: $('#pmp-series-container') });
 
-        //PMP.instances.series_properties_list = new PMP.SeriesPropertiesList({ el: $('#pmp-series-properties-container') });
-
-        $('#pmp-create-group').click(function() {
-            if (!PMP.instances.series_property_create_modal)
-                PMP.instances.series_property_create_modal = new PMP.CreateSeriesPropertyModal();
-            PMP.instances.series_property_create_modal.render();
+        $('#pmp-create-series').click(function() {
+            if (!PMP.instances.series_create_modal)
+                PMP.instances.series_create_modal = new PMP.CreateSeriesModal();
+            PMP.instances.series_create_modal.render();
         });
     });
 })();
