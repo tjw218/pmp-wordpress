@@ -107,5 +107,6 @@
 	var CREATORS = <?php echo json_encode(array_flip($creators)); ?>,
 		AJAX_NONCE = '<?php echo wp_create_nonce('pmp_ajax_nonce'); ?>';
 		DEFAULT_GROUP = '<?php echo $default_group; ?>',
-		PMP_USERS = <?php echo json_encode($pmp_users); ?>;
+		PMP_USERS = <?php echo json_encode($users); ?>,
+		PMP_GROUPS = <?php echo json_encode($groups); ?>;
 </script>

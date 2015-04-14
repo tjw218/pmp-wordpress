@@ -42,9 +42,16 @@ function pmp_groups_page() {
 		'limit' => 9999
 	));
 
+	$pmp_groups = $sdk->query2json('queryDocs', array(
+		'profile' => 'group',
+		'writeable' => 'true',
+		'limit' => 9999
+	));
+
 	$context = array(
 		'creators' => pmp_get_creators(),
-		'pmp_users' => $pmp_users,
+		'users' => $pmp_users,
+		'groups' => $pmp_groups,
 		'default_group' => get_option('pmp_default_group', false)
 	);
 	pmp_render_template('groups.php', $context);

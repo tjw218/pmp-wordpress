@@ -18,6 +18,8 @@ var PMP = PMP || {};
     // Views
     PMP.GroupList = PMP.BaseView.extend({
 
+        modals: {},
+
         events: {
             'click .pmp-group-modify': 'modifyGroup',
             'click .pmp-group-default': 'setDefault',
@@ -27,10 +29,11 @@ var PMP = PMP || {};
         initialize: function(options) {
             options = options || {};
             this.collection = options.collection || new PMP.GroupCollection();
-            this.collection.attributes.on('change', this.render.bind(this));
+            this.collection.on('reset', this.render.bind(this));
 
             this.showSpinner();
-            this.collection.search();
+            if (!options.collection)
+                this.collection.search();
 
             PMP.BaseView.prototype.initialize.apply(this, arguments);
         },
@@ -82,11 +85,10 @@ var PMP = PMP || {};
                     return g.get('attributes').guid == guid;
                 });
 
-            if (this.manage_users_modal)
-                this.manage_users_modal.remove();
+            if (typeof this.modals[group.get('attributes').guid] == 'undefined')
+                this.modals[group.get('attributes').guid] = new PMP.ManageUsersModal({ group: group });
 
-            this.manage_users_modal = new PMP.ManageUsersModal({ group: group });
-            this.manage_users_modal.render();
+            this.modals[group.get('attributes').guid].render();
         }
     });
 
@@ -224,40 +226,62 @@ var PMP = PMP || {};
             'Cancel': 'close'
         },
 
+        unsavedChanges: false,
+
         initialize: function(options) {
             var self = this;
             this.group = options.group;
+            this.on('usersChange', function() { self.unsavedChanges = true; });
             PMP.Modal.prototype.initialize.apply(this, arguments);
+        },
+
+        close: function() {
+            if (this.unsavedChanges) {
+                var ret = confirm("You have unsaved changes. Are you sure you want to cancel?");
+                if (ret)
+                    return PMP.Modal.prototype.close.apply(this, arguments);
+                else
+                    return false;
+            } else
+                return PMP.Modal.prototype.close.apply(this, arguments);
         },
 
         render: function() {
             var self = this,
                 template = _.template($('#pmp-manage-users-tmpl').html());
 
-            this.users = new PMP.GroupCollection([]);
-            this.users.on('reset', function() {
-                self.content = template({
-                    group: self.group,
-                    users: self.users
+            if (!this.users) {
+                this.users = new PMP.GroupCollection([]);
+                this.users.on('reset', function() {
+                    self.content = template({
+                        group: self.group,
+                        users: self.users
+                    });
+                    PMP.Modal.prototype.render.apply(self);
+
+                    self.$el.find('a.Save').addClass('disabled');
+                    self.on('usersChange', self.usersChange.bind(self));
+
+                    self.setupTypeahead.apply(self);
+                    self.hideSpinner();
                 });
                 PMP.Modal.prototype.render.apply(self);
+                this.showSpinner();
+                this.users.search({ guid: this.group.get('attributes').guid });
+            } else {
+                PMP.Modal.prototype.render.apply(self);
+                this.setupTypeahead();
+            }
+        },
 
-                self.$el.find('a.Save').addClass('disabled');
-                self.on('usersChange', self.usersChange.bind(self));
-
-                self.searchForm = self.$el.find('#pmp-user-search').typeahead({
-                    minLength: 3, highlight: true
-                }, {
-                    name: 'pmp-users',
-                    source: self.userSearch.bind(self),
-                    displayKey: 'title'
-                });
-                self.hideSpinner();
+        setupTypeahead: function() {
+            this.searchForm = this.$el.find('#pmp-user-search').typeahead({
+                minLength: 3, highlight: true
+            }, {
+                name: 'pmp-users',
+                source: this.userSearch.bind(this),
+                displayKey: 'title'
             });
-
-            PMP.Modal.prototype.render.apply(self);
-            this.showSpinner();
-            this.users.search({ guid: this.group.get('attributes').guid });
         },
 
         userSearch: function(query, cb) {
@@ -357,7 +381,12 @@ var PMP = PMP || {};
 
         PMP.instances = {};
 
-        PMP.instances.group_list = new PMP.GroupList({ el: $('#pmp-groups-container') });
+        PMP.instances.group_list = new PMP.GroupList({
+            el: $('#pmp-groups-container'),
+            collection: new PMP.GroupCollection(PMP_GROUPS.items)
+        });
+
+        PMP.instances.group_list.render();
 
         $('#pmp-create-group').click(function() {
             if (!PMP.instances.group_create_modal)
