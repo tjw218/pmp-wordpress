@@ -176,11 +176,21 @@ function pmp_create_group() {
 
 	$group = json_decode(stripslashes($_POST['group']));
 	$sdk = new SDKWrapper();
+
+	if (!empty($group->attributes->tags)) {
+		$group->attributes->tags = array_map(
+			function($tag) { return trim($tag); },
+			explode(',', $group->attributes->tags
+		));
+	}
+
 	$doc = $sdk->newDoc('group', $group);
+	$doc->save();
 
-	$result = $doc->save();
-
-	print json_encode(array("success" => true));
+	print json_encode(array(
+		"success" => true,
+		"data" => $sdk->prepFetchData($doc)
+	));
 	wp_die();
 }
 add_action('wp_ajax_pmp_create_group', 'pmp_create_group');
