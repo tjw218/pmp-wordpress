@@ -4,6 +4,7 @@ class TestFunctions extends WP_UnitTestCase {
 	function test_pmp_render_template() {
 		$this->expectOutputRegex('/<h2>Search the Platform<\/h2>/');
 		pmp_render_template('search.php', array(
+			'PMP' => array(),
 			'creators' => array(),
 			'profiles' => array()
 		));

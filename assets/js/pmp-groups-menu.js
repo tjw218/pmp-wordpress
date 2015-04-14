@@ -111,7 +111,7 @@ var PMP = PMP || {};
             var self = this,
                 data = {
                     action: this.action,
-                    security: AJAX_NONCE,
+                    security: PMP.ajax_nonce,
                     group: JSON.stringify({ attributes: group })
                 };
 
@@ -190,7 +190,7 @@ var PMP = PMP || {};
         },
 
         saveGroup: function() {
-            DEFAULT_GROUP = this.group.get('attributes').guid;
+            PMP.default_group = this.group.get('attributes').guid;
             PMP.BaseGroupModal.prototype.saveGroup.apply(this, arguments);
         },
 
@@ -209,7 +209,7 @@ var PMP = PMP || {};
     PMP.ManageUsersModal = PMP.Modal.extend({
         className: 'pmp-group-modal',
 
-        allUsers: new Backbone.Collection(PMP_USERS.items),
+        allUsers: new Backbone.Collection(PMP.users.items),
 
         events: {
             'typeahead:selected': 'addUser',
@@ -339,7 +339,7 @@ var PMP = PMP || {};
             var self = this,
                 data = {
                     action: this.action,
-                    security: AJAX_NONCE,
+                    security: PMP.ajax_nonce,
                     data: JSON.stringify({
                         group_guid: group_guid,
                         user_guids: user_guids
@@ -379,7 +379,7 @@ var PMP = PMP || {};
 
         PMP.instances.group_list = new PMP.GroupList({
             el: $('#pmp-groups-container'),
-            collection: new PMP.GroupCollection(PMP_GROUPS.items)
+            collection: new PMP.GroupCollection((PMP.groups)? PMP.groups.items:[])
         });
 
         PMP.instances.group_list.render();

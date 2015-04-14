@@ -85,13 +85,13 @@
 	<% groups.each(function(group) { %>
 		<div class="pmp-group-container">
 			<h3><%= group.get('attributes').title %>
-				<% if (group.get('attributes').guid == DEFAULT_GROUP) { %><span class="pmp-default-group">(default)</span><% } %></h3>
+				<% if (group.get('attributes').guid == PMP.default_group) { %><span class="pmp-default-group">(default)</span><% } %></h3>
 			<div class="pmp-group-actions">
 				<ul>
 					<li>
 						<a class="pmp-group-modify" data-guid="<%= group.get('attributes').guid %>" href="#">Modify</a>
 					</li>
-					<% if (group.get('attributes').guid !== DEFAULT_GROUP) { %>
+					<% if (group.get('attributes').guid !== PMP.default_group) { %>
 					<li>
 						<a class="pmp-group-default" data-guid="<%= group.get('attributes').guid %>" href="#">Set as default</a>
 					</li>
@@ -106,9 +106,5 @@
 </script>
 
 <script type="text/javascript">
-	var CREATORS = <?php echo json_encode(array_flip($creators)); ?>,
-		AJAX_NONCE = '<?php echo wp_create_nonce('pmp_ajax_nonce'); ?>';
-		DEFAULT_GROUP = '<?php echo $default_group; ?>',
-		PMP_USERS = <?php echo json_encode($users); ?>,
-		PMP_GROUPS = <?php echo json_encode($groups); ?>;
+	var PMP = <?php echo json_encode($PMP); ?>;
 </script>

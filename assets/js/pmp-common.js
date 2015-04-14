@@ -48,8 +48,6 @@ var PMP = PMP || {};
                 return null;
         },
 
-        creatorAliases: CREATORS,
-
         getCreator: function() {
             var links = this.get('links');
 
@@ -71,7 +69,7 @@ var PMP = PMP || {};
                 var parts = creator.href.split('/'),
                     last = _.last(parts);
 
-                return (this.creatorAliases[last])? this.creatorAliases[last] : null;
+                return (PMP.creators[last])? PMP.creators[last] : null;
             } else
                 return null;
         },
@@ -138,7 +136,7 @@ var PMP = PMP || {};
                 action = (draft)? 'pmp_draft_post' : 'pmp_publish_post',
                 data = {
                     action: action,
-                    security: AJAX_NONCE,
+                    security: PMP.ajax_nonce,
                 };
 
             var post_data = this.toJSON();
@@ -187,7 +185,7 @@ var PMP = PMP || {};
             var self = this,
                 data = {
                     action: 'pmp_search',
-                    security: AJAX_NONCE,
+                    security: PMP.ajax_nonce,
                     query: JSON.stringify(query)
                 };
 

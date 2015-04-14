@@ -22,6 +22,7 @@ function pmp_search_page() {
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 
 	pmp_render_template('search.php', array(
+		'PMP' => pmp_json_obj(),
 		'creators' => pmp_get_creators(),
 		'profiles' => pmp_get_profiles()
 	));
@@ -49,34 +50,48 @@ function pmp_groups_page() {
 	));
 
 	$context = array(
-		'creators' => pmp_get_creators(),
-		'users' => $pmp_users,
-		'groups' => $pmp_groups,
-		'default_group' => get_option('pmp_default_group', false)
+		'PMP' => pmp_json_obj(array(
+			'default_group' => get_option('pmp_default_group', false),
+			'groups' => $pmp_groups,
+			'users' => $pmp_users
+		))
 	);
 	pmp_render_template('groups.php', $context);
 }
 
 /**
- * Render the plugin's series page
+ * Render the plugin's series and properties pages
  *
  * @since 0.2
  */
-function pmp_series_page() {
+function pmp_collections_page() {
 	if (!current_user_can('manage_options'))
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 
+	if ($_GET['page'] == 'pmp-properties-menu') {
+		$name = 'Properties';
+		$profile = 'property';
+	} else if ($_GET['page'] == 'pmp-series-menu') {
+		$name = 'Series';
+		$profile = 'series';
+	}
+
 	$sdk = new SDKWrapper();
-	$pmp_series = $sdk->query2json('queryDocs', array(
-		'profile' => 'series',
+	$pmp_collection = $sdk->query2json('queryDocs', array(
+		'profile' => $profile,
 		'writeable' => 'true',
 		'limit' => 9999
 	));
 
 	$context = array(
-		'creators' => pmp_get_creators(),
-		'default_series' => get_option('pmp_default_series', false),
-		'pmp_series' => $pmp_series
+		'PMP' => pmp_json_obj(array(
+			'default_collection' => get_option('pmp_default_' . $profile, false),
+			'pmp_collection' => $pmp_collection,
+			'profile' => $profile,
+			'name' => $name
+		)),
+		'name' => $name,
+		'profile' => $profile
 	);
-	pmp_render_template('series.php', $context);
+	pmp_render_template('collections.php', $context);
 }

@@ -78,7 +78,14 @@ function pmp_plugin_menu() {
 			'menu_title' => 'Series',
 			'capability' => 'manage_options',
 			'menu_slug' => 'pmp-series-menu',
-			'function' => 'pmp_series_page'
+			'function' => 'pmp_collections_page'
+		),
+		array(
+			'page_title' => 'Properties',
+			'menu_title' => 'Properties',
+			'capability' => 'manage_options',
+			'menu_slug' => 'pmp-properties-menu',
+			'function' => 'pmp_collections_page'
 		)
 	);
 

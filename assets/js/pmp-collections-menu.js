@@ -4,11 +4,11 @@ var PMP = PMP || {};
     var $ = jQuery;
 
     // Models & Collections
-    PMP.SeriesCollection = PMP.DocCollection.extend({
+    PMP.MultiCollection = PMP.DocCollection.extend({
         search: function(query) {
             query = _.defaults(query || {}, {
                 writeable: 'true',
-                profile: 'series',
+                profile: PMP.profile,
                 limit: 100
             });
             PMP.DocCollection.prototype.search.apply(this, [query, ]);
@@ -16,16 +16,16 @@ var PMP = PMP || {};
     });
 
     // Views
-    PMP.SeriesList = PMP.BaseView.extend({
+    PMP.CollectionList = PMP.BaseView.extend({
 
         events: {
-            'click .pmp-series-modify': 'modify_series',
-            'click .pmp-series-default': 'set_default',
+            'click .pmp-collection-modify': 'modify_collection',
+            'click .pmp-collection-default': 'set_default',
         },
 
         initialize: function(options) {
             options = options || {};
-            this.collection = options.collection || new PMP.SeriesCollection();
+            this.collection = options.collection || new PMP.MultiCollection();
             this.collection.on('reset', this.render.bind(this));
             this.collection.on('error', this.renderError.bind(this));
 
@@ -38,58 +38,58 @@ var PMP = PMP || {};
 
         renderError: function(response) {
             this.hideSpinner();
-            this.$el.find('#pmp-series-list').html(response.responseJSON.message);
+            this.$el.find('#pmp-collection-list').html(response.responseJSON.message);
         },
 
         render: function() {
             var self = this,
-                template = _.template($('#pmp-series-items-tmpl').html());
+                template = _.template($('#pmp-collection-items-tmpl').html());
 
-            this.$el.find('#pmp-series-list').html('');
-            this.$el.find('#pmp-series-list').append(template({
+            this.$el.find('#pmp-collection-list').html('');
+            this.$el.find('#pmp-collection-list').append(template({
                 collection: this.collection
             }));
             this.hideSpinner();
             return this;
         },
 
-        modify_series: function(e) {
+        modify_collection: function(e) {
             var target = e.currentTarget,
                 guid = $(target).data('guid'),
-                series = this.collection.find(function(g) {
+                collection = this.collection.find(function(g) {
                     return g.get('attributes').guid == guid;
                 });
 
-            if (!this.series_modify_modal) {
-                this.series_modify_modal = new PMP.ModifySeriesModal({
-                    series: series
+            if (!this.collection_modify_modal) {
+                this.collection_modify_modal = new PMP.ModifyCollectionModal({
+                    collection: collection
                 });
             } else
-                this.series_modify_modal.series = series;
+                this.collection_modify_modal.collection = collection;
 
-            this.series_modify_modal.render();
+            this.collection_modify_modal.render();
         },
 
         set_default: function(e) {
             var target = e.currentTarget,
                 guid = $(target).data('guid'),
-                series = this.collection.find(function(g) {
+                collection = this.collection.find(function(g) {
                     return g.get('attributes').guid == guid;
                 });
 
             if (!this.collection_default_modal)
-                this.collection_default_modal = new PMP.DefaultSeriesModal({ series: series });
+                this.collection_default_modal = new PMP.DefaultCollectionModal({ collection: collection});
             else
-                this.collection_default_modal.series = series;
+                this.collection_default_modal.collection = collection;
 
             this.collection_default_modal.render();
         }
     });
 
-    PMP.BaseSeriesModal = PMP.Modal.extend({
-        className: 'pmp-series-modal',
+    PMP.BaseCollectionModal = PMP.Modal.extend({
+        className: 'pmp-collection-modal',
 
-        saveSeries: function() {
+        saveCollection: function() {
             if (typeof this.ongoing !== 'undefined' && $.inArray(this.ongoing.state(), ['resolved', 'rejected']) == -1)
                 return false;
 
@@ -101,17 +101,18 @@ var PMP = PMP || {};
 
             var serialized = this.$el.find('form').serializeArray();
 
-            var series = {};
+            var collection = {};
             _.each(serialized, function(val, idx) {
                 if (val.value !== '')
-                    series[val.name] = val.value;
+                    collection[val.name] = val.value;
             });
 
             var self = this,
                 data = {
                     action: this.action,
-                    security: AJAX_NONCE,
-                    series: JSON.stringify({ attributes: series })
+                    security: PMP.ajax_nonce,
+                    collection: JSON.stringify({ attributes: collection }),
+                    profile: PMP.profile
                 };
 
             var opts = {
@@ -122,8 +123,8 @@ var PMP = PMP || {};
                 success: function(data) {
                     self.hideSpinner();
                     self.close();
-                    PMP.instances.series_list.showSpinner();
-                    PMP.instances.series_list.collection.search();
+                    PMP.instances.collection_list.showSpinner();
+                    PMP.instances.collection_list.collection.search();
                 },
                 error: function() {
                     self.hideSpinner();
@@ -149,58 +150,58 @@ var PMP = PMP || {};
         }
     });
 
-    PMP.CreateSeriesModal = PMP.BaseSeriesModal.extend({
-        content: _.template($('#pmp-create-new-series-form-tmpl').html(), {}),
+    PMP.CreateCollectionModal = PMP.BaseCollectionModal.extend({
+        content: _.template($('#pmp-create-new-collection-form-tmpl').html(), {}),
 
-        action: 'pmp_create_series',
+        action: 'pmp_create_collection',
 
         actions: {
-            'Create': 'saveSeries',
+            'Create': 'saveCollection',
             'Cancel': 'close'
         }
     });
 
-    PMP.ModifySeriesModal = PMP.BaseSeriesModal.extend({
-        action: 'pmp_modify_series',
+    PMP.ModifyCollectionModal = PMP.BaseCollectionModal.extend({
+        action: 'pmp_modify_collection',
 
         actions: {
-            'Save': 'saveSeries',
+            'Save': 'saveCollection',
             'Cancel': 'close'
         },
 
         initialize: function(options) {
-            this.series = options.series;
+            this.collection = options.collection;
             PMP.Modal.prototype.initialize.apply(this, arguments);
         },
 
         render: function() {
-            var template = _.template($('#pmp-modify-series-form-tmpl').html());
-            this.content = template({ series: this.series });
+            var template = _.template($('#pmp-modify-collection-form-tmpl').html());
+            this.content = template({ collection: this.collection });
             PMP.Modal.prototype.render.apply(this, arguments);
         }
     });
 
-    PMP.DefaultSeriesModal = PMP.BaseSeriesModal.extend({
-        action: 'pmp_default_series',
+    PMP.DefaultCollectionModal = PMP.BaseCollectionModal.extend({
+        action: 'pmp_default_collection',
 
         actions: {
-            'Yes': 'saveSeries',
+            'Yes': 'saveCollection',
             'Cancel': 'close'
         },
 
-        saveSeries: function() {
-            DEFAULT_SERIES = this.series.get('attributes').guid;
-            PMP.BaseSeriesModal.prototype.saveSeries.apply(this, arguments);
+        saveCollection: function() {
+            PMP.default_collection = this.collection.get('attributes').guid;
+            PMP.BaseCollectionModal.prototype.saveCollection.apply(this, arguments);
         },
 
         initialize: function(options) {
-            this.series = options.series;
+            this.collection = options.collection;
             PMP.Modal.prototype.initialize.apply(this, arguments);
         },
 
         render: function() {
-            var template = _.template($('#pmp-default-series-form-tmpl').html());
-            this.content = template({ series: this.series });
+            var template = _.template($('#pmp-default-collection-form-tmpl').html());
+            this.content = template({ collection: this.collection });
             PMP.Modal.prototype.render.apply(this, arguments);
         }
     });
@@ -208,17 +209,17 @@ var PMP = PMP || {};
     $(document).ready(function() {
         PMP.instances = {};
 
-        PMP.instances.series_list = new PMP.SeriesList({
-            el: $('#pmp-series-container'),
-            collection: new PMP.SeriesCollection(PMP_SERIES.items)
+        PMP.instances.collection_list = new PMP.CollectionList({
+            el: $('#pmp-collection-container'),
+            collection: new PMP.MultiCollection((PMP.pmp_collection)? PMP.pmp_collection.items:[])
         });
 
-        PMP.instances.series_list.render();
+        PMP.instances.collection_list.render();
 
-        $('#pmp-create-series').click(function() {
-            if (!PMP.instances.series_create_modal)
-                PMP.instances.series_create_modal = new PMP.CreateSeriesModal();
-            PMP.instances.series_create_modal.render();
+        $('#pmp-create-collection').click(function() {
+            if (!PMP.instances.collection_create_modal)
+                PMP.instances.collection_create_modal = new PMP.CreateCollectionModal();
+            PMP.instances.collection_create_modal.render();
         });
     });
 })();

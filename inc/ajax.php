@@ -66,6 +66,176 @@ function pmp_publish_post() {
 }
 add_action('wp_ajax_pmp_publish_post', 'pmp_publish_post');
 
+/**
+ * Ajax function to create new group
+ *
+ * @since 0.2
+ */
+function pmp_create_group() {
+	check_ajax_referer('pmp_ajax_nonce', 'security');
+
+	$group = json_decode(stripslashes($_POST['group']));
+	$doc = _pmp_create_doc('group', $group);
+
+	print json_encode(array(
+		"success" => true,
+		"data" => SDKWrapper::prepFetchData($doc)
+	));
+	wp_die();
+}
+add_action('wp_ajax_pmp_create_group', 'pmp_create_group');
+
+/**
+ * Ajax function to modify an existing group
+ *
+ * @since 0.2
+ */
+function pmp_modify_group() {
+	check_ajax_referer('pmp_ajax_nonce', 'security');
+
+	$group = json_decode(stripslashes($_POST['group']));
+	$doc = _pmp_modify_doc($group);
+
+	print json_encode(array(
+		"success" => true,
+		"data" => SDKWrapper::prepFetchData($doc)
+	));
+	wp_die();
+}
+add_action('wp_ajax_pmp_modify_group', 'pmp_modify_group');
+
+/**
+ * Ajax function to the default PMP group
+ *
+ * @since 0.2
+ */
+function pmp_default_group() {
+	check_ajax_referer('pmp_ajax_nonce', 'security');
+
+	$group = json_decode(stripslashes($_POST['group']));
+
+	update_option('pmp_default_group', $group->attributes->guid);
+
+	print json_encode(array("success" => true));
+	wp_die();
+}
+add_action('wp_ajax_pmp_default_group', 'pmp_default_group');
+
+/**
+ * Ajax function to save a group's users
+ *
+ * @since 0.2
+ */
+function pmp_save_users() {
+	check_ajax_referer('pmp_ajax_nonce', 'security');
+
+	$group_data = json_decode(stripslashes($_POST['data']));
+
+	$sdk = new SDKWrapper();
+	$group = $sdk->fetchDoc($group_data->group_guid);
+
+	if (!empty($group_data->user_guids)) {
+		$group->links->item = array();
+
+		foreach ($group_data->user_guids as $user_guid) {
+			$link_item = new \stdClass();
+			$link_item->href = $sdk->href4guid($user_guid);
+			$group->links->item[] = $link_item;
+		}
+	} else
+		unset($group->links->item);
+
+	$group->save();
+
+	print json_encode(array(
+		"success" => true,
+		"data" => SDKWrapper::prepFetchData($group)
+	));
+	wp_die();
+}
+add_action('wp_ajax_pmp_save_users', 'pmp_save_users');
+
+/**
+ * Ajax functions to create a new series or property
+ *
+ * @since 0.2
+ */
+function pmp_create_collection() {
+	check_ajax_referer('pmp_ajax_nonce', 'security');
+
+	$collection = json_decode(stripslashes($_POST['collection']));
+	$doc = _pmp_create_doc($_POST['profile'], $collection);
+
+	print json_encode(array(
+		"success" => true,
+		"data" => SDKWrapper::prepFetchData($doc)
+	));
+	wp_die();
+}
+add_action('wp_ajax_pmp_create_collection', 'pmp_create_collection');
+
+/**
+ * Ajax function to modify a series or property
+ *
+ * @since 0.2
+ */
+function pmp_modify_collection() {
+	check_ajax_referer('pmp_ajax_nonce', 'security');
+
+	$collection = json_decode(stripslashes($_POST['collection']));
+	$doc = _pmp_modify_doc($collection);
+
+	print json_encode(array(
+		"success" => true,
+		"data" => SDKWrapper::prepFetchData($doc)
+	));
+	wp_die();
+}
+add_action('wp_ajax_pmp_modify_collection', 'pmp_modify_collection');
+
+/**
+ * Ajax function to set the default PMP series or property
+ *
+ * @since 0.2
+ */
+function pmp_default_collection() {
+	check_ajax_referer('pmp_ajax_nonce', 'security');
+
+	$collection = json_decode(stripslashes($_POST['collection']));
+
+	update_option('pmp_default_' . $_POST['profile'], $collection->attributes->guid);
+
+	print json_encode(array("success" => true));
+	wp_die();
+}
+add_action('wp_ajax_pmp_default_collection', 'pmp_default_collection');
+
+/* Helper functions */
+function _pmp_create_doc($type, $data) {
+	$sdk = new SDKWrapper();
+
+	if (!empty($data->attributes->tags))
+		$data->attributes->tags = SDKWrapper::commas2array($data->attributes->tags);
+
+	$doc = $sdk->newDoc($type, $data);
+	$doc->save();
+
+	return $doc;
+}
+
+function _pmp_modify_doc($data) {
+	$sdk = new SDKWrapper();
+	$doc = $sdk->fetchDoc($data->attributes->guid);
+
+	if (!empty($data->attributes->tags))
+		$data->attributes->tags = SDKWrapper::commas2array($data->attributes->tags);
+
+	$doc->attributes = (object) array_merge((array) $doc->attributes, (array) $data->attributes);
+	$doc->save();
+
+	return $doc;
+}
+
 function _pmp_ajax_create_post($draft=false) {
 	print json_encode(_pmp_create_post($draft));
 	wp_die();
@@ -164,174 +334,4 @@ function _pmp_create_post($draft=false) {
 			"edit_url" => html_entity_decode(get_edit_post_link($new_post))
 		)
 	);
-}
-
-/**
- * Ajax function to create new group
- *
- * @since 0.2
- */
-function pmp_create_group() {
-	check_ajax_referer('pmp_ajax_nonce', 'security');
-
-	$group = json_decode(stripslashes($_POST['group']));
-	$doc = _pmp_create_doc($group);
-
-	print json_encode(array(
-		"success" => true,
-		"data" => $sdk->prepFetchData($doc)
-	));
-	wp_die();
-}
-add_action('wp_ajax_pmp_create_group', 'pmp_create_group');
-
-/**
- * Ajax function to modify an existing group
- *
- * @since 0.2
- */
-function pmp_modify_group() {
-	check_ajax_referer('pmp_ajax_nonce', 'security');
-
-	$group = json_decode(stripslashes($_POST['group']));
-	$doc = _pmp_modify_doc($group);
-
-	print json_encode(array(
-		"success" => true,
-		"data" => $sdk->prepFetchData($doc)
-	));
-	wp_die();
-}
-add_action('wp_ajax_pmp_modify_group', 'pmp_modify_group');
-
-/**
- * Ajax function to the default PMP group
- *
- * @since 0.2
- */
-function pmp_default_group() {
-	check_ajax_referer('pmp_ajax_nonce', 'security');
-
-	$group = json_decode(stripslashes($_POST['group']));
-
-	update_option('pmp_default_group', $group->attributes->guid);
-
-	print json_encode(array("success" => true));
-	wp_die();
-}
-add_action('wp_ajax_pmp_default_group', 'pmp_default_group');
-
-/**
- * Ajax function to save a group's users
- *
- * @since 0.2
- */
-function pmp_save_users() {
-	check_ajax_referer('pmp_ajax_nonce', 'security');
-
-	$group_data = json_decode(stripslashes($_POST['data']));
-
-	$sdk = new SDKWrapper();
-	$group = $sdk->fetchDoc($group_data->group_guid);
-
-	if (!empty($group_data->user_guids)) {
-		$group->links->item = array();
-
-		foreach ($group_data->user_guids as $user_guid) {
-			$link_item = new \stdClass();
-			$link_item->href = $sdk->href4guid($user_guid);
-			$group->links->item[] = $link_item;
-		}
-	} else
-		unset($group->links->item);
-
-	$group->save();
-
-	print json_encode(array(
-		"success" => true,
-		"data" => $sdk->prepFetchData($group)
-	));
-	wp_die();
-}
-add_action('wp_ajax_pmp_save_users', 'pmp_save_users');
-
-/**
- * Ajax functions to create a new series
- *
- * @since 0.2
- */
-function pmp_create_series() {
-	check_ajax_referer('pmp_ajax_nonce', 'security');
-
-	$series = json_decode(stripslashes($_POST['series']));
-	$doc = _pmp_create_doc($series);
-
-	print json_encode(array(
-		"success" => true,
-		"data" => $sdk->prepFetchData($doc)
-	));
-	wp_die();
-}
-add_action('wp_ajax_pmp_create_series', 'pmp_create_series');
-
-/**
- * Ajax function to modify a series
- *
- * @since 0.2
- */
-function pmp_modify_series() {
-	check_ajax_referer('pmp_ajax_nonce', 'security');
-
-	$series = json_decode(stripslashes($_POST['series']));
-	$doc = _pmp_modify_doc($series);
-
-	print json_encode(array(
-		"success" => true,
-		"data" => $sdk->prepFetchData($doc)
-	));
-	wp_die();
-}
-add_action('wp_ajax_pmp_modify_series', 'pmp_modify_series');
-
-/**
- * Ajax function to set the default PMP series
- *
- * @since 0.2
- */
-function pmp_default_series() {
-	check_ajax_referer('pmp_ajax_nonce', 'security');
-
-	$series = json_decode(stripslashes($_POST['series']));
-
-	update_option('pmp_default_series', $series->attributes->guid);
-
-	print json_encode(array("success" => true));
-	wp_die();
-}
-add_action('wp_ajax_pmp_default_series', 'pmp_default_series');
-
-/* Helper functions */
-function _pmp_create_doc($data) {
-	$sdk = new SDKWrapper();
-
-	if (!empty($data->attributes->tags))
-		$data->attributes->tags = $sdk->commas2array($data->attributes->tags);
-
-	$doc = $sdk->newDoc('series', $data);
-	$doc->save();
-
-	return $doc;
-}
-
-function _pmp_modify_doc($data) {
-	$sdk = new SDKWrapper();
-	$doc = $sdk->fetchDoc($data->attributes->guid);
-
-	if (!empty($data->attributes->tags))
-		$data->attributes->tags = $sdk->commas2array($data->attributes->tags);
-
-	$doc->attributes = (object) array_merge((array) $doc->attributes, (array) $data->attributes);
-	$doc->save();
-
-	return $doc;
 }

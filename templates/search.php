@@ -99,6 +99,5 @@
 <?php pmp_modal_underscore_template(); ?>
 
 <script type="text/javascript">
-	var CREATORS = <?php echo json_encode(array_flip($creators)); ?>,
-		AJAX_NONCE = '<?php echo wp_create_nonce('pmp_ajax_nonce'); ?>';
+	var PMP = <?php echo json_encode($PMP); ?>;
 </script>

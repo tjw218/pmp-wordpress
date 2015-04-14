@@ -54,7 +54,7 @@ class SDKWrapper {
 	 *
 	 * @since 0.2
 	 */
-	public function prepFetchData($result) {
+	public static function prepFetchData($result) {
 		// There should only be 1 result when using `fetch*` methods
 		$data = array(
 			"total" => 1,
@@ -97,7 +97,7 @@ class SDKWrapper {
 	 *
 	 * @since 0.2
 	 */
-	public function prepQueryData($result) {
+	public static function prepQueryData($result) {
 		$items = $result->items();
 		$data = array(
 			"total" => $result->items()->totalItems(),
@@ -139,7 +139,7 @@ class SDKWrapper {
 	 *
 	 * @since 0.2
 	 */
-	public function commas2array($string) {
+	public static function commas2array($string) {
 		return array_map(
 			function($tag) { return trim($tag); },
 			explode(',', $string)

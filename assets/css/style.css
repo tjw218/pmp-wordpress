@@ -26,7 +26,7 @@ p.submit input {
 .pmp-modal-actions .spinner,
 #pmp-search-page .spinner,
 #pmp-groups-container .spinner,
-#pmp-series-container .spinner {
+#pmp-collection-container .spinner {
   float: none;
   position: relative;
 }
@@ -35,7 +35,7 @@ p.submit input {
   top: 2px;
 }
 #pmp-groups-container .spinner,
-#pmp-series-container .spinner {
+#pmp-collection-container .spinner {
   top: 12px;
 }
 
@@ -226,54 +226,54 @@ p.error {
   color: #a94442;
   font-weight: bold;
 }
-#pmp-series-actions,
-#pmp-series,
+#pmp-collection-actions,
+#pmp-collection,
 #pmp-groups-actions,
 #pmp-groups {
   float: left;
   clear: both;
 }
-.pmp-series-actions ul li,
+.pmp-collection-actions ul li,
 .pmp-group-actions ul li {
   display: inline-block;
   margin-right: 1em;
 }
-.pmp-series-modal .pmp-modal-content,
+.pmp-collection-modal .pmp-modal-content,
 .pmp-group-modal .pmp-modal-content {
   text-align: left;
 }
-.pmp-series-modal h2,
+.pmp-collection-modal h2,
 .pmp-group-modal h2 {
   margin: 0 0 20px 0;
   line-height: 1.2em;
 }
-.pmp-series-modal form label,
+.pmp-collection-modal form label,
 .pmp-group-modal form label {
   margin: 10px 0;
   display: block;
 }
-.pmp-series-modal form input,
+.pmp-collection-modal form input,
 .pmp-group-modal form input {
   width: 100%;
 }
-.pmp-series-container,
+.pmp-collection-container,
 .pmp-group-container {
   border-bottom: 1px solid #ccc;
   float: left;
   clear: both;
   min-width: 280px;
 }
-.pmp-series-default-container,
+.pmp-collection-default-container,
 .pmp-group-default-container {
   text-align: center;
 }
-.pmp-series-default-container p,
+.pmp-collection-default-container p,
 .pmp-group-default-container p {
   max-width: 320px;
   margin: 0 auto;
   font-size: 14px;
 }
-.pmp-default-series,
+.pmp-default-collection,
 .pmp-default-group {
   color: green;
 }

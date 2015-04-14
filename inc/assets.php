@@ -31,10 +31,10 @@ function pmp_enqueue_assets() {
 				array('pmp-common', 'pmp-typeahead'), PMP_VERSION, true);
 		}
 
-		if ($page == 'pmp-series-menu') {
+		if (in_array($page, array('pmp-series-menu', 'pmp-properties-menu'))) {
 			wp_enqueue_style('pmp-common');
 			wp_enqueue_script(
-				'pmp-series-menu', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-series-menu.js',
+				'pmp-collections-menu', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-collections-menu.js',
 				array('pmp-common'), PMP_VERSION, true);
 		}
 
@@ -65,4 +65,16 @@ function pmp_modal_underscore_template() { ?>
 		<% }); %>
 	</div>
 </script><?php
+}
+
+/**
+ * Builds a PMP object with common attributes used throughout the plugin's javascript files.
+ *
+ * @since 0.2
+ */
+function pmp_json_obj($add=array()) {
+	return array_merge(array(
+		'creators' => array_flip(pmp_get_creators()),
+		'ajax_nonce' => wp_create_nonce('pmp_ajax_nonce')
+	), $add);
 }
