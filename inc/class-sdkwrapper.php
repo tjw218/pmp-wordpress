@@ -135,6 +135,16 @@ class SDKWrapper {
 	}
 
 	/**
+	 * Get the guid from a PMP href
+	 *
+	 * @since 0.2
+	 */
+	public static function guid4href($href) {
+		$test = preg_match('/\/([\d\w-]+)$/', $href, $matches);
+		return $matches[1];
+	}
+
+	/**
 	 * Convert a comma-delimited list into an array suitable for use an an attribute of a CollectionDocJson
 	 *
 	 * @since 0.2

@@ -125,6 +125,10 @@ add_action('transition_post_status',  'pmp_on_post_status_transition', 10, 3 );
  */
 function pmp_publish_and_push_to_pmp_button() {
 	global $post;
+
+	if (!pmp_post_is_mine($post->ID))
+		return;
+
 	$message = ($post->post_status == 'publish')? 'Update' : 'Publish';
 ?>
 	<div id="pmp-publish-actions">
@@ -152,19 +156,19 @@ function pmp_push_to_pmp($post_id) {
 		if (wp_is_post_revision($post_id))
 			return;
 
-		do_action('pmp_before_push', $post_id);
-
-		if ($action == 'publish') {
-			wp_publish_post($post_id);
-			remove_action('save_post', 'pmp_push_to_pmp');
-			remove_action('edit_post', 'pmp_push_to_pmp');
-		}
-
-		// TODO: if the action is update, get the store guid and look up the
-		// doc in the API to update.
-
 		$post = get_post($post_id);
 		$author = get_user_by('id', $post->post_author);
+
+		if ($action == 'publish' && $post->post_status != 'publish') {
+			wp_publish_post($post_id);
+			return;
+		}
+
+		if ($action == 'update')
+			$pmp_guid = get_post_meta($post_id, 'pmp_guid', true);
+
+		do_action('pmp_before_push', $post_id);
+
 		$sdk = new SDKWrapper();
 
 		$obj = new \StdClass();
@@ -176,31 +180,70 @@ function pmp_push_to_pmp($post_id) {
 			'byline' => $author->display_name,
 		);
 
+		$obj->links = new \StdClass();
+
+		// Build out the collection array
+		$obj->links->collection = array();
+
 		$default_series = get_option('pmp_default_series', false);
-		if (!empty($default_series)) {
-			// TODO: set the default series when pushing to PMP
-		}
+		if (!empty($default_series))
+			$obj->links->collection[] = (object) array('href' => $sdk->href4guid($default_series));
 
 		$default_property = get_option('pmp_default_property', false);
-		if (!empty($default_property)) {
-			// TODO: set the default property when pushing to PMP
-		}
+		if (!empty($default_property))
+			$obj->links->collection[] = (object) array('href' => $sdk->href4guid($default_property));
 
+		// Build out the permissions group profile array
 		$default_group = get_option('pmp_default_group', false);
-		if (!empty($default_group)) {
-			// TODO: set the default group when pushing to PMP
-		}
+		if (!empty($default_group))
+			$obj->links->permission[] = (object) array('href' => $sdk->href4guid($default_group));
 
-		$doc = $sdk->newDoc('story', $obj);
+		if (!empty($pmp_guid)) {
+			$doc = $sdk->fetchDoc($pmp_guid);
+			$doc->attributes = (object) array_merge((array) $doc->attributes, (array) $obj->attributes);
+		} else
+			$doc = $sdk->newDoc('story', $obj);
 
-		// TODO: save the doc and store the guid + other meta as we do
-		// when creating a draft or publish post from the search page
+		$doc->attributes->itags = array_merge((array) $doc->attributes->itags, array('wp_pmp_push'));
+
+		$doc->save();
+
+		$post_meta = array(
+			'pmp_guid' => $doc->attributes->guid,
+			'pmp_created' => $doc->attributes->created,
+			'pmp_modified' => $doc->attributes->modified,
+			'pmp_byline' => $doc->attributes->byline,
+			'pmp_published' => $doc->attributes->published,
+			'pmp_owner' => $sdk->guid4href($doc->links->owner[0]->href)
+		);
+
+		foreach ($post_meta as $key => $value)
+			update_post_meta($post_id, $key, $value);
+
+		do_action('pmp_after_push', $post_id);
 	}
-
-	do_action('pmp_after_push', $post_id);
 }
 add_action('save_post', 'pmp_push_to_pmp');
-add_action('edit_post', 'pmp_push_to_pmp');
+
+/**
+ * Find out if your PMP API user is the owner of a given post/PMP Doc
+ *
+ * @since 0.2
+ */
+function pmp_post_is_mine($post_id) {
+	$pmp_guid = get_post_meta($post_id, 'pmp_guid', true);
+
+	if (!empty($pmp_guid)) {
+		$pmp_owner = get_post_meta($post_id, 'pmp_owner', true);
+		if (!empty($pmp_owner)) {
+			$sdk = new SDKWrapper();
+			$me = $sdk->fetchUser('me');
+			return ($pmp_owner == $me->attributes->guid);
+		}
+	}
+
+	return true;
+}
 
 if (!function_exists('var_log')) {
 	/**

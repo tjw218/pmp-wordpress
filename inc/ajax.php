@@ -305,7 +305,9 @@ function _pmp_create_post($draft=false) {
 					'pmp_guid' => $img_attrs['guid'],
 					'pmp_created' => $img_attrs['created'],
 					'pmp_modified' => $img_attrs['modified'],
-					'pmp_byline' => $img_attrs['byline'] // credit
+					'pmp_byline' => $img_attrs['byline'], // credit
+					'pmp_published' => $img_attrs['published'],
+					'pmp_owner' => SDKWrapper::guid4href($attachment['links']['owner'][0]['href'])
 				);
 
 				foreach ($image_meta as $image_meta_key => $image_meta_value)
@@ -322,7 +324,8 @@ function _pmp_create_post($draft=false) {
 		'pmp_created' => $data['attributes']['created'],
 		'pmp_modified' => $data['attributes']['modified'],
 		'pmp_byline' => $data['attributes']['byline'],
-		'pmp_published' => $data['attributes']['published']
+		'pmp_published' => $data['attributes']['published'],
+		'pmp_owner' => SDKWrapper::guid4href($data['links']['owner'][0]['href'])
 	);
 
 	foreach ($post_meta as $key => $value)

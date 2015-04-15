@@ -6,17 +6,24 @@
  * @since 0.1
  */
 function pmp_get_pmp_posts() {
-	$args = array(
-		'relation' => 'OR',
-		'meta_query' => array(
+	$sdk = new SDKWrapper();
+	$me = $sdk->fetchUser('me');
+
+	$meta_args = array(
+		'relation' => 'AND',
+		array(
 			'key' => 'pmp_guid',
 			'compare' => 'EXISTS'
+		),
+		array(
+			'key' => 'pmp_owner',
+			'compare' => '!=',
+			'value' => $me->attributes->guid
 		)
 	);
-	$meta_query = new WP_Meta_Query($args);
 
 	$query = new WP_Query(array(
-		'meta_query' => $meta_query,
+		'meta_query' => $meta_args,
 		'posts_per_page' => -1,
 		'post_status' => 'any'
 	));
@@ -99,7 +106,8 @@ function pmp_update_post($wp_post, $pmp_doc) {
 		'pmp_created' => $data['attributes']['created'],
 		'pmp_modified' => $data['attributes']['modified'],
 		'pmp_byline' => $data['attributes']['byline'],
-		'pmp_published' => $data['attributes']['published']
+		'pmp_published' => $data['attributes']['published'],
+		'pmp_owner' => SDKWrapper::guid4href($data['links']['owner'][0]['href'])
 	);
 
 	foreach ($post_meta as $key => $value)
