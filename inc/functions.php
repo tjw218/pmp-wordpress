@@ -118,6 +118,90 @@ function pmp_on_post_status_transition($new_status, $old_status, $post) {
 }
 add_action('transition_post_status',  'pmp_on_post_status_transition', 10, 3 );
 
+/**
+ * Add a "Publish and push to PMP" button the post publish actions meta box.
+ *
+ * @since 0.2
+ */
+function pmp_publish_and_push_to_pmp_button() {
+	global $post;
+	$message = ($post->post_status == 'publish')? 'Update' : 'Publish';
+?>
+	<div id="pmp-publish-actions">
+		<input type="submit"
+			name="pmp_<?php echo strtolower($message); ?>_push"
+			id="pmp-<?php echo strtolower($message); ?>-push"
+			class="button button-primary button-large" value="<?php echo $message; ?> and push to PMP">
+	</div>
+<?php
+}
+add_action('post_submitbox_start', 'pmp_publish_and_push_to_pmp_button');
+
+/**
+ * Push content to PMP when user clicks "Publish and push to PMP" or "Update and push to PMP"
+ *
+ * @since 0.2
+ */
+function pmp_push_to_pmp($post_id) {
+	if (isset($_POST['pmp_publish_push']))
+		$action = 'publish';
+	else if (isset($_POST['pmp_update_push']))
+		$action = 'update';
+
+	if (!empty($action)) {
+		if (wp_is_post_revision($post_id))
+			return;
+
+		do_action('pmp_before_push', $post_id);
+
+		if ($action == 'publish') {
+			wp_publish_post($post_id);
+			remove_action('save_post', 'pmp_push_to_pmp');
+			remove_action('edit_post', 'pmp_push_to_pmp');
+		}
+
+		// TODO: if the action is update, get the store guid and look up the
+		// doc in the API to update.
+
+		$post = get_post($post_id);
+		$author = get_user_by('id', $post->post_author);
+		$sdk = new SDKWrapper();
+
+		$obj = new \StdClass();
+		$obj->attributes = (object) array(
+			'title' => $post->post_title,
+			'contentencoded' => $post->post_content,
+			'description' => strip_tags($post->post_content),
+			'teaser' => $post->post_excerpt,
+			'byline' => $author->display_name,
+		);
+
+		$default_series = get_option('pmp_default_series', false);
+		if (!empty($default_series)) {
+			// TODO: set the default series when pushing to PMP
+		}
+
+		$default_property = get_option('pmp_default_property', false);
+		if (!empty($default_property)) {
+			// TODO: set the default property when pushing to PMP
+		}
+
+		$default_group = get_option('pmp_default_group', false);
+		if (!empty($default_group)) {
+			// TODO: set the default group when pushing to PMP
+		}
+
+		$doc = $sdk->newDoc('story', $obj);
+
+		// TODO: save the doc and store the guid + other meta as we do
+		// when creating a draft or publish post from the search page
+	}
+
+	do_action('pmp_after_push', $post_id);
+}
+add_action('save_post', 'pmp_push_to_pmp');
+add_action('edit_post', 'pmp_push_to_pmp');
+
 if (!function_exists('var_log')) {
 	/**
 	 * Log anything in a human-friendly format.

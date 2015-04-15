@@ -43,7 +43,13 @@ function pmp_enqueue_assets() {
 				'pmp-options-menu', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-options.js',
 				array('jquery', 'underscore'), PMP_VERSION, true);
 		}
+
+		return;
 	}
+
+	$screen = get_current_screen();
+	if ($screen->base == 'post' && $screen->post_type == 'post')
+		wp_enqueue_style('pmp-common');
 }
 add_action('admin_enqueue_scripts', 'pmp_enqueue_assets');
 

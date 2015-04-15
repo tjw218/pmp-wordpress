@@ -342,3 +342,11 @@ p.error {
 .tt-suggestion:last-child {
   border: none;
 }
+
+/* Post editor styles */
+#pmp-publish-actions {
+  margin: 10px 0;
+  padding: 0 0 12px 0;
+  border-bottom: 1px solid #dadada;
+  text-align: center;
+}
