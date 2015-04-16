@@ -113,7 +113,7 @@ function pmp_add_meta_boxes() {
 
 		$pmp_guid = get_post_meta($post->ID, 'pmp_guid', true);
 
-		if (!empty($pmp_guid)) {
+		if (!empty($pmp_guid) && !pmp_post_is_mine($post->ID)) {
 			add_meta_box(
 				'pmp_subscribe_to_updates',
 				'PMP: Subscribe to updates',

@@ -157,65 +157,150 @@ function pmp_push_to_pmp($post_id) {
 			return;
 
 		$post = get_post($post_id);
-		$author = get_user_by('id', $post->post_author);
-
 		if ($action == 'publish' && $post->post_status != 'publish') {
 			wp_publish_post($post_id);
 			return;
 		}
 
-		if ($action == 'update')
-			$pmp_guid = get_post_meta($post_id, 'pmp_guid', true);
-
-		do_action('pmp_before_push', $post_id);
-
-		$sdk = new SDKWrapper();
-
-		$obj = new \StdClass();
-		$obj->attributes = (object) array(
-			'title' => $post->post_title,
-			'contentencoded' => $post->post_content,
-			'description' => strip_tags($post->post_content),
-			'teaser' => $post->post_excerpt,
-			'byline' => $author->display_name,
-		);
-
-		$obj->links = new \StdClass();
-
-		// Build out the collection array
-		$obj->links->collection = array();
-
-		$default_series = get_option('pmp_default_series', false);
-		if (!empty($default_series))
-			$obj->links->collection[] = (object) array('href' => $sdk->href4guid($default_series));
-
-		$default_property = get_option('pmp_default_property', false);
-		if (!empty($default_property))
-			$obj->links->collection[] = (object) array('href' => $sdk->href4guid($default_property));
-
-		// Build out the permissions group profile array
-		$default_group = get_option('pmp_default_group', false);
-		if (!empty($default_group))
-			$obj->links->permission[] = (object) array('href' => $sdk->href4guid($default_group));
-
-		if (!empty($pmp_guid)) {
-			$doc = $sdk->fetchDoc($pmp_guid);
-			$doc->attributes = (object) array_merge((array) $doc->attributes, (array) $obj->attributes);
-		} else
-			$doc = $sdk->newDoc('story', $obj);
-
-		$doc->attributes->itags = array_merge((array) $doc->attributes->itags, array('wp_pmp_push'));
-
-		$doc->save();
-
-		$post_meta = pmp_get_post_meta_from_pmp_doc($doc);
-		foreach ($post_meta as $key => $value)
-			update_post_meta($post_id, $key, $value);
-
-		do_action('pmp_after_push', $post_id);
+		return pmp_handle_push($post_id);
 	}
 }
 add_action('save_post', 'pmp_push_to_pmp');
+
+/**
+ * Handle pushing post content to PMP. Works with posts and attachments (images).
+ *
+ * @since 0.2
+ */
+function pmp_handle_push($post_id) {
+	$post = get_post($post_id);
+	$author = get_user_by('id', $post->post_author);
+
+	$pmp_guid = get_post_meta($post->ID, 'pmp_guid', true);
+
+	$sdk = new SDKWrapper();
+
+	$obj = new \StdClass();
+	$obj->attributes = (object) array(
+		'title' => $post->post_title,
+		'contentencoded' => $post->post_content,
+		'description' => strip_tags($post->post_content),
+		'teaser' => $post->post_excerpt,
+		'byline' => $author->display_name,
+	);
+
+
+	// Set default collections (series & property), permissions group
+	$obj->links = new \StdClass();
+
+	// Build out the collection array
+	$obj->links->collection = array();
+
+	$default_series = get_option('pmp_default_series', false);
+	if (!empty($default_series))
+		$obj->links->collection[] = (object) array('href' => $sdk->href4guid($default_series));
+
+	$default_property = get_option('pmp_default_property', false);
+	if (!empty($default_property))
+		$obj->links->collection[] = (object) array('href' => $sdk->href4guid($default_property));
+
+	// Build out the permissions group profile array
+	$default_group = get_option('pmp_default_group', false);
+	if (!empty($default_group))
+		$obj->links->permission[] = (object) array('href' => $sdk->href4guid($default_group));
+
+	// If this is a post with a featured image, push the featured image as a PMP Doc and include
+	// it as a link in the Doc.
+	if ($post->post_type == 'post' && has_post_thumbnail($post->ID)) {
+		$featured_img_guid = pmp_handle_push(get_post_thumbnail_id($post->ID));
+
+		$obj->links->item = array();
+
+		if (!empty($featured_img_guid))
+			$obj->links->item[] = (object) array('href' => $sdk->href4guid($featured_img_guid));
+	}
+
+	// If this is an attachment post, build out the enclosures array to be sent over the wire.
+	if ($post->post_type == 'attachment') {
+		$obj->links->enclosure = pmp_enclosures_for_media($post->ID);
+	}
+
+	if (!empty($pmp_guid)) {
+		$doc = $sdk->fetchDoc($pmp_guid);
+		$doc->attributes = (object) array_merge((array) $doc->attributes, (array) $obj->attributes);
+		$doc->links = (object) array_merge((array) $doc->links, (array) $obj->links);
+	} else {
+		if ($post->post_type == 'post')
+			$doc = $sdk->newDoc('story', $obj);
+		else if ($post->post_type == 'attachment')
+			$doc = $sdk->newDoc('image', $obj);
+	}
+
+	if (!in_array('wp_pmp_push', (array) $doc->attributes->itags))
+		$doc->attributes->itags = array_merge((array) $doc->attributes->itags, array('wp_pmp_push'));
+
+	do_action('pmp_before_push', $post->ID);
+	$doc->save();
+	do_action('pmp_after_push', $post->ID);
+
+	$post_meta = pmp_get_post_meta_from_pmp_doc($doc);
+
+	if ($post->post_type == 'attachment') {
+		$post_meta = array_merge($post_meta, array(
+			'_wp_attachment_image_alt' => $doc->attributes->title, // alt text
+		));
+	}
+
+	foreach ($post_meta as $key => $value)
+		update_post_meta($post->ID, $key, $value);
+
+	return $doc->attributes->guid;
+}
+
+/**
+ * Build an array of enclosures for a given "media"/attachment post. Currently works with
+ * image attachments only.
+ *
+ * @since 0.2
+ */
+function pmp_enclosures_for_media($media_id) {
+	$allowed_sizes = array(
+		'thumbnail',
+		'small',
+		'medium',
+		'large',
+		'original'
+	);
+
+	$media_metadata = wp_get_attachment_metadata($media_id);
+	$enclosures = array();
+	foreach ($media_metadata['sizes'] as $name => $meta) {
+		if (in_array($name, $allowed_sizes)) {
+			$src = wp_get_attachment_image_src($media_id, $name);
+			$enclosures[] = (object) array(
+				'href' => $src[0],
+				'meta' => (object) array(
+					'crop' => $name,
+					'height' => $meta['height'],
+					'width' => $meta['width']
+				),
+				'type' => $meta['mime-type']
+			);
+		}
+	}
+
+	$enclosures[] = (object) array(
+		'href' => wp_get_attachment_url($media_id),
+		'meta' => (object) array(
+			'crop' => 'original',
+			'height' => $media_metadata['height'],
+			'width' => $media_metadata['width'],
+		),
+		'type' => get_post_mime_type($media_id)
+	);
+
+	return $enclosures;
+}
 
 /**
  * Find out if your PMP API user is the owner of a given post/PMP Doc
@@ -225,13 +310,11 @@ add_action('save_post', 'pmp_push_to_pmp');
 function pmp_post_is_mine($post_id) {
 	$pmp_guid = get_post_meta($post_id, 'pmp_guid', true);
 
-	if (!empty($pmp_guid)) {
-		$pmp_owner = get_post_meta($post_id, 'pmp_owner', true);
-		if (!empty($pmp_owner)) {
-			$sdk = new SDKWrapper();
-			$me = $sdk->fetchUser('me');
-			return ($pmp_owner == $me->attributes->guid);
-		}
+	$pmp_owner = get_post_meta($post_id, 'pmp_owner', true);
+	if (!empty($pmp_owner)) {
+		$sdk = new SDKWrapper();
+		$me = $sdk->fetchUser('me');
+		return ($pmp_owner == $me->attributes->guid);
 	}
 
 	return true;

@@ -110,6 +110,14 @@ class TestFunctions extends WP_UnitTestCase {
 		$this->markTestIncomplete('This test has not been implemented yet.');
 	}
 
+	function test_pmp_handle_push() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_pmp_enclosures_for_media() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
 	function test_pmp_post_is_mine() {
 		$this->markTestIncomplete('This test has not been implemented yet.');
 	}
