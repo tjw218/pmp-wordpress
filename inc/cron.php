@@ -86,30 +86,18 @@ function pmp_needs_update($wp_post, $pmp_doc) {
  * @since 0.1
  */
 function pmp_update_post($wp_post, $pmp_doc) {
-	$data = $pmp_doc;
+	$post_data = pmp_get_post_data_from_pmp_doc($pmp_doc);
+	$post_data['ID'] = $wp_post->ID;
 
-	$post_data = array(
-		'ID' => $wp_post->ID,
-		'post_title' => $data['attributes']['title'],
-		'post_content' => $data['attributes']['contentencoded'],
-		'post_excerpt' => $data['attributes']['teaser'],
-		'post_date' => date('Y-m-d H:i:s', strtotime($data['attributes']['published']))
-	);
+	$the_post = wp_update_post($post_data);
 
-	$updated_post = wp_update_post($post_data);
+	if (is_wp_error($the_post))
+		return $the_post;
 
-	if (is_wp_error($updated_post))
-		return $updated_post;
-
-	$post_meta = array(
-		'pmp_guid' => $data['attributes']['guid'],
-		'pmp_created' => $data['attributes']['created'],
-		'pmp_modified' => $data['attributes']['modified'],
-		'pmp_byline' => $data['attributes']['byline'],
-		'pmp_published' => $data['attributes']['published'],
-		'pmp_owner' => SDKWrapper::guid4href($data['links']['owner'][0]['href'])
-	);
+	$post_meta = pmp_get_post_meta_from_pmp_doc($pmp_doc);
 
 	foreach ($post_meta as $key => $value)
-		update_post_meta($updated_post, $key, $value);
+		update_post_meta($the_post, $key, $value);
+
+	return $the_post;
 }

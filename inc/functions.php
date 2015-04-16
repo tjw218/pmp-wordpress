@@ -208,15 +208,7 @@ function pmp_push_to_pmp($post_id) {
 
 		$doc->save();
 
-		$post_meta = array(
-			'pmp_guid' => $doc->attributes->guid,
-			'pmp_created' => $doc->attributes->created,
-			'pmp_modified' => $doc->attributes->modified,
-			'pmp_byline' => $doc->attributes->byline,
-			'pmp_published' => $doc->attributes->published,
-			'pmp_owner' => $sdk->guid4href($doc->links->owner[0]->href)
-		);
-
+		$post_meta = pmp_get_post_meta_from_pmp_doc($doc);
 		foreach ($post_meta as $key => $value)
 			update_post_meta($post_id, $key, $value);
 
@@ -243,6 +235,45 @@ function pmp_post_is_mine($post_id) {
 	}
 
 	return true;
+}
+
+/**
+ * Build an associatvie array of post data from a PMP Doc suitable for use with wp_insert_post or
+ * wp_update_post.
+ *
+ * @since 0.2
+ */
+function pmp_get_post_data_from_pmp_doc($pmp_doc) {
+	$data = json_decode(json_encode($pmp_doc), true);
+
+	$post_data = array(
+		'post_title' => $data['attributes']['title'],
+		'post_content' => $data['attributes']['contentencoded'],
+		'post_excerpt' => $data['attributes']['teaser'],
+		'post_date' => date('Y-m-d H:i:s', strtotime($data['attributes']['published']))
+	);
+
+	return $post_data;
+}
+
+/**
+ * Build an associative array of post meta based on a PMP Doc suitable for use in saving post meta.
+ *
+ * @since 0.2
+ */
+function pmp_get_post_meta_from_pmp_doc($pmp_doc) {
+	$data = json_decode(json_encode($pmp_doc), true);
+
+	$post_meta = array(
+		'pmp_guid' => $data['attributes']['guid'],
+		'pmp_created' => $data['attributes']['created'],
+		'pmp_modified' => $data['attributes']['modified'],
+		'pmp_byline' => $data['attributes']['byline'],
+		'pmp_published' => $data['attributes']['published'],
+		'pmp_owner' => SDKWrapper::guid4href($data['links']['owner'][0]['href'])
+	);
+
+	return $post_meta;
 }
 
 if (!function_exists('var_log')) {

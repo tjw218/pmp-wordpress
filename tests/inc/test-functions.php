@@ -102,6 +102,26 @@ class TestFunctions extends WP_UnitTestCase {
 		$this->assertEquals($pmp_post_after_transition->post_date, $date);
 	}
 
+	function test_pmp_publish_and_push_to_pmp_button() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_pmp_push_to_pmp() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_pmp_post_is_mine() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_pmp_get_post_data_from_pmp_doc() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_pmp_get_post_meta_from_pmp_doc() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
 	function test_var_log() {
 		$this->markTestIncomplete('This test has not been implemented yet.');
 	}

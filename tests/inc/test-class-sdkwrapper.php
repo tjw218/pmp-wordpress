@@ -40,4 +40,24 @@ class TestSDKWrapper extends WP_UnitTestCase {
 		$json_data = json_encode($this->sdk_wrapper->query2json('queryDocs', $this->query));
 		$this->assertEquals(json_last_error(), JSON_ERROR_NONE);
 	}
+
+	function test_prepFetchData() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_prepQueryData() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_href4guid() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_guid4href() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_commas2array() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
 }

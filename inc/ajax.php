@@ -247,15 +247,10 @@ function _pmp_create_post($draft=false) {
 
 	$data = json_decode(stripslashes($_POST['post_data']), true);
 
-	$post_data = array(
-		'post_title' => $data['attributes']['title'],
-		'post_content' => $data['attributes']['contentencoded'],
-		'post_excerpt' => $data['attributes']['teaser'],
+	$post_data = array_merge(pmp_get_post_data_from_pmp_doc($data), array(
 		'post_author' => get_current_user_id(),
-		'post_status' => (!empty($draft))? 'draft' : 'publish',
-		'post_date' => date('Y-m-d H:i:s', strtotime($data['attributes']['published']))
-	);
-
+		'post_status' => (!empty($draft))? 'draft' : 'publish'
+	));
 	$new_post = wp_insert_post($post_data);
 
 	if (is_wp_error($new_post)) {
@@ -288,27 +283,21 @@ function _pmp_create_post($draft=false) {
 
 			// Import the image
 			$new_image = pmp_media_sideload_image(
-				$standard['href'], $new_post, $img_attrs['description']);
+				$standard['href'], $new_post, $attachment['attributes']['description']);
 
 			if (!is_wp_error($new_image)) {
 				// If import was successful, set basic attachment attributes
 				$image_update = array(
 					'ID' => $new_image,
-					'post_excerpt' => $img_attrs['description'], // caption
-					'post_title' => $img_attrs['title']
+					'post_excerpt' => $attachment['attributes']['description'], // caption
+					'post_title' => $attachment['attributes']['title']
 				);
 				wp_update_post($image_update);
 
 				// Also set the alt text and various PMP-related attachment meta
-				$image_meta= array(
-					'_wp_attachment_image_alt' => $img_attrs['title'], // alt text
-					'pmp_guid' => $img_attrs['guid'],
-					'pmp_created' => $img_attrs['created'],
-					'pmp_modified' => $img_attrs['modified'],
-					'pmp_byline' => $img_attrs['byline'], // credit
-					'pmp_published' => $img_attrs['published'],
-					'pmp_owner' => SDKWrapper::guid4href($attachment['links']['owner'][0]['href'])
-				);
+				$image_meta= array_merge(pmp_get_post_meta_from_pmp_doc($attachment), array(
+					'_wp_attachment_image_alt' => $attachment['attributes']['title'], // alt text
+				));
 
 				foreach ($image_meta as $image_meta_key => $image_meta_value)
 					update_post_meta($new_image, $image_meta_key, $image_meta_value);
@@ -319,15 +308,7 @@ function _pmp_create_post($draft=false) {
 		}
 	}
 
-	$post_meta = array(
-		'pmp_guid' => $data['attributes']['guid'],
-		'pmp_created' => $data['attributes']['created'],
-		'pmp_modified' => $data['attributes']['modified'],
-		'pmp_byline' => $data['attributes']['byline'],
-		'pmp_published' => $data['attributes']['published'],
-		'pmp_owner' => SDKWrapper::guid4href($data['links']['owner'][0]['href'])
-	);
-
+	$post_meta = pmp_get_post_meta_from_pmp_doc($data);
 	foreach ($post_meta as $key => $value)
 		update_post_meta($new_post, $key, $value);
 

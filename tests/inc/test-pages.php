@@ -30,4 +30,9 @@ class TestPages extends WP_UnitTestCase {
 	function test_pmp_groups_page() {
 		$this->markTestIncomplete('This test has not been implemented yet.');
 	}
+
+	function test_pmp_collections_page() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
 }

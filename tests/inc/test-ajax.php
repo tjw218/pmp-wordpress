@@ -86,16 +86,6 @@ class TestAjax extends WP_Ajax_UnitTestCase {
 		}
 	}
 
-	function test__pmp_ajax_create_post() {
-		$this->markTestSkipped(
-			'Functional test of `_pmp_ajax_create_post` performed by `test_pmp_draft_post` and `test_pmp_publish_post`');
-	}
-
-	function test__pmp_create_post() {
-		$this->markTestSkipped(
-			'Functional test of `_pmp_create_post` performed by `test_pmp_draft_post` and `test_pmp_publish_post`');
-	}
-
 	function test_pmp_create_group() {
 		$this->markTestIncomplete('This test has not been implemented yet.');
 	}
@@ -106,5 +96,39 @@ class TestAjax extends WP_Ajax_UnitTestCase {
 
 	function test_pmp_default_group() {
 		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_pmp_save_users() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_pmp_create_collection() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_pmp_modify_collection() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_pmp_default_collection() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test__pmp_create_doc() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test__pmp_modify_doc() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test__pmp_ajax_create_post() {
+		$this->markTestSkipped(
+			'Functional test of `_pmp_ajax_create_post` performed by `test_pmp_draft_post` and `test_pmp_publish_post`');
+	}
+
+	function test__pmp_create_post() {
+		$this->markTestSkipped(
+			'Functional test of `_pmp_create_post` performed by `test_pmp_draft_post` and `test_pmp_publish_post`');
 	}
 }
