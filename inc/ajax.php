@@ -279,8 +279,6 @@ function _pmp_create_post($draft=false) {
 
 		// If we were able to get an enclosure proceed with attaching it to the post
 		if (!empty($standard)) {
-			$img_attrs = $attachment['attributes'];
-
 			// Import the image
 			$new_image = pmp_media_sideload_image(
 				$standard['href'], $new_post, $attachment['attributes']['description']);
