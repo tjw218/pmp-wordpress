@@ -189,9 +189,16 @@ function pmp_handle_push($post_id) {
 		'byline' => $author->display_name,
 	);
 
-
 	// Set default collections (series & property), permissions group
 	$obj->links = new \StdClass();
+
+	// Set the alternate link
+	if ($post->post_type == 'post')
+		$alternate = get_permalink($post->ID);
+	else if ($post->post_type == 'attachment')
+		$alternate = wp_get_attachment_url($post->ID);
+
+	$obj->links->alternate[] = (object) array('href' => $alternate);
 
 	// Build out the collection array
 	$obj->links->collection = array();
