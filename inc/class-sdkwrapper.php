@@ -36,7 +36,7 @@ class SDKWrapper {
 		$args = func_get_args();
 		$method = $args[0];
 		$args_array = array_slice($args, 1);
-		$result = $this->{$method}($args_array[0]);
+		$result = call_user_func_array(array($this, $method), $args_array);
 
 		if (empty($result)) {
 			return $result;
