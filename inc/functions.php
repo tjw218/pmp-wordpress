@@ -187,6 +187,7 @@ function pmp_handle_push($post_id) {
 		'description' => strip_tags($post->post_content),
 		'teaser' => $post->post_excerpt,
 		'byline' => $author->display_name,
+		'published' => date('c', strtotime($post->post_date))
 	);
 
 	// Set default collections (series & property), permissions group
