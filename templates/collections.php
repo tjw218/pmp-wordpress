@@ -6,6 +6,17 @@
 			<p class="submit">
 				<input type="submit" name="pmp-create-collection" id="pmp-create-collection" class="button button-primary" value="Create new <?php echo strtolower($name); ?>">
 			</p>
+			<?php if (!empty($PMP['default_collection'])) { ?>
+				<form id="pmp-unset-default-<?php echo $profile; ?>-form" method="post">
+					<p class="submit">
+						<input type="submit"
+							name="pmp-unset-default-<?php echo $profile; ?>"
+							id="pmp-unset-default-<?php echo $profile; ?>"
+							class="button button-primary"
+							value="Unset default <?php echo $profile; ?>">
+					</p>
+				</form>
+			<?php } ?>
 		</div>
 
 		<div id="pmp-collection-container">

@@ -76,6 +76,9 @@ function pmp_collections_page() {
 		$profile = 'series';
 	}
 
+	if (isset($_POST['pmp-unset-default-' . $profile]))
+		delete_option('pmp_default_' . $profile);
+
 	$sdk = new SDKWrapper();
 	$pmp_collection = $sdk->query2json('queryDocs', array(
 		'profile' => $profile,
