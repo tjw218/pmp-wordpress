@@ -201,15 +201,17 @@ function pmp_handle_push($post_id) {
 	$obj->links->alternate[] = (object) array('href' => $alternate);
 
 	// Build out the collection array
-	$obj->links->collection = array();
+	if ($post->post_type != 'attachment') {
+		$obj->links->collection = array();
 
-	$default_series = get_option('pmp_default_series', false);
-	if (!empty($default_series))
-		$obj->links->collection[] = (object) array('href' => $sdk->href4guid($default_series));
+		$default_series = get_option('pmp_default_series', false);
+		if (!empty($default_series))
+			$obj->links->collection[] = (object) array('href' => $sdk->href4guid($default_series));
 
-	$default_property = get_option('pmp_default_property', false);
-	if (!empty($default_property))
-		$obj->links->collection[] = (object) array('href' => $sdk->href4guid($default_property));
+		$default_property = get_option('pmp_default_property', false);
+		if (!empty($default_property))
+			$obj->links->collection[] = (object) array('href' => $sdk->href4guid($default_property));
+	}
 
 	// Build out the permissions group profile array
 	$default_group = get_option('pmp_default_group', false);
