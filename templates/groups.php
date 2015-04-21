@@ -33,6 +33,7 @@
 
 		<label>Tags</label>
 		<input type="text" name="tags" id="tags" placeholder="Group tags">
+		<p class="pmp-hint">Separate tags with commas</p>
 	</form>
 </script>
 
@@ -46,6 +47,7 @@
 		<label>Tags</label>
 		<input type="text" name="tags" id="tags" placeholder="Group tags"
 			<% if (group.get('attributes').tags) { %>value="<%= group.get('attributes').tags %>"<% } %>>
+		<p class="pmp-hint">Separate tags with commas</p>
 
 		<input type="hidden" name="guid" id="guid" value="<%= group.get('attributes').guid %>" >
 	</form>

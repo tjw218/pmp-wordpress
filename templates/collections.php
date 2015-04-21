@@ -36,6 +36,7 @@
 
 		<label>Tags</label>
 		<input type="text" name="tags" id="tags" placeholder="<?php echo $name; ?> tags">
+		<p class="pmp-hint">Separate tags with commas</p>
 	</form>
 </script>
 
@@ -49,6 +50,7 @@
 		<label>Tags</label>
 		<input type="text" name="tags" id="tags" placeholder="<?php echo $name; ?> tags"
 			<% if (collection.get('attributes').tags) { %>value="<%= collection.get('attributes').tags %>"<% } %>>
+		<p class="pmp-hint">Separate tags with commas</p>
 
 		<input type="hidden" name="guid" id="guid" value="<%= collection.get('attributes').guid %>" >
 	</form>

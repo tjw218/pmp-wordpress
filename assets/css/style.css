@@ -1,3 +1,10 @@
+.pmp-hint {
+  font-style: italic;
+  font-size: 12px;
+  color: #777;
+  margin: 4px 0;
+}
+
 /* Basic text search */
 #pmp-search-page #pmp-search-form {
   float: left;
