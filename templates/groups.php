@@ -6,6 +6,14 @@
 			<p class="submit">
 				<input type="submit" name="pmp-create-group" id="pmp-create-group" class="button button-primary" value="Create new group">
 			</p>
+			<?php if (!empty($PMP['default_group'])) { ?>
+				<form id="pmp-unset-default-group-form" method="post">
+					<p class="submit">
+						<input type="submit" name="pmp-unset-default-group" id="pmp-unset-default-group"
+							class="button button-primary" value="Unset default group">
+					</p>
+				</form>
+			<?php } ?>
 		</div>
 
 		<div id="pmp-groups-container">

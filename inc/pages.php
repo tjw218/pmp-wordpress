@@ -37,6 +37,9 @@ function pmp_groups_page() {
 	if (!current_user_can('manage_options'))
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 
+	if (isset($_POST['pmp-unset-default-group']))
+		delete_option('pmp_default_group');
+
 	$sdk = new SDKWrapper();
 	$pmp_users = $sdk->query2json('queryDocs', array(
 		'profile' => 'user',
