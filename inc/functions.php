@@ -324,7 +324,7 @@ function pmp_post_is_mine($post_id) {
 	if (!empty($pmp_owner)) {
 		$sdk = new SDKWrapper();
 		$me = $sdk->fetchUser('me');
-		return ($pmp_owner == $me->attributes->guid);
+		return ($pmp_owner == pmp_get_my_guid());
 	}
 
 	return true;
@@ -367,6 +367,61 @@ function pmp_get_post_meta_from_pmp_doc($pmp_doc) {
 	);
 
 	return $post_meta;
+}
+
+/**
+ * When querying for attachments, only show those items that belong to the current PMP user,
+ * or items that have not been pushed to the PMP.
+ *
+ * @since 0.2
+ */
+function pmp_filter_media_library($wp_query) {
+	if (isset($_POST['action']) && $_POST['action'] == 'query-attachments') {
+		$meta_args = array(
+			'relation' => 'OR',
+			array(
+				'key' => 'pmp_guid',
+				'compare' => 'NOT EXISTS'
+			),
+			array(
+				'key' => 'pmp_owner',
+				'compare' => '==',
+				'value' => pmp_get_my_guid()
+			)
+		);
+
+		$wp_query->set('meta_query', $meta_args);
+	}
+}
+add_action('pre_get_posts', 'pmp_filter_media_library');
+
+/**
+ * Get the current user's PMP GUID
+ *
+ * @since 0.2
+ */
+function pmp_get_my_guid() {
+	$pmp_my_guid_transient_key = 'pmp_my_guid';
+	$pmp_my_guid_transient = get_transient($pmp_my_guid_transient_key);
+
+	if (!empty($pmp_my_guid_transient))
+		return $pmp_my_guid_transient;
+
+	$sdk = new SDKWrapper();
+	$me = $sdk->fetchUser('me');
+
+	$pmp_my_guid_transient = $me->attributes->guid;
+	set_transient($pmp_my_guid_transient_key, $pmp_my_guid_transient, 0);
+	return $pmp_my_guid_transient;
+}
+
+/**
+ * Update the transient that stores the current user's PMP GUID
+ *
+ * @since 0.2
+ */
+function pmp_update_my_guid_transient() {
+	pmp_get_my_guid();
 }
 
 if (!function_exists('var_log')) {

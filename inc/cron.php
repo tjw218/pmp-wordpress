@@ -18,7 +18,7 @@ function pmp_get_pmp_posts() {
 		array(
 			'key' => 'pmp_owner',
 			'compare' => '!=',
-			'value' => $me->attributes->guid
+			'value' => pmp_get_my_guid()
 		)
 	);
 

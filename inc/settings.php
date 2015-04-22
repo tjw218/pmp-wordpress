@@ -61,6 +61,7 @@ function pmp_client_secret_input() {
  * @since 0.1
  */
 function pmp_settings_validate($input) {
+	$errors = false;
 	$options = get_option('pmp_settings');
 
 	if (empty($input['pmp_client_secret']) && !empty($options['pmp_client_secret']))
@@ -69,8 +70,14 @@ function pmp_settings_validate($input) {
 	if (!empty($input['pmp_api_url']) && filter_var($input['pmp_api_url'], FILTER_VALIDATE_URL) == false) {
 		add_settings_error('pmp_settings_fields', 'pmp_api_url_error', 'Please enter a valid PMP API URL.', 'error');
 		$input['pmp_api_url'] = '';
-	} else
+		$errors = true;
+	} else {
 		add_settings_error('pmp_settings_fields', 'pmp_settings_updated', 'PMP settings successfully updated!', 'updated');
+		$errors = true;
+	}
+
+	if (empty($errors))
+		pmp_update_my_guid_transient();
 
 	return $input;
 }
