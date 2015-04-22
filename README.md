@@ -18,6 +18,9 @@ Integrate [Public Media Platform](http://publicmediaplatform.org/) with WordPres
     - [Modify an existing group](#modify-an-existing-group)
     - [Setting the default group for new content](#setting-the-default-group-for-new-content)
     - [Managing users](#managing-users)
+        - [Adding users](#adding-users)
+        - [Removing users](#removing-users)
+        - [Saving changes](#saving-changes)
 - [Setting the default Series](#setting-the-default-series)
 - [Setting the default Property](#setting-the-default-property)
 
@@ -121,7 +124,29 @@ After clicking "Yes" to confirm, the confirmation prompt will close and the list
 
 ### Managing users
 
-TKTK
+To manage the users for a group, click the "Manage users" link below the group of your choice.
+
+You'll see a user management prompt appear:
+
+![Manage users](http://assets.apps.investigativenewsnetwork.org/pmp/manage-users.png)
+
+#### Adding users
+
+To add a new user, click on the text field towards the bottom of the prompt and start typing a user's name:
+
+![Search users](http://assets.apps.investigativenewsnetwork.org/pmp/search-users.png)
+
+As you type a user's name, suggestions will appear below the text field. Add a user by clicking one of the suggestions that appears. The user's name will be added to the list above the search field:
+
+![User added](http://assets.apps.investigativenewsnetwork.org/pmp/new-user-added.png)
+
+#### Removing users
+
+To remove a user, click the "x" to the right of the name of the user you wish to remove from the group.
+
+#### Saving changes
+
+Once you've added or removed users from a group, you must click the "Save" button for your changes to take effect.
 
 ## Setting the default Series
 
