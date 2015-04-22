@@ -11,8 +11,12 @@ Integrate [Public Media Platform](http://publicmediaplatform.org/) with WordPres
 - [Search for content](#search-for-content)
     - [Keyword search](#keyword-search)
 - [Import Content](#import-content)
-- [(Un)subscribe from content update](unsubscribe-from-content-updates)
-
+- [(Un)subscribe from content update](#unsubscribe-from-content-updates)
+- [Pushing content to PMP](#pushing-content-to-pmp)
+- [Permissions groups](#permissions-groups)
+    - [Managing users](#managing-users)
+- [Setting the default Series](#setting-the-default-series)
+- [Setting the default Property](#setting-the-default-property)
 
 ## Installation
 
@@ -63,3 +67,37 @@ If you would like to unsubscribe from updates for a specific post, you can do so
 ![Subscribe](http://assets.apps.investigativenewsnetwork.org/pmp/subscribe.png)
 
 To unsubscribe, simply uncheck "Subscribe to updates for this post" and click "Publish", "Update" or "Save Draft" to save.
+
+## Pushing content to PMP
+
+To push a new story to the PMP, navigate to Posts > Add New in the WordPress dashboard.
+
+![Add new](http://assets.apps.investigativenewsnetwork.org/pmp/add-new.png)
+
+Create and edit your new post as you would any other. When you are ready to publish your post, if you would like to push said post to the PMP, click the "Publish and push to PMP" button just above the default WordPress "Publish" button.
+
+![Publish and push](http://assets.apps.investigativenewsnetwork.org/pmp/publish-and-push.png)
+
+Once your post is published, if you make changes and would like to push your changes to PMP, click the "Update and push to PMP" button just above the default WordPress "Update" button.
+
+![Update and push](http://assets.apps.investigativenewsnetwork.org/pmp/update-and-push.png)
+
+## Permissions groups
+
+TKTK
+
+### Managing users
+
+TKTK
+
+## Setting the default Series
+
+for all new stories push to the PMP.
+
+TKTK
+
+## Setting the default Property
+
+for all new stories pushed to the PMP.
+
+TKTK
