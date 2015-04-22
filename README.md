@@ -21,8 +21,10 @@ Integrate [Public Media Platform](http://publicmediaplatform.org/) with WordPres
         - [Adding users](#adding-users)
         - [Removing users](#removing-users)
         - [Saving changes](#saving-changes)
-- [Setting the default Series](#setting-the-default-series)
-- [Setting the default Property](#setting-the-default-property)
+- [Series](#series)
+    - [Setting the default Series](#setting-the-default-series)
+- [Properties](#properties)
+    - [Setting the default Property](#setting-the-default-property)
 
 ## Installation
 
@@ -142,20 +144,44 @@ As you type a user's name, suggestions will appear below the text field. Add a u
 
 #### Removing users
 
-To remove a user, click the "x" to the right of the name of the user you wish to remove from the group.
+To remove a user, click the "x" to the right of their name.
 
 #### Saving changes
 
 Once you've added or removed users from a group, you must click the "Save" button for your changes to take effect.
 
-## Setting the default Series
+## Series
 
-for all new stories push to the PMP.
+To manage series, navigate to Public Media Platform > Series in the WordPress dashboard.
 
-TKTK
+![Navigate to series](http://assets.apps.investigativenewsnetwork.org/pmp/navigate-series.png)
 
-## Setting the default Property
+### Setting the default series
 
-for all new stories pushed to the PMP.
+To set the default series to which all new content pushed to PMP will be added, click the "Set as default" link below the series of your choice.
 
-TKTK
+You will asked to confirm your choice:
+
+![Confirm default series](http://assets.apps.investigativenewsnetwork.org/pmp/confirm-default-series.png)
+
+After clicking "Yes" to confirm, the confirmation prompt will close and the list of series will update. The series you set as the default will appear with "(default)" near its name:
+
+![Default series set](http://assets.apps.investigativenewsnetwork.org/pmp/default-series-set.png)
+
+## Properties
+
+To manage properties, navigate to Public Media Platform > Properties in the WordPress dashboard.
+
+![Navigate to series](http://assets.apps.investigativenewsnetwork.org/pmp/navigate-properties.png)
+
+### Setting the default property
+
+To set the default property to which all new content pushed to PMP will be added, click the "Set as default" link below the series of your choice.
+
+You will asked to confirm your choice:
+
+![Confirm default property](http://assets.apps.investigativenewsnetwork.org/pmp/confirm-default-property.png)
+
+After clicking "Yes" to confirm, the confirmation prompt will close and the list of series will update. The property you set as the default will appear with "(default)" near its name:
+
+![Default property set](http://assets.apps.investigativenewsnetwork.org/pmp/default-property-set.png)
