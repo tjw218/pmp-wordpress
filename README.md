@@ -13,7 +13,10 @@ Integrate [Public Media Platform](http://publicmediaplatform.org/) with WordPres
 - [Import Content](#import-content)
 - [(Un)subscribe from content update](#unsubscribe-from-content-updates)
 - [Pushing content to PMP](#pushing-content-to-pmp)
-- [Permissions groups](#permissions-groups)
+- [Groups & permissions](#groups--permissions)
+    - [Create a new group](#create-a-new-group)
+    - [Modify an existing group](#modify-an-existing-group)
+    - [Setting the default group for new content](#setting-the-default-group-for-new-content)
     - [Managing users](#managing-users)
 - [Setting the default Series](#setting-the-default-series)
 - [Setting the default Property](#setting-the-default-property)
@@ -82,9 +85,39 @@ Once your post is published, if you make changes and would like to push your cha
 
 ![Update and push](http://assets.apps.investigativenewsnetwork.org/pmp/update-and-push.png)
 
-## Permissions groups
+## Groups & Permissions
 
-TKTK
+To manage PMP Groups & Permissions, navigate to Public Media Platform > Groups & Permissions in the WordPress dashboard.
+
+![Navigate to groups](http://assets.apps.investigativenewsnetwork.org/pmp/navigate-groups.png)
+
+### Create a new group
+
+To create a new group, click the "Create new group" button at the top of the Groups & Permissions page.
+
+You'll be met with a "Create a group" prompt where you can specify your new group's title and tags.
+
+The title field is required.
+
+The tags field should be a comma separated list. For example:
+
+    my_first_tag, another tag, yet-another-tag
+    
+### Modify an existing group
+
+To modify the title or tags for an existing group, click the "Modify" link below the name of the group you wish to modify.
+
+### Setting the default group for new content
+
+To set the default group to which all new content pushed to PMP will be added, click the "Set as default" link below the name of the group of your choice.
+
+You will asked to confirm your choice:
+
+![Confirm default group](http://assets.apps.investigativenewsnetwork.org/pmp/confirm-default-group.png)
+
+After clicking "Yes" to confirm, the confirmation prompt will close and the list of groups will update. The group you set as the default will appear with "(default)" near its name:
+
+![Default group set](http://assets.apps.investigativenewsnetwork.org/pmp/default-group-set.png)
 
 ### Managing users
 
