@@ -46,18 +46,26 @@ class TestSDKWrapper extends WP_UnitTestCase {
 	}
 
 	function test_prepQueryData() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		$this->markTestSkipped('Functional test of `prepQueryData` performed by `test_query2json`');
 	}
 
 	function test_href4guid() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		$test_guid = 'test-guid-does-not-matter';
+		$href = $this->sdk_wrapper->href4guid($test_guid);
+		$this->assertTrue((bool) strpos($href, $test_guid));
+		$this->assertTrue((bool) filter_var($href, FILTER_VALIDATE_URL));
 	}
 
 	function test_guid4href() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		$test_guid = 'test-guid-does-not-matter';
+		$test_href = 'http://testdomain.com/test/path/' . $test_guid;
+		$guid = SDKWrapper::guid4href($test_href);
+		$this->assertEquals($guid, $test_guid);
 	}
 
 	function test_commas2array() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		$test_string = 'one, two, three, four';
+		$test_array = SDKWrapper::commas2array($test_string);
+		$this->assertEquals(count($test_array), 4);
 	}
 }

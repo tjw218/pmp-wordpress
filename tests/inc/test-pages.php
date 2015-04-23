@@ -28,11 +28,27 @@ class TestPages extends WP_UnitTestCase {
 	}
 
 	function test_pmp_groups_page() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		// TODO: This could stand to verify that more of the necessary bits are
+		// printed to the page. For example, the search form, the javascript templates,
+		// the necessary javascript globals, etc.
+		$expect = '/<h2>PMP Groups \&amp\; Permissions\<\/h2>/';
+		$this->expectOutputRegex($expect);
+		pmp_groups_page();
 	}
 
-	function test_pmp_collections_page() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+	function test_pmp_collections_page_series() {
+		// TODO: This could stand to verify that more of the necessary bits are
+		// printed to the page. For example, the search form, the javascript templates,
+		// the necessary javascript globals, etc.
+		$_GET['page'] = 'pmp-series-menu';
+		$expect = '/<h2>PMP Series\<\/h2>/';
+		$this->expectOutputRegex($expect);
+		pmp_collections_page();
+
+		$_GET['page'] = 'pmp-properties-menu';
+		$expect = '/<h2>PMP Properties\<\/h2>/';
+		$this->expectOutputRegex($expect);
+		pmp_collections_page();
 	}
 
 }
