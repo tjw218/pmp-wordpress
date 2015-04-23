@@ -29,7 +29,9 @@ class TestFunctions extends WP_UnitTestCase {
 			$_POST['post_data'] = addslashes(json_encode($this->pmp_story));
 			$ret = _pmp_create_post();
 
-			$this->post = $this->factory->post->create();
+			$this->post = $this->factory->post->create(array(
+				'post_title' => 'WP PMP Unit Test Story'
+			));
 			$this->attachment = $this->factory->post->create(array('post_type' => 'attachment'));
 		}
 
@@ -130,11 +132,24 @@ class TestFunctions extends WP_UnitTestCase {
 	}
 
 	function test_pmp_push_to_pmp() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		$post = get_post($this->post);
+
+		// Since `pmp_push_to_pmp` is run when the post edit form is
+		// submitted, we have to set $_POST['pmp_publish_push']
+		// for this to work.
+		$_POST['pmp_publish_push'] = true;
+		$guid = pmp_push_to_pmp($this->post);
+
+		$pmp_story = $this->sdk_wrapper->fetchDoc($guid);
+		$this->assertEquals($post->post_title, $pmp_story->attributes->title);
+
+		// Clean up
+		$pmp_story->delete();
 	}
 
 	function test_pmp_handle_push() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		$this->markTestSkipped(
+			'Functional test of `pmp_handle_push` performed by `test_pmp_push_to_pmp`');
 	}
 
 	function test_pmp_enclosures_for_media() {
@@ -195,11 +210,13 @@ class TestFunctions extends WP_UnitTestCase {
 	}
 
 	function test_pmp_get_my_guid() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		$me = $this->sdk_wrapper->fetchUser('me');
+		$this->assertEquals(pmp_get_my_guid(), $me->attributes->guid);
 	}
 
 	function test_pmp_update_my_guid_transient() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		$this->markTestSkipped(
+			'Functional test of `pmp_update_my_guid_transient` performed by `test_pmp_get_my_guid`');
 	}
 
 	function test_var_log() {

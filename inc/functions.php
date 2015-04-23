@@ -246,8 +246,11 @@ function pmp_handle_push($post_id) {
 			$doc = $sdk->newDoc('image', $obj);
 	}
 
-	if (!in_array('wp_pmp_push', (array) $doc->attributes->itags))
-		$doc->attributes->itags = array_merge((array) $doc->attributes->itags, array('wp_pmp_push'));
+	if (empty($doc->attributes->itags))
+		$doc->attributes->itags = array();
+
+	if (!in_array('wp_pmp_push', $doc->attributes->itags))
+		$doc->attributes->itags = array_merge($doc->attributes->itags, array('wp_pmp_push'));
 
 	do_action('pmp_before_push', $post->ID);
 	$doc->save();
