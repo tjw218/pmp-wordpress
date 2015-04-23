@@ -318,14 +318,9 @@ function pmp_enclosures_for_media($media_id) {
  * @since 0.2
  */
 function pmp_post_is_mine($post_id) {
-	$pmp_guid = get_post_meta($post_id, 'pmp_guid', true);
-
 	$pmp_owner = get_post_meta($post_id, 'pmp_owner', true);
-	if (!empty($pmp_owner)) {
-		$sdk = new SDKWrapper();
-		$me = $sdk->fetchUser('me');
+	if (!empty($pmp_owner))
 		return ($pmp_owner == pmp_get_my_guid());
-	}
 
 	return true;
 }

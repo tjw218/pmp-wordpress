@@ -1,6 +1,40 @@
 <?php
 
 class TestFunctions extends WP_UnitTestCase {
+	function setUp() {
+		parent::setUp();
+
+		$settings = get_option('pmp_settings');
+
+		if (empty($settings['pmp_api_url']) || empty($settings['pmp_client_id']) || empty($settings['pmp_client_secret']))
+			$this->skip = true;
+		else {
+			$this->skip = false;
+			$this->sdk_wrapper = new SDKWrapper();
+
+			// A test query that's all but guaranteed to return at least one result.
+			$this->query = array(
+				'text' => 'Obama',
+				'limit' => 10,
+				'profile' => 'story'
+			);
+
+			$this->editor = $this->factory->user->create();
+			$user = get_user_by('id', $this->editor);
+			$user->set_role('editor');
+			wp_set_current_user($user->ID);
+
+			$result = $this->sdk_wrapper->query2json('queryDocs', $this->query);
+			$this->pmp_story = $result['items'][0];
+			$_POST['post_data'] = addslashes(json_encode($this->pmp_story));
+			$ret = _pmp_create_post();
+
+			$this->post = $this->factory->post->create();
+			$this->attachment = $this->factory->post->create(array('post_type' => 'attachment'));
+		}
+
+	}
+
 	function test_pmp_render_template() {
 		$this->expectOutputRegex('/<h2>Search the Platform<\/h2>/');
 		pmp_render_template('search.php', array(
@@ -68,27 +102,6 @@ class TestFunctions extends WP_UnitTestCase {
 	}
 
 	function test_pmp_on_post_status_transition() {
-		$sdk_wrapper = new SDKWrapper();
-
-		// A test query that's all but guaranteed to return at least one result.
-		$query = array(
-			'text' => 'Obama',
-			'limit' => 10,
-			'profile' => 'story'
-		);
-
-		$editor = $this->factory->user->create();
-		$user = get_user_by('id', $editor);
-		$user->set_role('editor');
-		wp_set_current_user($user->ID);
-
-		$result = $sdk_wrapper->query2json('queryDocs', $query);
-		$pmp_story = $result['items'][0];
-		$_POST['post_data'] = addslashes(json_encode($pmp_story));
-
-		// Create the story as a draft
-		$ret = _pmp_create_post(true);
-
 		$pmp_posts = pmp_get_pmp_posts();
 		$pmp_post = $pmp_posts[0];
 		$custom_fields = get_post_custom($pmp_post->ID);
@@ -103,7 +116,17 @@ class TestFunctions extends WP_UnitTestCase {
 	}
 
 	function test_pmp_publish_and_push_to_pmp_button() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		global $post;
+
+		$tmp_post = $post;
+		$post = get_post($this->post);
+		setup_postdata($post);
+
+		$this->expectOutputRegex('/value="(.*) and push to PMP"/');
+		pmp_publish_and_push_to_pmp_button();
+
+		$post = $tmp_post;
+		wp_reset_postdata();
 	}
 
 	function test_pmp_push_to_pmp() {
@@ -119,11 +142,22 @@ class TestFunctions extends WP_UnitTestCase {
 	}
 
 	function test_pmp_post_is_mine() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		$is_mine = pmp_post_is_mine($this->post);
+		$this->assertTrue($is_mine);
+
+		$pmp_posts = pmp_get_pmp_posts();
+		$pmp_post = $pmp_posts[0];
+		$is_mine = pmp_post_is_mine($pmp_post->ID);
+		$this->assertTrue(!$is_mine);
 	}
 
 	function test_pmp_get_post_data_from_pmp_doc() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		$post_data = pmp_get_post_data_from_pmp_doc($this->pmp_story);
+
+		$this->assertEquals($post_data['post_title'], $this->pmp_story['attributes']['title']);
+		$this->assertEquals($post_data['post_content'], $this->pmp_story['attributes']['contentencoded']);
+		$this->assertEquals($post_data['post_excerpt'], $this->pmp_story['attributes']['teaser']);
+		$this->assertEquals($post_data['post_date'], date('Y-m-d H:i:s', strtotime($this->pmp_story['attributes']['published'])));
 	}
 
 	function test_pmp_get_post_meta_from_pmp_doc() {
