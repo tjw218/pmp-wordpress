@@ -23,6 +23,12 @@ class TestAjax extends WP_Ajax_UnitTestCase {
 			$user = get_user_by('id', $this->editor);
 			$user->set_role('editor');
 			wp_set_current_user($user->ID);
+
+			$this->group = array(
+				'attributes' => array(
+					'title' => 'WP PMP Unit Test Group ' . time()
+				)
+			);
 		}
 	}
 
@@ -87,15 +93,74 @@ class TestAjax extends WP_Ajax_UnitTestCase {
 	}
 
 	function test_pmp_create_group() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		if ($this->skip) {
+			$this->markTestSkipped(
+				'This test requires site options `pmp_api_url`, `pmp_client_id` and `pmp_client_secret`');
+			return;
+		}
+
+		$_POST['group'] = addslashes(json_encode($this->group));
+		$_POST['security'] = wp_create_nonce('pmp_ajax_nonce');
+
+		try {
+			$this->_handleAjax("pmp_create_group");
+		} catch (WPAjaxDieContinueException $e) {
+			$result = json_decode($this->_last_response, true);
+			$this->assertTrue($result['success']);
+
+			// Stash the group guid for later use
+			if ($result['success'])
+				$GLOBALS['pmp_stash']['test_group_guid'] = $result['data']['items'][0]['attributes']['guid'];
+		}
 	}
 
 	function test_pmp_modify_group() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		if ($this->skip) {
+			$this->markTestSkipped(
+				'This test requires site options `pmp_api_url`, `pmp_client_id` and `pmp_client_secret`');
+			return;
+		}
+
+		$this->group['attributes'] = array_merge($this->group['attributes'], array(
+			'guid' => $GLOBALS['pmp_stash']['test_group_guid'],
+			'description' => 'A test description'
+		));
+		$_POST['group'] = addslashes(json_encode($this->group));
+		$_POST['security'] = wp_create_nonce('pmp_ajax_nonce');
+
+		try {
+			$this->_handleAjax("pmp_modify_group");
+		} catch (WPAjaxDieContinueException $e) {
+			$result = json_decode($this->_last_response, true);
+			$this->assertTrue($result['success']);
+
+			// Clean up
+			if ($result['success']) {
+				$group_doc = $this->sdk_wrapper->fetchDoc($GLOBALS['pmp_stash']['test_group_guid']);
+				$group_doc->delete();
+			}
+		}
 	}
 
 	function test_pmp_default_group() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		if ($this->skip) {
+			$this->markTestSkipped(
+				'This test requires site options `pmp_api_url`, `pmp_client_id` and `pmp_client_secret`');
+			return;
+		}
+
+		$this->group['attributes'] = array_merge($this->group['attributes'], array(
+			'guid' => 'test-guid-does-not-matter',
+		));
+		$_POST['group'] = addslashes(json_encode($this->group));
+		$_POST['security'] = wp_create_nonce('pmp_ajax_nonce');
+
+		try {
+			$this->_handleAjax("pmp_default_group");
+		} catch (WPAjaxDieContinueException $e) {
+			$result = json_decode($this->_last_response, true);
+			$this->assertTrue($result['success']);
+		}
 	}
 
 	function test_pmp_save_users() {

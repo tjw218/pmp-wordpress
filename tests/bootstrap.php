@@ -13,6 +13,8 @@ function _manually_load_environment() {
 		'pmp_client_secret' => getenv('PMP_CLIENT_SECRET')
 	);
 	update_option('pmp_settings', $pmp_creds);
+
+	$GLOBALS['pmp_stash'] = array();
 }
 tests_add_filter('muplugins_loaded', '_manually_load_environment');
 
