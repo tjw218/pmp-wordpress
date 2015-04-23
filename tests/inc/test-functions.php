@@ -138,7 +138,26 @@ class TestFunctions extends WP_UnitTestCase {
 	}
 
 	function test_pmp_enclosures_for_media() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		$new_post = $this->factory->post->create();
+		$url = 'http://publicmediaplatform.org/wp-content/uploads/logo1.png';
+		$desc = 'Test description';
+
+		$image_id = pmp_media_sideload_image($url, $new_post, $desc);
+		$enclosures = pmp_enclosures_for_media($image_id);
+
+		$this->assertTrue((bool) count($enclosures));
+
+		$first_enc = $enclosures[0];
+
+		// These should be present at the first level of the returned array
+		$expected_keys_first = array('href', 'meta', 'type');
+		foreach ($expected_keys_first as $expected_key)
+			$this->assertTrue(in_array($expected_key, array_keys((array) $first_enc)));
+
+		// The meta array should have these keys, indicating the crop and size of the image
+		$expected_keys_second = array('crop', 'width', 'height');
+		foreach ($expected_keys_second as $expected_key)
+			$this->assertTrue(in_array($expected_key, array_keys((array) $first_enc->meta)));
 	}
 
 	function test_pmp_post_is_mine() {
@@ -161,6 +180,25 @@ class TestFunctions extends WP_UnitTestCase {
 	}
 
 	function test_pmp_get_post_meta_from_pmp_doc() {
+		$post_meta = pmp_get_post_meta_from_pmp_doc($this->pmp_story);
+
+		$this->assertEquals($post_meta['pmp_guid'], $this->pmp_story['attributes']['guid']);
+		$this->assertEquals($post_meta['pmp_created'], $this->pmp_story['attributes']['created']);
+		$this->assertEquals($post_meta['pmp_modified'], $this->pmp_story['attributes']['modified']);
+		$this->assertEquals($post_meta['pmp_byline'], $this->pmp_story['attributes']['byline']);
+		$this->assertEquals($post_meta['pmp_published'], $this->pmp_story['attributes']['published']);
+		$this->assertEquals($post_meta['pmp_owner'], SDKWrapper::guid4href($this->pmp_story['links']['owner'][0]->href));
+	}
+
+	function test_pmp_filter_media_library() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_pmp_get_my_guid() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_pmp_update_my_guid_transient() {
 		$this->markTestIncomplete('This test has not been implemented yet.');
 	}
 
