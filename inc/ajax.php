@@ -245,12 +245,33 @@ function _pmp_create_post($draft=false) {
 	if (!current_user_can('edit_posts'))
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 
-	$data = json_decode(stripslashes($_POST['post_data']), true);
+	$sdk = new SDKWrapper();
+	$data = $sdk->newDoc('story', json_decode(stripslashes($_POST['post_data'])));
 
 	$post_data = array_merge(pmp_get_post_data_from_pmp_doc($data), array(
 		'post_author' => get_current_user_id(),
 		'post_status' => (!empty($draft))? 'draft' : 'publish'
 	));
+
+	$audio = SDKWrapper::getAudio($data);
+	if (!empty($audio)) {
+		$enclosures = $audio->links('enclosure');
+		if (!empty($enclosures)) {
+			$uri_parts = parse_url($enclosures[0]->href);
+			if (in_array($uri_parts['scheme'], array('http', 'https'))) {
+				$extension = pathinfo($uri_parts['path'], PATHINFO_EXTENSION);
+				if (in_array($extension, wp_get_audio_extensions())) {
+					$audio_shortcode = '[audio src="' . $enclosures[0]->href . '"]';
+				} else if ($extension == 'm3u') {
+					$response = wp_remote_get($enclosures[0]->href);
+					$lines = explode("\n", $response['body']);
+					$audio_shortcode = '[audio src="' . $lines[0] . '"]';
+				}
+				$post_data['post_content'] = $audio_shortcode . "\n" . $post_data['post_content'];
+			}
+		}
+	}
+
 	$new_post = wp_insert_post($post_data);
 
 	if (is_wp_error($new_post)) {
@@ -260,41 +281,40 @@ function _pmp_create_post($draft=false) {
 		);
 	}
 
-	if (!empty($data['attachment'])) {
-		$attachment = $data['attachment'];
-
+	$image = SDKWrapper::getImage($data);
+	if (!empty($image)) {
 		$standard = null;
 
 		// Try really hard to find the 'standard' image crop
-		foreach ($attachment['links']['enclosure'] as $enc) {
-			if ($enc['meta']['crop'] == 'standard') {
+		foreach ($image->links->enclosure as $enc) {
+			if ($enc->meta->crop == 'standard') {
 				$standard = $enc;
 				break;
 			}
 		}
 
 		// If we couldn't get the 'standard' crop, fallback to the first enclosure
-		if (empty($standard) && !empty($attachment['links']['enclosure'][0]))
-			$standard = $attachment['links']['enclosure'][0];
+		if (empty($standard) && !empty($image->links->enclosure[0]))
+			$standard = $image->links->enclosure[0];
 
 		// If we were able to get an enclosure proceed with attaching it to the post
 		if (!empty($standard)) {
 			// Import the image
-			$new_image = pmp_media_sideload_image(
-				$standard['href'], $new_post, $attachment['attributes']['description']);
+			$new_image_desc = (isset($image->attributes->description))? $image->attributes->description:'';
+			$new_image = pmp_media_sideload_image($standard->href, $new_post, $new_image_desc);
 
 			if (!is_wp_error($new_image)) {
 				// If import was successful, set basic attachment attributes
 				$image_update = array(
 					'ID' => $new_image,
-					'post_excerpt' => $attachment['attributes']['description'], // caption
-					'post_title' => $attachment['attributes']['title']
+					'post_excerpt' => $image->attributes->description, // caption
+					'post_title' => $image->attributes->title
 				);
 				wp_update_post($image_update);
 
 				// Also set the alt text and various PMP-related attachment meta
-				$image_meta= array_merge(pmp_get_post_meta_from_pmp_doc($attachment), array(
-					'_wp_attachment_image_alt' => $attachment['attributes']['title'], // alt text
+				$image_meta= array_merge(pmp_get_post_meta_from_pmp_doc($image), array(
+					'_wp_attachment_image_alt' => $image->attributes->title, // alt text
 				));
 
 				foreach ($image_meta as $image_meta_key => $image_meta_value)

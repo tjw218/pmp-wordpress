@@ -156,4 +156,36 @@ class SDKWrapper {
 		);
 	}
 
+
+	/**
+	 * Get the first image link for a Doc
+	 *
+	 * @since 0.2
+	 */
+	public static function getImage($doc) {
+		if ($doc->getProfileAlias() == 'image')
+			return $doc;
+
+		$images = $doc->items('image');
+		if (count($images) > 0)
+			return $images[0];
+		else
+			return false;
+	}
+
+	/**
+	 * Get the first audio link for a Doc
+	 *
+	 * @since 0.2
+	 */
+	public static function getAudio($doc) {
+		if ($doc->getProfileAlias() == 'audio')
+			return $doc;
+
+		$audios = $doc->items('audio');
+		if (count($audios) > 0)
+			return $audios[0];
+		else
+			return false;
+	}
 }

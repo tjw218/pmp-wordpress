@@ -359,10 +359,12 @@ function pmp_get_post_meta_from_pmp_doc($pmp_doc) {
 		'pmp_guid' => $data['attributes']['guid'],
 		'pmp_created' => $data['attributes']['created'],
 		'pmp_modified' => $data['attributes']['modified'],
-		'pmp_byline' => $data['attributes']['byline'],
 		'pmp_published' => $data['attributes']['published'],
 		'pmp_owner' => SDKWrapper::guid4href($data['links']['owner'][0]['href'])
 	);
+
+	if (!empty($data['attributes']['byline']))
+		$post_meta['pmp_byline'] = $data['attributes']['byline'];
 
 	return $post_meta;
 }

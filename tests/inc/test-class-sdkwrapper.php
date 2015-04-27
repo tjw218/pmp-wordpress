@@ -68,4 +68,12 @@ class TestSDKWrapper extends WP_UnitTestCase {
 		$test_array = SDKWrapper::commas2array($test_string);
 		$this->assertEquals(count($test_array), 4);
 	}
+
+	function test_getImage() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_getAudio() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
 }
