@@ -24,8 +24,8 @@ class TestCron extends WP_UnitTestCase {
 			$user->set_role('editor');
 			wp_set_current_user($user->ID);
 
-			$result = $this->sdk_wrapper->query2json('queryDocs', $this->query);
-			$this->pmp_story = $result['items'][0];
+			$result = $this->sdk_wrapper->queryDocs($this->query);
+			$this->pmp_story = $result->items()->first();
 			$_POST['post_data'] = addslashes(json_encode($this->pmp_story));
 			$ret = _pmp_create_post();
 		}
