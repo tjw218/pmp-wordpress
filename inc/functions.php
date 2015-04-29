@@ -184,12 +184,12 @@ function pmp_handle_push($post_id) {
 	$obj->attributes = (object) array(
 		'title' => $post->post_title,
 		'description' => strip_tags(apply_filters('the_content', $post->post_content)),
-		'byline' => $author->display_name,
 		'published' => date('c', strtotime($post->post_date))
 	);
 
 	if ($post->post_type == 'post') {
 		$obj->attributes = array_merge($obj->attributes, array(
+			'byline' => $author->display_name,
 			'contentencoded' => apply_filters('the_content', $post->post_content),
 			'teaser' => $post->post_excerpt
 		));
