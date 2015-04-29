@@ -186,7 +186,7 @@ function pmp_handle_push($post_id) {
 	);
 
 	if ($post->post_type == 'post') {
-		$obj->attributes = array_merge($obj->attributes, array(
+		$obj->attributes = (object) array_merge((array) $obj->attributes, array(
 			'description' => strip_tags(apply_filters('the_content', $post->post_content)),
 			'title' => $post->post_title,
 			'byline' => $author->display_name,
@@ -195,7 +195,7 @@ function pmp_handle_push($post_id) {
 		));
 	} else if ($post->post_type == 'attachment') {
 		$alt_text = get_post_meta($post_id, '_wp_attachment_image_alt', true);
-		$obj->attributes = array_merge($obj->attributes, array(
+		$obj->attributes = (object) array_merge((array) $obj->attributes, array(
 			'title' => (!empty($alt_text))? $alt_text : $post->post_title,
 			'description' => $post->post_excerpt
 		));
