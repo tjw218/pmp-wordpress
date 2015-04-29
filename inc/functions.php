@@ -183,12 +183,17 @@ function pmp_handle_push($post_id) {
 	$obj = new \StdClass();
 	$obj->attributes = (object) array(
 		'title' => $post->post_title,
-		'contentencoded' => apply_filters('the_content', $post->post_content),
 		'description' => strip_tags(apply_filters('the_content', $post->post_content)),
-		'teaser' => $post->post_excerpt,
 		'byline' => $author->display_name,
 		'published' => date('c', strtotime($post->post_date))
 	);
+
+	if ($post->post_type == 'post') {
+		$obj->attributes = array_merge($obj->attributes, array(
+			'contentencoded' => apply_filters('the_content', $post->post_content),
+			'teaser' => $post->post_excerpt
+		));
+	}
 
 	// Set default collections (series & property), permissions group
 	$obj->links = new \StdClass();
