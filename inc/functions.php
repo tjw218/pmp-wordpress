@@ -182,16 +182,22 @@ function pmp_handle_push($post_id) {
 
 	$obj = new \StdClass();
 	$obj->attributes = (object) array(
-		'title' => $post->post_title,
-		'description' => strip_tags(apply_filters('the_content', $post->post_content)),
 		'published' => date('c', strtotime($post->post_date))
 	);
 
 	if ($post->post_type == 'post') {
 		$obj->attributes = array_merge($obj->attributes, array(
+			'description' => strip_tags(apply_filters('the_content', $post->post_content)),
+			'title' => $post->post_title,
 			'byline' => $author->display_name,
 			'contentencoded' => apply_filters('the_content', $post->post_content),
 			'teaser' => $post->post_excerpt
+		));
+	} else if ($post->post_type == 'attachment') {
+		$alt_text = get_post_meta($post_id, '_wp_attachment_image_alt', true);
+		$obj->attributes = array_merge($obj->attributes, array(
+			'title' => (!empty($alt_text))? $alt_text : $post->post_title,
+			'description' => $post->post_excerpt
 		));
 	}
 
@@ -207,7 +213,7 @@ function pmp_handle_push($post_id) {
 	$obj->links->alternate[] = (object) array('href' => $alternate);
 
 	// Build out the collection array
-	if ($post->post_type != 'attachment') {
+	if ($post->post_type == 'post') {
 		$obj->links->collection = array();
 
 		$default_series = get_option('pmp_default_series', false);
