@@ -256,17 +256,19 @@ function _pmp_create_post($draft=false) {
 	$audio = SDKWrapper::getAudio($data);
 	if (!empty($audio)) {
 		$enclosures = $audio->links('enclosure');
+
 		if (!empty($enclosures)) {
-			$uri_parts = parse_url($enclosures[0]->href);
+			$first_enclosure = $enclosures[0];
+			$uri_parts = parse_url($first_enclosure->href);
+
 			if (in_array($uri_parts['scheme'], array('http', 'https'))) {
-				$extension = pathinfo($uri_parts['path'], PATHINFO_EXTENSION);
-				if (in_array($extension, wp_get_audio_extensions())) {
-					$audio_shortcode = '[audio src="' . $enclosures[0]->href . '"]';
-				} else if ($extension == 'm3u') {
-					$response = wp_remote_get($enclosures[0]->href);
+				if ($first_enclosure->type == 'audio/m3u') {
+					$response = wp_remote_get($first_enclosure->href);
 					$lines = explode("\n", $response['body']);
 					$audio_shortcode = '[audio src="' . $lines[0] . '"]';
-				}
+				} else if (in_array($first_enclosure->type, array_values(get_allowed_mime_types())))
+					$audio_shortcode = '[audio src="' . $enclosures[0]->href . '"]';
+
 				$post_data['post_content'] = $audio_shortcode . "\n" . $post_data['post_content'];
 			}
 		}
@@ -307,7 +309,7 @@ function _pmp_create_post($draft=false) {
 				// If import was successful, set basic attachment attributes
 				$image_update = array(
 					'ID' => $new_image,
-					'post_excerpt' => $image->attributes->description, // caption
+					'post_excerpt' => (isset($image->attributes->description))? $image->attributes->description:'', // caption
 					'post_title' => $image->attributes->title
 				);
 				wp_update_post($image_update);
