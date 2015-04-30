@@ -262,14 +262,34 @@ function _pmp_create_post($draft=false) {
 			$uri_parts = parse_url($first_enclosure->href);
 
 			if (in_array($uri_parts['scheme'], array('http', 'https'))) {
-				if ($first_enclosure->type == 'audio/m3u') {
-					$response = wp_remote_get($first_enclosure->href);
-					$lines = explode("\n", $response['body']);
-					$audio_shortcode = '[audio src="' . $lines[0] . '"]';
-				} else if (in_array($first_enclosure->type, array_values(get_allowed_mime_types())))
-					$audio_shortcode = '[audio src="' . $enclosures[0]->href . '"]';
+				$type = (isset($first_enclosure->type))? $first_enclosure->type:null;
+				$href = $first_enclosure->href;
 
-				$post_data['post_content'] = $audio_shortcode . "\n" . $post_data['post_content'];
+				if (!empty($type)) {
+					if ($type == 'audio/m3u') {
+						$response = wp_remote_get($href);
+						$lines = explode("\n", $response['body']);
+						$audio_shortcode = '[audio src="' . $lines[0] . '"]';
+					} else if (in_array($type, array_values(get_allowed_mime_types())))
+						$audio_shortcode = '[audio src="' . $href . '"]';
+				} else {
+					$uri_parts = parse_url($href);
+
+					if (in_array($uri_parts['scheme'], array('http', 'https'))) {
+						$extension = pathinfo($uri_parts['path'], PATHINFO_EXTENSION);
+
+						if (in_array($extension, wp_get_audio_extensions())) {
+							$audio_shortcode = '[audio src="' . $href . '"]';
+						} else if ($extension == 'm3u') {
+							$response = wp_remote_get($href);
+							$lines = explode("\n", $response['body']);
+							$audio_shortcode = '[audio src="' . $lines[0] . '"]';
+						}
+					}
+				}
+
+				if (!empty($audio_shortcode))
+					$post_data['post_content'] = $audio_shortcode . "\n" . $post_data['post_content'];
 			}
 		}
 	}
