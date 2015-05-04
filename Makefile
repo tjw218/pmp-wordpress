@@ -28,10 +28,10 @@ clean:
 install: ensure
 	composer install
 	@if [ -d "$(WP_CORE_DIR)" ]; then \
-	  echo "Using wordpress v$(WP_VERSION)" ; \
+		echo "Using wordpress v$(WP_VERSION)" ; \
 	else \
-	  echo "Checking out wordpress v$(WP_VERSION) ..." ; \
-	  svn checkout --quiet http://develop.svn.wordpress.org/tags/$(WP_VERSION) $(WP_CORE_DIR) ; \
+		echo "Checking out wordpress v$(WP_VERSION) ..." ; \
+		svn checkout --quiet http://develop.svn.wordpress.org/tags/$(WP_VERSION) $(WP_CORE_DIR) ; \
 	fi;
 	rm -f $(WP_CORE_DIR)/src/wp-content/plugins/pmp-wordpress && ln -s $$(pwd) $(WP_CORE_DIR)/src/wp-content/plugins/pmp-wordpress
 	cp $(WP_CORE_DIR)/wp-tests-config-sample.php wp-tests-config.php
