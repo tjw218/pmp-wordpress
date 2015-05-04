@@ -9,7 +9,13 @@
  * License: MIT
  */
 
-require __DIR__ . '/vendor/pmpsdk.phar';
+// check if plugin is composer-installed
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+	require __DIR__ . '/vendor/autoload.php';
+}
+else {
+	require __DIR__ . '/vendor/pmpsdk.phar';
+}
 
 /**
  * Plugin set up and init
