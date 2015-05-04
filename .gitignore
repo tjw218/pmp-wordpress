@@ -1,0 +1,12 @@
+# standard excludes
+.DS_Store
+.project
+.idea
+.env
+
+# wp release build directory
+/build
+
+# ignore all composer stuff, except the phar
+/vendor
+!/vendor/pmpsdk.phar
