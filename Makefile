@@ -19,17 +19,17 @@ clean:
 
 ensure:
 	@if [ -f .env ]; then \
-	  source .env ; \
+		source .env ; \
 	else \
-	  echo "Error: missing .env file!  Create one using the following example:\n" ; \
-	  echo '# pmp-wordpress test configurations' ; \
-	  echo "export WP_CORE_DIR=/tmp/wordpress" ; \
-	  echo 'export WP_TESTS_DIR=$$WP_CORE_DIR/tests/phpunit' ; \
-	 	echo "export PMP_API_URL=https://api-sandbox.pmp.io" ; \
-	 	echo "export PMP_CLIENT_ID=1234" ; \
-	 	echo "export PMP_CLIENT_SECRET=5678" ; \
-	 	echo "" ; \
-	 	exit 1 ; \
+		echo "Error: missing .env file!  Create one using the following example:\n" ; \
+		echo '# pmp-wordpress test configurations' ; \
+		echo "export WP_CORE_DIR=/tmp/wordpress" ; \
+		echo 'export WP_TESTS_DIR=$$WP_CORE_DIR/tests/phpunit' ; \
+		echo "export PMP_API_URL=https://api-sandbox.pmp.io" ; \
+		echo "export PMP_CLIENT_ID=1234" ; \
+		echo "export PMP_CLIENT_SECRET=5678" ; \
+		echo "" ; \
+		exit 1 ; \
 	fi;
 
 .PHONY: install test build clean ensure
