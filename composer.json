@@ -1,0 +1,15 @@
+{
+    "name": "publicmediaplatform/pmp-wordpress",
+    "type": "wordpress-plugin",
+    "description": "Integrate the Public Media Platform with Wordpress",
+    "keywords": ["pmp","pubmedia", "publicmediaplatform", "wordpress"],
+    "homepage": "https://github.com/publicmediaplatform/pmp-wordpress",
+    "license": "MIT",
+    "require": {
+        "php": ">=5.3.3",
+        "publicmediaplatform/pmpsdk": "^1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.6"
+    }
+}

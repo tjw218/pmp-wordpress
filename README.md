@@ -1,5 +1,6 @@
 # PMP WordPress
 
+[![Build Status](https://travis-ci.org/publicmediaplatform/pmp-wordpress.svg?branch=master)](https://travis-ci.org/publicmediaplatform/pmp-wordpress)
 [![Latest Release](https://img.shields.io/github/release/publicmediaplatform/pmp-wordpress.svg)](https://github.com/publicmediaplatform/pmp-wordpress/releases/latest)
 
 Integrate [Public Media Platform](http://publicmediaplatform.org/) with WordPress.

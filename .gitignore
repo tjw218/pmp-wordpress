@@ -1,0 +1,13 @@
+# standard excludes
+.DS_Store
+.project
+.idea
+.env
+
+# temporary build and test directories
+/build
+/wptest
+
+# ignore all composer stuff, except the phar
+/vendor
+!/vendor/pmpsdk.phar
