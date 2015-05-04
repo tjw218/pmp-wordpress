@@ -126,6 +126,15 @@ add_action('transition_post_status',  'pmp_on_post_status_transition', 10, 3 );
 function pmp_publish_and_push_to_pmp_button() {
 	global $post;
 
+	// Check to see if already published to display message below.
+	$pmp_pushed = get_post_meta($post->ID, 'pmp_pushed', true);
+
+	if (empty($pmp_pushed)) {
+		$extra_message = '';
+	} else {
+		$extra_message = '<p>Pushed to the PMP on '.date('n/j/Y', $pmp_pushed).' @ '.date('g:i:s A', $pmp_pushed).'</p>';
+	}
+
 	if (!pmp_post_is_mine($post->ID))
 		return;
 
@@ -135,7 +144,8 @@ function pmp_publish_and_push_to_pmp_button() {
 		<input type="submit"
 			name="pmp_<?php echo strtolower($message); ?>_push"
 			id="pmp-<?php echo strtolower($message); ?>-push"
-			class="button button-primary button-large" value="<?php echo $message; ?> and push to PMP">
+			class="button button-primary button-large<?php echo (empty($extra_message) ? '': ' already-pmp-pushed'); ?>" value="<?php echo $message; ?> and push to PMP">
+		<?php echo $extra_message; ?>
 	</div>
 <?php
 }
@@ -277,6 +287,9 @@ function pmp_handle_push($post_id) {
 
 	foreach ($post_meta as $key => $value)
 		update_post_meta($post->ID, $key, $value);
+
+	// Save off the push date.
+	update_post_meta($post->ID, 'pmp_pushed', current_time('timestamp'));
 
 	return $doc->attributes->guid;
 }
