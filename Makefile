@@ -20,7 +20,7 @@ release:
 ifneq ($(strip $(wildcard .env)),)
 include .env
 endif
-test: test-ensure
+test: test-ensure test-install
 	WP_TESTS_DIR=$(WP_CORE_DIR)/tests/phpunit/ ./vendor/bin/phpunit
 test-install: test-ensure install
 	composer install
@@ -30,7 +30,7 @@ test-install: test-ensure install
 		echo "Checking out wordpress v$(WP_VERSION) ..." ; \
 		svn checkout --quiet http://develop.svn.wordpress.org/tags/$(WP_VERSION) $(WP_CORE_DIR) ; \
 	fi;
-	rm -f $(WP_CORE_DIR)/src/wp-content/plugins/pmp-wordpress && ln -s $$(pwd) $(WP_CORE_DIR)/src/wp-content/plugins/pmp-wordpress
+	rm -f $(WP_CORE_DIR)/src/wp-content/plugins/$(WP_PLUGIN_SLUG) && ln -s $$(pwd) $(WP_CORE_DIR)/src/wp-content/plugins/$(WP_PLUGIN_SLUG)
 	cp $(WP_CORE_DIR)/wp-tests-config-sample.php wp-tests-config.php
 	sed "s:dirname( __FILE__ ) . '/src/':'$$(cd $(WP_CORE_DIR) && pwd)/src/':" wp-tests-config.php > wp-tests-config.php.new && mv wp-tests-config.php.new wp-tests-config.php
 	sed "s/youremptytestdbnamehere/$(WP_TEST_DB_NAME)/" wp-tests-config.php > wp-tests-config.php.new && mv wp-tests-config.php.new wp-tests-config.php
@@ -45,6 +45,7 @@ test-ensure:
 		echo "# pmp-wordpress test configurations" ; \
 		echo "export WP_VERSION=4.1.1" ; \
 		echo "export WP_CORE_DIR=wptest" ; \
+		echo "export WP_PLUGIN_SLUG=pmp-wordpress" ; \
 		echo "export WP_TEST_DB_NAME=<<your_tmp_test_db_name>>" ; \
 		echo "export WP_TEST_DB_USER=<<your_user_name>>" ; \
 		echo "export WP_TEST_DB_PASS=<<your_user_password>>" ; \
