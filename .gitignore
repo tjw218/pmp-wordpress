@@ -4,9 +4,9 @@
 .idea
 .env
 
-# temporary build and test directories
-/build
+# temporary test and release directories
 /wptest
+/release
 
 # ignore all composer stuff, except the phar
 /vendor

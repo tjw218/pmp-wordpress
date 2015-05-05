@@ -1,31 +1,28 @@
 #
 # testing/building the plugin
 #
+.PHONY: install install-release clean pristene release
+.PHONY: test test-install test-clean test-ensure
 
-# load the environment file, if it exists
-HAVE_ENV := $(wildcard .env)
-ifneq ($(strip $(HAVE_ENV)),)
+# basic commands
+install:
+	composer install
+install-release: clean
+	composer install --no-dev
+clean:
+	find vendor -maxdepth 1 -mindepth 1 ! -name 'pmpsdk.phar' -exec rm -rf {} +
+pristine: clean test-clean
+	rm -rf release
+release:
+	./release.sh
+
+# test setup/running (requires .env file)
+ifneq ($(strip $(wildcard .env)),)
 include .env
 endif
-
-# bundle a zip file for release to wordpress.org
-build: clean
-	@mkdir -p build
-	composer install --no-dev
-	zip -r build/wp-release.zip . --exclude ".*" "vendor/pmpsdk.phar" "build/*" "composer.*" "tests/*" "phpunit.xml" "Makefile" -q
-
-# run phpunit tests (run install first)
-test: ensure
+test: test-ensure
 	WP_TESTS_DIR=$(WP_CORE_DIR)/tests/phpunit/ ./vendor/bin/phpunit
-
-# remove temporary directories
-clean:
-	rm -rf build
-	rm -rf wptest
-	find vendor -maxdepth 1 -mindepth 1 ! -name 'pmpsdk.phar' -exec rm -rf {} +
-
-# install wordpress core to run tests (should work on osx or *nix systems)
-install: ensure
+test-install: test-ensure install
 	composer install
 	@if [ -d "$(WP_CORE_DIR)" ]; then \
 		echo "Using wordpress v$(WP_VERSION)" ; \
@@ -40,9 +37,9 @@ install: ensure
 	sed "s/yourusernamehere/$(WP_TEST_DB_USER)/" wp-tests-config.php > wp-tests-config.php.new && mv wp-tests-config.php.new wp-tests-config.php
 	sed "s/yourpasswordhere/$(WP_TEST_DB_PASS)/" wp-tests-config.php > wp-tests-config.php.new && mv wp-tests-config.php.new wp-tests-config.php
 	mv wp-tests-config.php "$(WP_CORE_DIR)/tests/phpunit/wp-tests-config.php"
-
-# make sure you've created an .env file
-ensure:
+test-clean: test-ensure clean
+	rm -rf $(WP_CORE_DIR)
+test-ensure:
 	@if [ ! -f .env ]; then \
 		echo "Error: missing .env file!  Create one using the following example:\n" ; \
 		echo "# pmp-wordpress test configurations" ; \
@@ -57,5 +54,3 @@ ensure:
 		echo "" ; \
 		exit 1 ; \
 	fi;
-
-.PHONY: install test build clean ensure
