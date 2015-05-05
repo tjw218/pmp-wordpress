@@ -21,7 +21,10 @@ then
 fi
 
 # make sure we know what we're doing
-read -p "Sure you want to release plugin from [$(echo $MATCHES)]? " -n 1 -r
+WHICH_TEXT="[master] and [$(echo $IS_TAG | sed -e 's/^refs\/tags\///')]"
+if [[ $IS_MASTER == "" ]]; then WHICH_TEXT="[$(echo $IS_TAG | sed -e 's/^refs\/tags\///')]"; fi
+if [[ $IS_TAG == "" ]]; then WHICH_TEXT="[master]"; fi
+read -p "Really release plugin from $WHICH_TEXT? " -n 1 -r
 echo ""
 echo ""
 if [[ ! $REPLY =~ ^[Yy]$ ]]
