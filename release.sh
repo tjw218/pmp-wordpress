@@ -98,6 +98,11 @@ then
   OUT=`rm -rf $TAG_PATH && unzip -o release/wp-release.zip -d $TAG_PATH`
   if [[ $? -ne 0 ]]; then echo "$OUT" && exit 1; fi
 
+  # set the version
+  echo " - updating plugin.php version to $WP_TAG"
+  OUT=`sed "s/\* Version:.*$/* Version: $WP_TAG/" $TAG_PATH/plugin.php > plugin.php.new && mv plugin.php.new $TAG_PATH/plugin.php`
+  if [[ $? -ne 0 ]]; then echo "$OUT" && exit 1; fi
+
   # stage all changes (adds and removes)
   OUT=`cd $SVN_PATH/tags && svn st | grep '^\?' | awk '{print \$2}' | xargs svn add` # add all
   if [[ $? -ne 0 ]]; then echo "$OUT" && exit 1; fi
