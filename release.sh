@@ -21,15 +21,15 @@ then
 fi
 
 # make sure we know what we're doing
-# read -p "Sure you want to release plugin from [$(echo $MATCHES)]? " -n 1 -r
-# echo ""
-# echo ""
-# if [[ ! $REPLY =~ ^[Yy]$ ]]
-# then
-#   echo "(no changes made)"
-#   echo ""
-#   exit 0
-# fi
+read -p "Sure you want to release plugin from [$(echo $MATCHES)]? " -n 1 -r
+echo ""
+echo ""
+if [[ ! $REPLY =~ ^[Yy]$ ]]
+then
+  echo "(no changes made)"
+  echo ""
+  exit 0
+fi
 
 # init and update svn repo
 if [[ ! -d $SVN_PATH ]]
