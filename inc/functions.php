@@ -127,12 +127,13 @@ function pmp_publish_and_push_to_pmp_button() {
 	global $post;
 
 	// Check to see if already published to display message below.
-	$pmp_pushed = get_post_meta($post->ID, 'pmp_pushed', true);
+	$pmp_meta = get_post_meta($post->ID, 'pmp_modified', true);
 
-	if (empty($pmp_pushed)) {
+	if (empty($pmp_meta)) {
 		$extra_message = '';
 	} else {
-		$extra_message = '<p>Pushed to the PMP on '.date('n/j/Y', $pmp_pushed).' @ '.date('g:i:s A', $pmp_pushed).'</p>';
+		$pmp_local = get_date_from_gmt(date('Y-m-d H:i:s', strtotime($pmp_meta)), 'n/j/Y @ g:i:s A');
+		$extra_message = "<p>Last pushed to PMP on $pmp_local.</p>";
 	}
 
 	if (!pmp_post_is_mine($post->ID))
@@ -274,6 +275,7 @@ function pmp_handle_push($post_id) {
 		$doc->attributes->itags = array_merge($doc->attributes->itags, array('wp_pmp_push'));
 
 	do_action('pmp_before_push', $post->ID);
+	$doc = apply_filters('pmp_doc', $doc, $post->ID);
 	$doc->save();
 	do_action('pmp_after_push', $post->ID);
 
@@ -287,9 +289,6 @@ function pmp_handle_push($post_id) {
 
 	foreach ($post_meta as $key => $value)
 		update_post_meta($post->ID, $key, $value);
-
-	// Save off the push date.
-	update_post_meta($post->ID, 'pmp_pushed', current_time('timestamp'));
 
 	return $doc->attributes->guid;
 }
