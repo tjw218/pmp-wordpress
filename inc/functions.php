@@ -126,6 +126,16 @@ add_action('transition_post_status',  'pmp_on_post_status_transition', 10, 3 );
 function pmp_publish_and_push_to_pmp_button() {
 	global $post;
 
+	// Check to see if already published to display message below.
+	$pmp_meta = get_post_meta($post->ID, 'pmp_modified', true);
+
+	if (empty($pmp_meta)) {
+		$extra_message = '';
+	} else {
+		$pmp_local = get_date_from_gmt(date('Y-m-d H:i:s', strtotime($pmp_meta)), 'n/j/Y @ g:i:s A');
+		$extra_message = "<p>Last pushed to PMP on $pmp_local.</p>";
+	}
+
 	if (!pmp_post_is_mine($post->ID))
 		return;
 
@@ -135,7 +145,8 @@ function pmp_publish_and_push_to_pmp_button() {
 		<input type="submit"
 			name="pmp_<?php echo strtolower($message); ?>_push"
 			id="pmp-<?php echo strtolower($message); ?>-push"
-			class="button button-primary button-large" value="<?php echo $message; ?> and push to PMP">
+			class="button button-primary button-large<?php echo (empty($extra_message) ? '': ' already-pmp-pushed'); ?>" value="<?php echo $message; ?> and push to PMP">
+		<?php echo $extra_message; ?>
 	</div>
 <?php
 }
@@ -165,7 +176,7 @@ function pmp_push_to_pmp($post_id) {
 		return pmp_handle_push($post_id);
 	}
 }
-add_action('save_post', 'pmp_push_to_pmp');
+add_action('save_post', 'pmp_push_to_pmp', 11);
 
 /**
  * Handle pushing post content to PMP. Works with posts and attachments (images).
@@ -263,9 +274,9 @@ function pmp_handle_push($post_id) {
 	if (!in_array('wp_pmp_push', $doc->attributes->itags))
 		$doc->attributes->itags = array_merge($doc->attributes->itags, array('wp_pmp_push'));
 
-	do_action('pmp_before_push', $post->ID);
+	$doc = apply_filters('pmp_before_push', $doc, $post->ID);
 	$doc->save();
-	do_action('pmp_after_push', $post->ID);
+	do_action('pmp_after_push', $doc, $post->ID);
 
 	$post_meta = pmp_get_post_meta_from_pmp_doc($doc);
 

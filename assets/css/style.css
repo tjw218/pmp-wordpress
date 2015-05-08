@@ -357,3 +357,8 @@ p.error {
   border-bottom: 1px solid #dadada;
   text-align: center;
 }
+
+.wp-core-ui .button-primary.already-pmp-pushed {
+  background: #a3e9ff;
+  border-color: #eee;
+}
