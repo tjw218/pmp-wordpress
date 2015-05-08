@@ -176,7 +176,7 @@ function pmp_push_to_pmp($post_id) {
 		return pmp_handle_push($post_id);
 	}
 }
-add_action('save_post', 'pmp_push_to_pmp');
+add_action('save_post', 'pmp_push_to_pmp', 11);
 
 /**
  * Handle pushing post content to PMP. Works with posts and attachments (images).
@@ -274,10 +274,9 @@ function pmp_handle_push($post_id) {
 	if (!in_array('wp_pmp_push', $doc->attributes->itags))
 		$doc->attributes->itags = array_merge($doc->attributes->itags, array('wp_pmp_push'));
 
-	do_action('pmp_before_push', $post->ID);
-	$doc = apply_filters('pmp_doc', $doc, $post->ID);
+	$doc = apply_filters('pmp_before_push', $doc, $post->ID);
 	$doc->save();
-	do_action('pmp_after_push', $post->ID);
+	do_action('pmp_after_push', $doc, $post->ID);
 
 	$post_meta = pmp_get_post_meta_from_pmp_doc($doc);
 
