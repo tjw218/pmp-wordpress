@@ -117,14 +117,41 @@ class TestFunctions extends WP_UnitTestCase {
 		$this->assertEquals($pmp_post_after_transition->post_date, $date);
 	}
 
-	function test_pmp_publish_and_push_to_pmp_button() {
+	function test_pmp_publish_actions_helper_draft() {
 		global $post;
-
 		$tmp_post = $post;
 		$post = get_post($this->post);
 		setup_postdata($post);
 
-		$this->expectOutputRegex('/value="(.*) and push to PMP"/');
+		$post->post_status = 'draft';
+		$this->expectOutputRegex('/You must publish first/');
+		pmp_publish_and_push_to_pmp_button();
+
+		$post = $tmp_post;
+		wp_reset_postdata();
+	}
+
+	function test_pmp_publish_actions_helper_not_pushed() {
+		global $post;
+		$tmp_post = $post;
+		$post = get_post($this->post);
+		setup_postdata($post);
+
+		$this->expectOutputRegex('/Not in PMP/');
+		pmp_publish_and_push_to_pmp_button();
+
+		$post = $tmp_post;
+		wp_reset_postdata();
+	}
+
+	function test_pmp_publish_actions_helper_pushed() {
+		global $post;
+		$tmp_post = $post;
+		$post = get_post($this->post);
+		setup_postdata($post);
+
+		update_post_meta($post->ID, 'pmp_guid', 'foobar');
+		$this->expectOutputRegex('/Post will be updated/');
 		pmp_publish_and_push_to_pmp_button();
 
 		$post = $tmp_post;
