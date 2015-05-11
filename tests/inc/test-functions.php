@@ -135,9 +135,9 @@ class TestFunctions extends WP_UnitTestCase {
 		$post = get_post($this->post);
 
 		// Since `pmp_push_to_pmp` is run when the post edit form is
-		// submitted, we have to set $_POST['pmp_publish_push']
+		// submitted, we have to set $_POST['pmp_update_push']
 		// for this to work.
-		$_POST['pmp_publish_push'] = true;
+		$_POST['pmp_update_push'] = true;
 		$guid = pmp_push_to_pmp($this->post);
 
 		$pmp_story = $this->sdk_wrapper->fetchDoc($guid);
