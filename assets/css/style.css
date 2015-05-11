@@ -371,17 +371,16 @@ p.error {
   color: #999;
 }
 #pmp-publish-actions .button-pmp {
-  /* #CC362B #B33026 */
-  background: #B33026;
-  border-color: #932820;
+  background: #CC362B;
+  border-color: #B33026;
   -webkit-box-shadow: inset 0 1px 0 rgba(192, 100, 100, 1), 0 1px 0 rgba(0, 0, 0, 0.15);
   box-shadow: inset 0 1px 0 rgba(192, 100, 100, 1), 0 1px 0 rgba(0, 0, 0, 0.15);
   color: #fff;
   text-decoration: none;
 }
 #pmp-publish-actions .button-pmp.hover, #pmp-publish-actions .button-pmp:hover, #pmp-publish-actions .button-pmp.focus, #pmp-publish-actions .button-pmp:focus {
-  background: #983931;
-  border-color: #5A1B16;
+  background: #B33026;
+  border-color: #863B35;
   -webkit-box-shadow: inset 0 1px 0 rgba(163, 95, 95, 0.6);
   box-shadow: inset 0 1px 0 rgba(163, 95, 95, 0.6);
 }
