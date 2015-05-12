@@ -100,7 +100,7 @@
         },
         {
             "name": "publicmediaplatform/pmpsdk",
-            "version": "v1.0.3",
+            "version": "v1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/publicmediaplatform/phpsdk.git",
