@@ -5,6 +5,10 @@
 
 Integrate [Public Media Platform](http://publicmediaplatform.org/) with WordPress.
 
+Also see this project in the [official Wordpress plugin directory](https://wordpress.org/plugins/public-media-platform/).
+
+Built by the [INN Nerds](http://nerds.inn.org/).
+
 ## Table of contents
 
 - [Installation](#installation)
@@ -29,9 +33,9 @@ Integrate [Public Media Platform](http://publicmediaplatform.org/) with WordPres
 
 ## Installation
 
-Follow the standard procedure for [installing WordPress plugins](http://codex.wordpress.org/Managing_Plugins#Manual_Plugin_Installation).
+Follow the standard procedure for [automatic plugin installation](https://codex.wordpress.org/Managing_Plugins#Automatic_Plugin_Installation), and search for "PMP" or "Public Media Platform".  Using the [official plugin](https://wordpress.org/plugins/search.php?type=term&q=PMP) from the Wordpress plugin directory allows you to automatically get updates.
 
-You can download the most recent version of the plugin by [clicking here](https://github.com/publicmediaplatform/pmp-wordpress/releases/latest).
+If you'd prefer the bleeding edge `master` version of the plugin, you'll have to install it manually, following the standard procedure for [manual plugin installation](http://codex.wordpress.org/Managing_Plugins#Manual_Plugin_Installation).  You can get the [latest code zip here](https://github.com/publicmediaplatform/phpsdk/archive/master.zip).
 
 Once the plugin files are installed, activate the plugin via the WordPress dashboard.
 
@@ -108,7 +112,7 @@ The title field is required.
 The tags field should be a comma separated list. For example:
 
     my_first_tag, another tag, yet-another-tag
-    
+
 ### Modify an existing group
 
 To modify the title or tags for an existing group, click the "Modify" link below the name of the group you wish to modify.
