@@ -359,7 +359,7 @@ p.error {
   content: '\f325';
 }
 #pmp-publish-actions {
-  margin: 2px 5px;
+  margin: 2px 0;
   padding: 4px;
   text-align: center;
   text-align: right;
@@ -387,7 +387,5 @@ p.error {
   box-shadow: inset 0 1px 0 rgba(163, 95, 95, 0.6);
 }
 
-#pmp-subscribe-to-updates,
-#pmp_document_meta .inside {
-  padding: 4px;
-}
+#pmp-subscribe-to-updates { padding: 0 8px 16px 8px; }
+#pmp_document_meta .inside { padding: 4px; }
