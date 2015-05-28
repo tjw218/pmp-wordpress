@@ -153,7 +153,6 @@ function pmp_last_modified_meta() {
 	</div>
 <?php
 }
-add_action('post_submitbox_misc_actions', 'pmp_last_modified_meta');
 
 /**
  * Add a "Publish and push to PMP" button the post publish actions meta box.
@@ -188,7 +187,6 @@ function pmp_publish_and_push_to_pmp_button() {
 	</div>
 <?php
 }
-add_action('post_submitbox_start', 'pmp_publish_and_push_to_pmp_button');
 
 /**
  * Push content to PMP when user clicks "Push to PMP"

@@ -118,16 +118,12 @@ function pmp_add_meta_boxes() {
 	if ($screen->id == 'post') {
 		global $post;
 
-		$pmp_guid = get_post_meta($post->ID, 'pmp_guid', true);
-
-		if (!empty($pmp_guid) && !pmp_post_is_mine($post->ID)) {
-			add_meta_box(
-				'pmp_subscribe_to_updates',
-				'PMP: Subscribe to updates',
-				'pmp_subscribe_to_updates_meta_box',
-				'post', 'side'
-			);
-		}
+		add_meta_box(
+			'pmp_document_meta',
+			'PMP: Document information',
+			'pmp_mega_meta_box',
+			'post', 'side'
+		);
 	}
 }
 add_action('add_meta_boxes', 'pmp_add_meta_boxes');
