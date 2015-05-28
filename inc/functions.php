@@ -181,9 +181,13 @@ function pmp_publish_and_push_to_pmp_button() {
 ?>
 	<div id="pmp-publish-actions">
 		<p class="helper-text"><?php echo $helper_text; ?></p>
-		<input type="submit" name="pmp_update_push" id="pmp-update-push"
-			<?php if ($is_disabled) echo 'disabled'; ?>
-			class="button button-pmp button-large" value="Push to PMP">
+<?php
+	$attrs = array('id' => 'pmp-update-push');
+	if ($is_disabled)
+		$attrs['disabled'] = 'disabled';
+
+	submit_button('Push to PMP', 'large', 'pmp_update_push', false, $attrs);
+?>
 	</div>
 <?php
 }
