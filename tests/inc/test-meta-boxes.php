@@ -10,10 +10,22 @@ class TestMetaBoxes extends WP_UnitTestCase {
 		wp_set_current_user($user->ID);
 
 		$this->subscribed = $this->factory->post->create();
-		update_post_meta($this->subscribed, 'pmp_subscribe_to_updates', 'on');
+		$sub_meta = array(
+			'pmp_subscribe_to_updates' => 'on',
+			'pmp_guid' => 'tktk',
+			'pmp_owner' => 'notmyguid'
+		);
+		foreach ($sub_meta as $key => $val)
+			update_post_meta($this->subscribed, $key, $val);
 
 		$this->not_subscribed = $this->factory->post->create();
-		update_post_meta($this->not_subscribed, 'pmp_subscribe_to_updates', 'off');
+		$not_sub_meta = array(
+			'pmp_subscribe_to_updates' => 'off',
+			'pmp_guid' => 'tktk',
+			'pmp_owner' => 'notmyguid'
+		);
+		foreach ($not_sub_meta as $key => $val)
+			update_post_meta($this->not_subscribed, $key, $val);
 	}
 
 	function test_pmp_mega_meta_box_subscribed() {
@@ -37,7 +49,7 @@ class TestMetaBoxes extends WP_UnitTestCase {
 	function test_pmp_subscribe_to_update_save() {
 		$post = get_post($this->not_subscribed);
 
-		$_POST['pmp_subscribe_to_updates_meta_box_nonce'] = wp_create_nonce('pmp_subscribe_to_updates_meta_box');
+		$_POST['pmp_mega_meta_box_nonce'] = wp_create_nonce('pmp_mega_meta_box');
 		$_POST['pmp_subscribe_to_updates'] = 'on';
 
 		pmp_subscribe_to_update_save($post->ID);

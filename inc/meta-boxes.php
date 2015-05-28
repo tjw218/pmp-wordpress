@@ -13,8 +13,8 @@ function pmp_mega_meta_box($post) {
 	if (!empty($pmp_guid) && !pmp_post_is_mine($post->ID)) {
 		pmp_subscribe_to_updates_markup($post);
 	} else {
-		pmp_last_modified_meta();
-		pmp_publish_and_push_to_pmp_button();
+		pmp_last_modified_meta($post);
+		pmp_publish_and_push_to_pmp_button($post);
 	}
 }
 
@@ -48,7 +48,7 @@ function pmp_subscribe_to_update_save($post_id) {
 		if (!isset($_POST['pmp_mega_meta_box_nonce']))
 			return;
 
-		if (!wp_verify_nonce($_POST['pmp_mega_meta_box_nonce'], 'pmp_mega_meta_box_nonce'))
+		if (!wp_verify_nonce($_POST['pmp_mega_meta_box_nonce'], 'pmp_mega_meta_box'))
 			return;
 
 		if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)

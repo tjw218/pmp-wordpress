@@ -121,11 +121,10 @@ add_action('transition_post_status',  'pmp_on_post_status_transition', 10, 3 );
 /**
  * Add a "PMP Pushed" date to the meta actions box.
  *
+ * @param $post object the WP_Post object to use for rendering the PMP last modified meta info.
  * @since 0.2
  */
-function pmp_last_modified_meta() {
-	global $post;
-
+function pmp_last_modified_meta($post) {
 	// Only show meta if this post came from the PMP
 	$pmp_guid = get_post_meta($post->ID, 'pmp_guid', true);
 	$pmp_mod = get_post_meta($post->ID, 'pmp_modified', true);
@@ -157,11 +156,10 @@ function pmp_last_modified_meta() {
 /**
  * Add a "Publish and push to PMP" button the post publish actions meta box.
  *
+ * @param $post object the WP_Post object to use for rendering the PMP 'Push to PMP' button.
  * @since 0.2
  */
-function pmp_publish_and_push_to_pmp_button() {
-	global $post;
-
+function pmp_publish_and_push_to_pmp_button($post) {
 	// Check if post is in the PMP, and if it's mine
 	$pmp_guid = get_post_meta($post->ID, 'pmp_guid', true);
 	$pmp_mine = pmp_post_is_mine($post->ID);
