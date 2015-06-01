@@ -21,11 +21,30 @@ var PMP = PMP || {};
             "change select": "change"
         },
 
-        initialize: function() {
+        initialize: function(options) {
             this.docs = new DocCollection();
             this.results = new ResultsList({ collection: this.docs });
             this.docs.on('reset', this.onReset.bind(this));
             this.docs.on('error', this.onError.bind(this));
+
+            if (typeof options.search !== 'undefined')
+                this.initSavedSearch(options);
+        },
+
+        initSavedSearch: function(options) {
+            this.saveQueryModal = new SaveQueryModal(options.search);
+            this.fill(options.search.query);
+            this.advanced();
+            this.submit();
+        },
+
+        fill: function(query) {
+            var self = this;
+
+            _.each(query, function(value, name) {
+                var el = self.$el.find('[name="' + name + '"]');
+                el.val(value);
+            });
         },
 
         onReset: function(result) {
@@ -64,8 +83,8 @@ var PMP = PMP || {};
             return false;
         },
 
-        advanced: function(e) {
-            var target = $(e.currentTarget);
+        advanced: function() {
+            var target = $('#pmp-show-advanced a');
             target.remove();
             this.$el.find('#pmp-advanced-search').show();
             return false;
@@ -306,10 +325,34 @@ var PMP = PMP || {};
 
         initialize: function(options)  {
             this.searchForm = options.searchForm;
+            this.options = options;
             PMP.Modal.prototype.initialize.apply(this, arguments);
         },
 
         content: _.template($('#pmp-save-query-tmpl').html(), {}),
+
+        render: function() {
+            PMP.Modal.prototype.render.apply(this, arguments);
+            if (typeof this.options.options !== 'undefined')
+                this.fill(this.options.options);
+        },
+
+        fill: function(options) {
+            var self = this;
+
+            _.each(options, function(value, name) {
+                var el = self.$el.find('[name="' + name + '"]');
+                if (el.attr('type') == 'radio') {
+                    el.each(function() {
+                        if ($(this).val() == value) {
+                            $(this).attr('checked', 'checked');
+                            return false;
+                        }
+                    });
+                } else
+                    el.val(value);
+            });
+        },
 
         validate: function() {
             var inputs = this.$el.find('form input'),
@@ -373,6 +416,9 @@ var PMP = PMP || {};
     });
 
     $(document).ready(function() {
-        PMP.instances.search_form = new SearchForm();
+        if (typeof PMP.search !== 'undefined')
+            PMP.instances.search_form = new SearchForm({ search: PMP.search });
+        else
+            PMP.instances.search_form = new SearchForm();
     });
 })();

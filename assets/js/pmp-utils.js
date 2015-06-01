@@ -15,6 +15,10 @@ var PMP = PMP || {};
             }
 
             return params;
+        },
+
+        getQueryParam: function(key) {
+            return PMP.utils.getQueryParams()[key];
         }
     };
 
