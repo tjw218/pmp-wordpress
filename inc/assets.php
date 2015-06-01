@@ -6,8 +6,11 @@
  * @since 0.1
  */
 function pmp_enqueue_assets() {
+	wp_register_script('pmp-utils', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-utils.js',
+		array('jquery'), PMP_VERSION, true);
+
 	wp_register_script('pmp-common', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-common.js',
-		array('jquery', 'underscore', 'backbone'), PMP_VERSION, true);
+		array('pmp-utils', 'underscore', 'backbone'), PMP_VERSION, true);
 
 	wp_register_style('pmp-common', PMP_PLUGIN_DIR_URI . '/assets/css/style.css');
 
@@ -47,6 +50,12 @@ function pmp_enqueue_assets() {
 				array('jquery', 'underscore'), PMP_VERSION, true);
 		}
 
+		if ($page == 'pmp-manage-saved-searches') {
+			wp_enqueue_script(
+				'pmp-manage-searches', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-manage-searches.js',
+				array('pmp-common'), PMP_VERSION, true);
+		}
+
 		return;
 	}
 
@@ -74,6 +83,38 @@ function pmp_modal_underscore_template() { ?>
 		<% _.each(actions, function(v, k) { %>
 			<a href="#" class="<%= k %> button button-primary"><%= k %></a>
 		<% }); %>
+	</div>
+</script><?php
+}
+
+/**
+ * Print the underscore template for the SaveQueryModal and EditQueryModal views.
+ *
+ * @since 0.3
+ */
+function pmp_save_search_query_template() { ?>
+<script type="text/template" id="pmp-save-query-tmpl">
+	<div id="pmp-save-query-modal-inner">
+		<h3>Save the current query</h3>
+		<form>
+			<div class="form-group">
+				<label for="title">Please specify a title for your search query:</label>
+				<input required type="text" name="title" placeholder="Enter a title for the current query" />
+			</div>
+
+			<div class="form-group">
+				<label>Automatically:</label>
+				<label for="query_auto_draft">
+					<input id="query_auto_draft" type="radio" name="query_auto_create" value="draft" /> Create draft posts from results for this query
+				</label>
+				<label for="query_auto_publish">
+					<input id="query_auto_publish" type="radio" name="query_auto_create" value="publish" /> Publish posts from results for this query
+				</label>
+				<label for="query_auto_publish">
+					<input id="query_auto_publish" type="radio" name="query_auto_create" value="off" checked/> Do nothing with results for this query
+				</label>
+			</div>
+		</form>
 	</div>
 </script><?php
 }

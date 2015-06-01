@@ -225,6 +225,22 @@ class TestFunctions extends WP_UnitTestCase {
 			'Functional test of `pmp_update_my_guid_transient` performed by `test_pmp_get_my_guid`');
 	}
 
+	function test_pmp_get_saved_search_queries() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_pmp_save_search_query() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_pmp_get_saved_search_query() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_pmp_id_for_search_query() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
 	function test_var_log() {
 		$this->markTestIncomplete('This test has not been implemented yet.');
 	}

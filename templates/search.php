@@ -50,7 +50,8 @@
 				</div>
 			</div>
 			<p class="submit">
-				<input type="submit" name="submit" id="submit" class="button button-primary" value="Search"></input>
+				<input type="submit" name="submit" id="submit" class="button button-primary button-large" value="Search"></input>
+				<input type="button" name="save_query" id="pmp-save-query" class="button button-large" value="Save query" disabled="disabled"></input>
 				<span class="spinner"></span>
 			</p>
 		</form>
@@ -96,6 +97,7 @@
 	</div>
 </script>
 
+<?php pmp_save_search_query_template(); ?>
 <?php pmp_modal_underscore_template(); ?>
 
 <script type="text/javascript">

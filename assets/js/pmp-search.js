@@ -1,3 +1,5 @@
+var PMP = PMP || {};
+
 (function() {
     var $ = jQuery,
         Doc = PMP.Doc,
@@ -5,12 +7,15 @@
         BaseView = PMP.BaseView,
         Modal = PMP.Modal;
 
+    PMP.instances = PMP.instances || {};
+
     // Views
     var SearchForm = BaseView.extend({
         el: '#pmp-search-form',
 
         events: {
             "submit": "submit",
+            "click #pmp-save-query": "saveQuery",
             "click #pmp-show-advanced a": "advanced",
             "change input": "change",
             "change select": "change"
@@ -19,8 +24,28 @@
         initialize: function() {
             this.docs = new DocCollection();
             this.results = new ResultsList({ collection: this.docs });
-            this.docs.on('reset', this.hideSpinner.bind(this));
-            this.docs.on('error', this.hideSpinner.bind(this));
+            this.docs.on('reset', this.onReset.bind(this));
+            this.docs.on('error', this.onError.bind(this));
+        },
+
+        onReset: function(result) {
+            this.$el.find('#pmp-save-query').removeAttr('disabled');
+            this.hideSpinner();
+        },
+
+        onError: function(result) {
+            this.$el.find('#pmp-save-query').attr('disabled', 'disabled');
+        },
+
+        saveQuery: function() {
+            if (typeof this.saveQueryModal == 'undefined') {
+                this.saveQueryModal = new SaveQueryModal({
+                    searchForm: this
+                });
+            }
+
+            this.saveQueryModal.render();
+            return false;
         },
 
         submit: function() {
@@ -33,6 +58,7 @@
             });
 
             this.showSpinner();
+            this.last_query = query;
             this.docs.search(query);
 
             return false;
@@ -268,7 +294,85 @@
         }
     });
 
+    var SaveQueryModal = PMP.Modal.extend({
+        id: 'pmp-save-query-modal',
+
+        action: 'pmp_save_query',
+
+        actions: {
+            'Save': 'saveQuery',
+            'Cancel': 'close'
+        },
+
+        initialize: function(options)  {
+            this.searchForm = options.searchForm;
+            PMP.Modal.prototype.initialize.apply(this, arguments);
+        },
+
+        content: _.template($('#pmp-save-query-tmpl').html(), {}),
+
+        validate: function() {
+            var inputs = this.$el.find('form input'),
+                valid = true;
+
+            _.each(inputs, function(v, i) {
+                if (!v.validity.valid)
+                    valid = false;
+            });
+
+            return valid;
+        },
+
+        saveQuery: function() {
+            if (typeof this.ongoing !== 'undefined' && $.inArray(this.ongoing.state(), ['resolved', 'rejected']) == -1)
+                return false;
+
+            var valid = this.validate();
+            if (!valid) {
+                alert('Please specify a query title before saving.');
+                return false;
+            }
+
+            var serialized = this.$el.find('form').serializeArray();
+
+            var formData = {};
+            _.each(serialized, function(val, idx) {
+                if (val.value !== '')
+                    formData[val.name] = val.value;
+            });
+
+            var self = this,
+                data = {
+                    action: this.action,
+                    security: PMP.ajax_nonce,
+                    data: JSON.stringify({
+                        options: formData,
+                        query: this.searchForm.last_query
+                    })
+                };
+
+            var opts = {
+                url: ajaxurl,
+                dataType: 'json',
+                data: data,
+                method: 'post',
+                success: function(data) {
+                    self.hideSpinner();
+                    self.close();
+                },
+                error: function() {
+                    self.hideSpinner();
+                    alert('Something went wrong. Please try again.');
+                }
+            };
+
+            this.showSpinner();
+            this.ongoing = $.ajax(opts);
+            return this.ongoing;
+        }
+    });
+
     $(document).ready(function() {
-        window.sf = new SearchForm();
+        PMP.instances.search_form = new SearchForm();
     });
 })();

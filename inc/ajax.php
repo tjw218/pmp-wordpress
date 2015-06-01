@@ -210,6 +210,27 @@ function pmp_default_collection() {
 }
 add_action('wp_ajax_pmp_default_collection', 'pmp_default_collection');
 
+/**
+ * Ajax function to save a search query for later use
+ *
+ * @since 0.3
+ */
+function pmp_save_query() {
+	check_ajax_referer('pmp_ajax_nonce', 'security');
+
+	$search_query = json_decode(stripslashes($_POST['data']));
+
+	$ret = pmp_save_search_query($search_query);
+
+	if ($ret)
+		print json_encode(array("success" => true));
+	else
+		print json_encode(array("success" => false));
+
+	wp_die();
+}
+add_action('wp_ajax_pmp_save_query', 'pmp_save_query');
+
 /* Helper functions */
 function _pmp_create_doc($type, $data) {
 	$sdk = new SDKWrapper();

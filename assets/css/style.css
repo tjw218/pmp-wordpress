@@ -15,8 +15,25 @@
 #pmp-search-page #pmp-search-form select {
   font-size: 16px;
 }
+#pmp-save-query-modal-inner input[type="text"],
 #pmp-search-page #pmp-search-form input[type="text"] {
   width: 250px;
+}
+#pmp-save-query-modal .pmp-modal-content {
+  text-align: left;
+}
+#pmp-save-query-modal-inner h3 {
+  margin-top: 0;
+}
+#pmp-save-query-modal-inner .form-group {
+  margin: 10px 0;
+}
+#pmp-save-query-modal-inner label {
+  display: block;
+  margin: 0 0 8px 0;
+}
+#pmp-search-page p.submit input {
+  margin-right: 10px;
 }
 
 p.submit {

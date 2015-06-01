@@ -93,6 +93,13 @@ function pmp_plugin_menu() {
 			'capability' => 'manage_options',
 			'menu_slug' => 'pmp-properties-menu',
 			'function' => 'pmp_collections_page'
+		),
+		array(
+			'page_title' => 'Manage saved searches',
+			'menu_title' => 'Manage saved searches',
+			'capability' => 'manage_options',
+			'menu_slug' => 'pmp-manage-saved-searches',
+			'function' => 'pmp_manage_saved_searches_page'
 		)
 	);
 

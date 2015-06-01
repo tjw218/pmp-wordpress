@@ -470,6 +470,60 @@ function pmp_update_my_guid_transient() {
 	pmp_get_my_guid();
 }
 
+/**
+ * Retrieve saved search queries
+ *
+ * @since 0.3
+ */
+function pmp_get_saved_search_queries() {
+	$search_queries = get_option('pmp_saved_search_queries');
+	return $search_queries;
+}
+
+/**
+ * Save a search query for later use
+ *
+ * @param $query_data (array) Should have two keys: `options` and `query`.
+ *
+ * `options` should include `title` and `query_auto_create`.
+ * `query` should describe the query parameters as pertains to the search form on the search page itself.
+ *
+ * @return (boolean) true if the query was saved successsfully, false if it was not.
+ * @since 0.3
+ */
+function pmp_save_search_query($query_data) {
+	$search_queries = get_option('pmp_saved_search_queries', array());
+	$search_queries[pmp_id_for_search_query($query_data)] = $query_data;
+	return update_option('pmp_saved_search_queries', $search_queries);
+}
+
+/**
+ * Get details about a saved search
+ *
+ * @param $search_id (string) the id of the saved search query to fetch.
+ * @return (mixed) the saved search query if it exists or false.
+ * @since 0.3
+ */
+function pmp_get_saved_search_query($search_id) {
+	$search_queries = pmp_get_saved_search_queries();
+
+	if (!empty($search_queries[$search_id]))
+		return $search_queries[$search_id];
+	else
+		return false;
+}
+
+/**
+ * Returns a unique id for $query_data.
+ *
+ * @see pmp_save_search_query for details on $query_data
+ * @since 0.3
+ */
+function pmp_id_for_search_query($query_data) {
+	$query_data = (array) $query_data;
+	return md5(serialize($query_data['query']));
+}
+
 if (!function_exists('var_log')) {
 	/**
 	 * Log anything in a human-friendly format.
