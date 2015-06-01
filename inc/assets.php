@@ -110,8 +110,8 @@ function pmp_save_search_query_template() { ?>
 				<label for="query_auto_publish">
 					<input id="query_auto_publish" type="radio" name="query_auto_create" value="publish" /> Publish posts from results for this query
 				</label>
-				<label for="query_auto_publish">
-					<input id="query_auto_publish" type="radio" name="query_auto_create" value="off" checked/> Do nothing with results for this query
+				<label for="query_auto_nothing">
+					<input id="query_auto_nothing" type="radio" name="query_auto_create" value="off" checked/> Do nothing with results for this query
 				</label>
 			</div>
 		</form>

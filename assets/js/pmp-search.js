@@ -32,7 +32,10 @@ var PMP = PMP || {};
         },
 
         initSavedSearch: function(options) {
-            this.saveQueryModal = new SaveQueryModal(options.search);
+            this.saveQueryModal = new SaveQueryModal({
+                search: options.search,
+                searchForm: this,
+            });
             this.fill(options.search.query);
             this.advanced();
             this.submit();
@@ -333,8 +336,8 @@ var PMP = PMP || {};
 
         render: function() {
             PMP.Modal.prototype.render.apply(this, arguments);
-            if (typeof this.options.options !== 'undefined')
-                this.fill(this.options.options);
+            if (typeof this.options.search !== 'undefined')
+                this.fill(this.options.search.options);
         },
 
         fill: function(options) {
