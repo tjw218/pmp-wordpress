@@ -268,6 +268,10 @@ class TestAjax extends WP_Ajax_UnitTestCase {
 		$this->markTestIncomplete('This test has not been implemented yet.');
 	}
 
+	function test_pmp_delete_saved_query() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
 	function test__pmp_create_doc() {
 		$this->markTestSkipped(
 			'Functional test of `_pmp_create_doc` performed by `test_pmp_create_collection` and `test_pmp_create_group`');

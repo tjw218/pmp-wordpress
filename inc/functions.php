@@ -514,6 +514,21 @@ function pmp_get_saved_search_query($search_id) {
 }
 
 /**
+ * Delete a saved search query by id
+ *
+ * @since 0.3
+ */
+function pmp_delete_saved_query_by_id($search_id) {
+	$search_queries = pmp_get_saved_search_queries();
+
+	if (!isset($search_queries[$search_id]))
+		return false;
+
+	unset($search_queries[$search_id]);
+	return update_option('pmp_saved_search_queries', $search_queries);
+}
+
+/**
  * Returns a unique id for $query_data.
  *
  * @see pmp_save_search_query for details on $query_data

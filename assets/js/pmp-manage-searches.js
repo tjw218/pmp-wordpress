@@ -3,60 +3,33 @@ var PMP = PMP || {};
 (function() {
     var $ = jQuery;
 
-    var EditSearchModal = PMP.Modal.extend({
-        id: 'pmp-save-query-modal',
+    PMP.instances = PMP.instances || {};
 
-        action: 'pmp_save_query',
+    PMP.DeleteSavedSearchModal = PMP.Modal.extend({
+        action: 'pmp_delete_saved_query',
+
+        content: 'Are you sure you want to delete this saved search query?',
 
         actions: {
-            'Save': 'saveQuery',
+            'Yes': 'deleteQuery',
             'Cancel': 'close'
         },
 
-        initialize: function(options)  {
-            this.searchForm = options.searchForm;
+        initialize: function(options) {
+            this.search_id = options.search_id;
             PMP.Modal.prototype.initialize.apply(this, arguments);
         },
 
-        content: _.template($('#pmp-save-query-tmpl').html(), {}),
-
-        validate: function() {
-            var inputs = this.$el.find('form input'),
-                valid = true;
-
-            _.each(inputs, function(v, i) {
-                if (!v.validity.valid)
-                    valid = false;
-            });
-
-            return valid;
-        },
-
-        saveQuery: function() {
+        deleteQuery: function() {
             if (typeof this.ongoing !== 'undefined' && $.inArray(this.ongoing.state(), ['resolved', 'rejected']) == -1)
                 return false;
-
-            var valid = this.validate();
-            if (!valid) {
-                alert('Please specify a query title before saving.');
-                return false;
-            }
-
-            var serialized = this.$el.find('form').serializeArray();
-
-            var formData = {};
-            _.each(serialized, function(val, idx) {
-                if (val.value !== '')
-                    formData[val.name] = val.value;
-            });
 
             var self = this,
                 data = {
                     action: this.action,
                     security: PMP.ajax_nonce,
                     data: JSON.stringify({
-                        options: formData,
-                        query: this.searchForm.last_query
+                        search_id: this.search_id
                     })
                 };
 
@@ -68,6 +41,7 @@ var PMP = PMP || {};
                 success: function(data) {
                     self.hideSpinner();
                     self.close();
+                    window.location.reload(true);
                 },
                 error: function() {
                     self.hideSpinner();
@@ -82,5 +56,12 @@ var PMP = PMP || {};
     });
 
     $(document).ready(function() {
+        $('a.pmp-delete-saved-search').click(function() {
+            var search_id = $(this).data('search-id');
+            PMP.instances.delete_saved_search_modal = new PMP.DeleteSavedSearchModal({
+                search_id: search_id
+            });
+            PMP.instances.delete_saved_search_modal.render();
+        });
     });
 })();

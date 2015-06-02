@@ -51,6 +51,7 @@ function pmp_enqueue_assets() {
 		}
 
 		if ($page == 'pmp-manage-saved-searches') {
+			wp_enqueue_style('pmp-common');
 			wp_enqueue_script(
 				'pmp-manage-searches', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-manage-searches.js',
 				array('pmp-common'), PMP_VERSION, true);

@@ -17,7 +17,8 @@
 				<?php } ?>
 				</div>
 				<div class="pmp-saved-search-actions">
-				<a href="<?php echo admin_url('admin.php?page=pmp-search&search_id=' . $id); ?>">See results</a> | <a href="#">Edit</a> |  <a href="#">Delete</a>
+					<a href="<?php echo admin_url('admin.php?page=pmp-search&search_id=' . $id); ?>">View and edit</a> |
+					<a data-search-id="<?php echo $id; ?>" class="pmp-delete-saved-search" href="#">Delete</a>
 				</div>
 			</div>
 		<?php } ?>
@@ -25,6 +26,7 @@
 </div>
 
 <?php pmp_save_search_query_template(); ?>
+<?php pmp_modal_underscore_template(); ?>
 
 <script type="text/javascript">
 	var PMP = <?php echo json_encode($PMP); ?>;
