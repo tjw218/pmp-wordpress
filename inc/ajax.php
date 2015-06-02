@@ -220,11 +220,20 @@ function pmp_save_query() {
 
 	$search_query = json_decode(stripslashes($_POST['data']));
 
-	$ret = pmp_save_search_query($search_query);
+	if (isset($search_query->options->search_id)) {
+		$search_id = $search_query->options->search_id;
+		unset($search_query->options->search_id);
+	} else
+		$search_id = null;
 
-	if ($ret)
-		print json_encode(array("success" => true));
-	else
+	$search_id = pmp_save_search_query($search_id, $search_query);
+
+	if ($search_id) {
+		print json_encode(array(
+			"success" => true,
+			"search_id" => $search_id
+		));
+	} else
 		print json_encode(array("success" => false));
 
 	wp_die();

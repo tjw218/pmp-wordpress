@@ -241,10 +241,6 @@ class TestFunctions extends WP_UnitTestCase {
 		$this->markTestIncomplete('This test has not been implemented yet.');
 	}
 
-	function test_pmp_id_for_search_query() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
-	}
-
 	function test_var_log() {
 		$this->markTestIncomplete('This test has not been implemented yet.');
 	}

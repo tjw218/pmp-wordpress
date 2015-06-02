@@ -89,15 +89,17 @@ function pmp_modal_underscore_template() { ?>
 }
 
 /**
- * Print the underscore template for the SaveQueryModal and EditQueryModal views.
+ * Print the underscore template for the SaveQueryModal views.
  *
  * @since 0.3
  */
 function pmp_save_search_query_template() { ?>
 <script type="text/template" id="pmp-save-query-tmpl">
 	<div id="pmp-save-query-modal-inner">
-		<h3>Save the current query</h3>
+		<h3><% if (typeof search_id !== 'undefined') { %>Edit<% } else { %>Save<% } %> the current query</h3>
 		<form>
+			<% if (typeof search_id !== 'undefined') { %><input type="hidden" name="search_id" value="<%= search_id %>" /><% } %>
+
 			<div class="form-group">
 				<label for="title">Please specify a title for your search query:</label>
 				<input required type="text" name="title" placeholder="Enter a title for the current query" />

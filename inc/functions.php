@@ -477,6 +477,10 @@ function pmp_update_my_guid_transient() {
  */
 function pmp_get_saved_search_queries() {
 	$search_queries = get_option('pmp_saved_search_queries');
+
+	if (empty($search_queries))
+		return array();
+
 	return $search_queries;
 }
 
@@ -491,10 +495,26 @@ function pmp_get_saved_search_queries() {
  * @return (boolean) true if the query was saved successsfully, false if it was not.
  * @since 0.3
  */
-function pmp_save_search_query($query_data) {
+function pmp_save_search_query($search_id=null, $query_data) {
 	$search_queries = get_option('pmp_saved_search_queries', array());
-	$search_queries[pmp_id_for_search_query($query_data)] = $query_data;
-	return update_option('pmp_saved_search_queries', $search_queries);
+
+	if (!empty($search_id))
+		$search_queries[$search_id] = $query_data;
+	else
+		$search_queries[] = $query_data;
+
+	$ret = update_option('pmp_saved_search_queries', $search_queries);
+
+	if (empty($ret))
+		return false;
+	else {
+		if (!empty($search_id))
+			return $search_id;
+		else {
+			end($search_queries);
+			return key($search_queries);
+		}
+	}
 }
 
 /**
@@ -526,17 +546,6 @@ function pmp_delete_saved_query_by_id($search_id) {
 
 	unset($search_queries[$search_id]);
 	return update_option('pmp_saved_search_queries', $search_queries);
-}
-
-/**
- * Returns a unique id for $query_data.
- *
- * @see pmp_save_search_query for details on $query_data
- * @since 0.3
- */
-function pmp_id_for_search_query($query_data) {
-	$query_data = (array) $query_data;
-	return md5(serialize($query_data['query']));
 }
 
 if (!function_exists('var_log')) {

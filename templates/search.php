@@ -1,6 +1,12 @@
 <div id="pmp-search-page" class="wrap">
 	<h2>Search the Platform</h2>
 
+	<?php if (isset($PMP['search'])) { ?>
+	<div id="message" class="updated below-h2">
+		<p>Viewing saved query: <strong>"<?php echo $PMP['search']->options->title; ?>"</strong></p>
+	</div>
+	<?php } ?>
+
 	<?php if (pmp_verify_settings()) { ?>
 		<form id="pmp-search-form">
 			<input name="text" placeholder="Enter keywords" type="text"></input>
@@ -51,7 +57,8 @@
 			</div>
 			<p class="submit">
 				<input type="submit" name="submit" id="submit" class="button button-primary button-large" value="Search"></input>
-				<input type="button" name="save_query" id="pmp-save-query" class="button button-large" value="Save query" disabled="disabled"></input>
+				<input type="button" name="save_query" id="pmp-save-query" class="button button-large"
+					value="<?php if (isset($PMP['search'])) { ?>Edit<?php } else { ?>Save<?php } ?> query" disabled="disabled"></input>
 				<span class="spinner"></span>
 			</p>
 		</form>

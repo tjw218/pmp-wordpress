@@ -27,7 +27,7 @@ var PMP = PMP || {};
             this.docs.on('reset', this.onReset.bind(this));
             this.docs.on('error', this.onError.bind(this));
 
-            if (typeof options.search !== 'undefined')
+            if (options && typeof options.search !== 'undefined')
                 this.initSavedSearch(options);
         },
 
@@ -329,6 +329,13 @@ var PMP = PMP || {};
         initialize: function(options)  {
             this.searchForm = options.searchForm;
             this.options = options;
+
+            this.template = _.template($('#pmp-save-query-tmpl').html());
+            if (this.options && typeof this.options.search !== 'undefined')
+                this.content = this.template({ search_id: PMP.utils.getQueryParam('search_id') });
+            else
+                this.content = this.template({});
+
             PMP.Modal.prototype.initialize.apply(this, arguments);
         },
 
@@ -405,6 +412,7 @@ var PMP = PMP || {};
                 success: function(data) {
                     self.hideSpinner();
                     self.close();
+                    window.location.search = window.location.search + "&search_id=" + data.search_id;
                 },
                 error: function() {
                     self.hideSpinner();

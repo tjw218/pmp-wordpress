@@ -41,7 +41,7 @@ var PMP = PMP || {};
                 success: function(data) {
                     self.hideSpinner();
                     self.close();
-                    window.location.reload(true);
+                    $('div[data-search-id="' + self.search_id + '"]').remove();
                 },
                 error: function() {
                     self.hideSpinner();
