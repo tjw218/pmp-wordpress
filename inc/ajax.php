@@ -288,16 +288,19 @@ function _pmp_modify_doc($data) {
 }
 
 function _pmp_ajax_create_post($draft=false) {
+	if (!current_user_can('edit_posts'))
+		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+
 	print json_encode(_pmp_create_post($draft));
 	wp_die();
 }
 
-function _pmp_create_post($draft=false) {
-	if (!current_user_can('edit_posts'))
-		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
-
+function _pmp_create_post($draft=false, $doc=null) {
 	$sdk = new SDKWrapper();
-	$data = $sdk->newDoc('story', json_decode(stripslashes($_POST['post_data'])));
+	if (empty($doc))
+		$data = $sdk->newDoc('story', json_decode(stripslashes($_POST['post_data'])));
+	else
+		$data = $doc;
 
 	$post_data = array_merge(pmp_get_post_data_from_pmp_doc($data), array(
 		'post_author' => get_current_user_id(),

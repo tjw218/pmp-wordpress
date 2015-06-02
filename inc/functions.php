@@ -492,7 +492,7 @@ function pmp_get_saved_search_queries() {
  * `options` should include `title` and `query_auto_create`.
  * `query` should describe the query parameters as pertains to the search form on the search page itself.
  *
- * @return (boolean) true if the query was saved successsfully, false if it was not.
+ * @return (mixed) $search_id if the query was saved successsfully, false if it was not.
  * @since 0.3
  */
 function pmp_save_search_query($search_id=null, $query_data) {
