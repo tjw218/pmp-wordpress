@@ -93,4 +93,8 @@ class TestCron extends WP_UnitTestCase {
 		$this->assertTrue($success);
 		$this->assertTrue(!is_wp_error($ret));
 	}
+
+	function test_pmp_import_for_saved_queries() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
 }
