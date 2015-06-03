@@ -30,6 +30,11 @@ Built by the [INN Nerds](http://nerds.inn.org/).
     - [Setting the default Series](#setting-the-default-series)
 - [Properties](#properties)
     - [Setting the default Property](#setting-the-default-property)
+- [Saved search queries](#saved-search-queries)
+    - [Automatically importing posts based on a saved search query](#automaticall-importing-posts-based-on-a-saved-search-query)
+    - [Saving a search query](#saving-a-search-query)
+    - [Viewing and editing a search query](#viewing-and-editing-a-search-query)
+    - [View all saved search queries](#view-all-saved-search-queries)
 
 ## Installation
 
@@ -190,3 +195,81 @@ You will asked to confirm your choice:
 After clicking "Yes" to confirm, the confirmation prompt will close and the list of series will update. The property you set as the default will appear with "(default)" near its name:
 
 ![Default property set](http://assets.apps.investigativenewsnetwork.org/pmp/default-property-set.png)
+
+## Saved search queries
+
+### Automatically importing posts based on a saved search query
+
+You can save search queries to make it easier to view results and import new content in the future.
+
+Optionally, when saving or editing a search query, you can specify that new search results be automatically imported. For search results that are automatically imported, the PMP plugin can either:
+
+- Create draft posts from results for the saved query
+- Publish posts from results for the saved query
+
+Note: the default behavior for saved search queries is to do nothing with search results.
+
+### Saving a search query
+
+Start by visiting the Public Media Platform > Search link in the WordPress dashboard as you would to [search for content](#search-for-content).
+
+Configure the search form to your liking. For example:
+
+![Saved search query start](http://assets.apps.investigativenewsnetwork.org/pmp/saved_search_query.png)
+
+Once your have your query configured and are ready to save, click the "Save query" button.
+
+A modal window will appear, asking you to specify a title for the saved search query.
+
+At this point, you will also be presented the opportunity to specify what action to take with new results for the saved search query.
+
+Once you have specified a title and an action, click the "Save" button.
+
+See:
+
+![Saved search query modal](http://assets.apps.investigativenewsnetwork.org/pmp/saved_search_query_modal.png)
+
+### Viewing and editing a search query
+
+After clicking the "Save" button to save a search query, the page will automatically reload and present you with your newly saved query:
+
+![Saved search query edit](http://assets.apps.investigativenewsnetwork.org/pmp/saved_search_query_edit.png)
+
+Note the notice above the search form that reads:
+
+    "Viewing saved query: "Chicago (PRI)"
+
+Also note in the location where there was previously a "Save query" button, you are now presented with an "Edit query" button.
+
+Clicking the "Edit query" button allows you to change your preferences for the saved query.
+
+For instance, if you wanted to change the action taken for new results for the saved query to automatically publish, you would:
+
+- Click "Edit query"
+- In the modal window that appears, select "Publish posts from results for this query"
+- Click the "Save" button
+
+See:
+
+![Saved search query edit modal](http://assets.apps.investigativenewsnetwork.org/pmp/saved_search_query_edit_modal.png)
+
+### View all saved search queries
+
+To see all saved search queries, visit Public Media Platform > Manage saved searches link in the WordPress dashboard.
+
+![Manage saved searches](http://assets.apps.investigativenewsnetwork.org/pmp/manage_saved_searches.png)
+
+From there, you see the complete list of saved search queries:
+
+![Manage saved searches list](http://assets.apps.investigativenewsnetwork.org/pmp/manage_saved_searches_list.png)
+
+Actions you can take for each saved search query include:
+
+- "View and edit this search query"
+- "Delete"
+
+Clicking "View and edit this search query" will land you on the page described in the [Viewing and editing a search query](#viewing-and-editing-a-search-query) section of the documentation.
+
+Clicking "Delete" will present you will a confirmation modal:
+
+![Delete a saved search query](http://assets.apps.investigativenewsnetwork.org/pmp/saved_search_delete_confirm.png)
