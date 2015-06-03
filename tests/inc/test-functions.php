@@ -226,19 +226,38 @@ class TestFunctions extends WP_UnitTestCase {
 	}
 
 	function test_pmp_get_saved_search_queries() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		$search_queries = pmp_get_saved_search_queries();
+		$this->assertTrue(empty($search_queries));
+
+		pmp_save_search_query(false, array('options' => array(), 'query' => array()));
+		$search_queries = pmp_get_saved_search_queries();
+		$this->assertEquals(count($search_queries), 1);
 	}
 
 	function test_pmp_save_search_query() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		$result = pmp_save_search_query(false, array('options' => array(), 'query' => array()));
+		$this->assertTrue($result >= 0);
+
+		$search_queries = pmp_get_saved_search_queries();
+		$this->assertEquals(count($search_queries), 1);
 	}
 
 	function test_pmp_get_saved_search_query() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		// Make sure we have at least one query stored
+		pmp_save_search_query(false, array('options' => array(), 'query' => array()));
+
+		$result = pmp_get_saved_search_query(0);
+		$this->assertTrue(in_array('options', array_keys($result)));
+		$this->assertTrue(in_array('query', array_keys($result)));
 	}
 
 	function test_pmp_delete_saved_query_by_id() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		// Make sure we have at least one query stored
+		pmp_save_search_query(false, array('options' => array(), 'query' => array()));
+
+		pmp_delete_saved_query_by_id(0);
+		$result = pmp_get_saved_search_query(0);
+		$this->assertTrue(empty($result));
 	}
 
 	function test_var_log() {
