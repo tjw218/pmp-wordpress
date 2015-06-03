@@ -43,6 +43,9 @@ class TestMetaBoxes extends WP_UnitTestCase {
 	}
 
 	function test_pmp_subscribe_to_updates_markup() {
+		$post = get_post($this->factory->post->create());
+		pmp_subscribe_to_updates_markup($post);
+		$this->expectOutputRegex('/checked/');
 		$this->markTestIncomplete('This test has not been implemented yet.');
 	}
 
@@ -56,9 +59,5 @@ class TestMetaBoxes extends WP_UnitTestCase {
 
 		$meta = get_post_meta($post->ID, 'pmp_subscribe_to_updates', true);
 		$this->assertEquals('on', $meta);
-	}
-
-	function test_pmp_last_modified_meta() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
 	}
 }

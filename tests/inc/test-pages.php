@@ -28,7 +28,12 @@ class TestPages extends WP_UnitTestCase {
 	}
 
 	function test_pmp_manage_saved_searches_page() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		// TODO: This could stand to verify that more of the necessary bits are
+		// printed to the page. For example, the search form, the javascript templates,
+		// the necessary javascript globals, etc.
+		$expect = '/<h2>Manage saved searches\<\/h2>/';
+		$this->expectOutputRegex($expect);
+		pmp_manage_saved_searches_page();
 	}
 
 	function test_pmp_groups_page() {

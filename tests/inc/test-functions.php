@@ -117,6 +117,10 @@ class TestFunctions extends WP_UnitTestCase {
 		$this->assertEquals($pmp_post_after_transition->post_date, $date);
 	}
 
+	function test_pmp_last_modified_meta() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
 	function test_pmp_publish_actions_helper_draft() {
 		$post = get_post($this->post);
 		$post->post_status = 'draft';

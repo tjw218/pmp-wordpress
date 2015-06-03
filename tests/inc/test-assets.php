@@ -48,6 +48,10 @@ class TestAssets extends WP_UnitTestCase {
 		$this->markTestIncomplete('This test has not been implemented yet.');
 	}
 
+	function test_pmp_save_search_query_template() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
 	function test_pmp_json_obj() {
 		$pmp_obj = pmp_json_obj(array('test_key' => 'test value'));
 
