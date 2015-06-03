@@ -495,7 +495,7 @@ function pmp_get_saved_search_queries() {
  * @return (mixed) $search_id if the query was saved successsfully, false if it was not.
  * @since 0.3
  */
-function pmp_save_search_query($search_id=null, $query_data) {
+function pmp_save_search_query($search_id=false, $query_data) {
 	$search_queries = get_option('pmp_saved_search_queries', array());
 
 	if (!empty($search_id))
@@ -505,9 +505,9 @@ function pmp_save_search_query($search_id=null, $query_data) {
 
 	$ret = update_option('pmp_saved_search_queries', $search_queries);
 
-	if (empty($ret))
-		return false;
-	else {
+	if (empty($ret)) {
+		return $search_id;
+	} else {
 		if (!empty($search_id))
 			return $search_id;
 		else {

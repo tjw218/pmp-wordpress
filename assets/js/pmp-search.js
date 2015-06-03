@@ -410,9 +410,18 @@ var PMP = PMP || {};
                 data: data,
                 method: 'post',
                 success: function(data) {
+
                     self.hideSpinner();
                     self.close();
-                    window.location.search = window.location.search + "&search_id=" + data.search_id;
+
+                    var params = PMP.utils.getQueryParams();
+
+                    if (params.search_id == data.search_id)
+                        window.location.reload(true);
+                    else {
+                        params.search_id = data.search_id;
+                        window.location.search = '?' + PMP.utils.serialize(params);
+                    }
                 },
                 error: function() {
                     self.hideSpinner();
