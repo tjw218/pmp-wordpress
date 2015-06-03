@@ -228,7 +228,7 @@ function pmp_save_query() {
 
 	$search_id = pmp_save_search_query($search_id, $search_query);
 
-	if ($search_id) {
+	if ($search_id >= 0) {
 		print json_encode(array(
 			"success" => true,
 			"search_id" => $search_id
@@ -252,7 +252,7 @@ function pmp_delete_saved_query() {
 
 	$ret = pmp_delete_saved_query_by_id($data['search_id']);
 
-	if ($ret)
+	if ($ret >= 0)
 		print json_encode(array("success" => true));
 	else
 		print json_encode(array("success" => false));
