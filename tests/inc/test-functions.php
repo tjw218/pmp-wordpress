@@ -263,7 +263,12 @@ class TestFunctions extends WP_UnitTestCase {
 
 	function test_pmp_delete_saved_query_by_id() {
 		// Make sure we have at least one query stored
-		pmp_save_search_query(false, array('options' => array(), 'query' => array()));
+		pmp_save_search_query(0, (object) array(
+			'options' => (object) array(
+				'title' => 'Test title does not matter'
+			),
+			'query' => (object) array())
+		);
 
 		pmp_delete_saved_query_by_id(0);
 		$result = pmp_get_saved_search_query(0);
