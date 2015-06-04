@@ -92,11 +92,15 @@ To push a new story to the PMP, navigate to Posts > Add New in the WordPress das
 
 ![Add new](http://assets.apps.investigativenewsnetwork.org/pmp/add-new.png)
 
-Create and edit your new post as you would any other. When you are ready to publish your post, if you would like to push said post to the PMP, click the "Publish and push to PMP" button just above the default WordPress "Publish" button.
+Create and edit your new post as you would any other. When you are ready to publish your post, click the "Publish" button as you normally would.
 
-![Publish and push](http://assets.apps.investigativenewsnetwork.org/pmp/publish-and-push.png)
+![Before publishing](http://assets.apps.investigativenewsnetwork.org/pmp/before-publish.png)
 
-Once your post is published, if you make changes and would like to push your changes to PMP, click the "Update and push to PMP" button just above the default WordPress "Update" button.
+If you would like to push said post to the PMP, click the "Push to PMP" button in the "PMP: Document information" meta box after your post is published. 
+
+![After publishing](http://assets.apps.investigativenewsnetwork.org/pmp/after-publish.png)
+
+Once your post is published, if you make changes and would like to push your changes to PMP, click the "Push to PMP" button located in the "PMP: Document information" meta box.
 
 ![Update and push](http://assets.apps.investigativenewsnetwork.org/pmp/update-and-push.png)
 
