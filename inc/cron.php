@@ -116,11 +116,14 @@ function pmp_import_for_saved_queries() {
 			'limit' => 100
 		);
 
-		$last_saved_search_cron = get_option('pmp_last_saved_search_cron', false);
+		$last_saved_search_cron = get_option('pmp_last_saved_search_cron_' + sanitize_title($query_data->options->title), false);
 		if (!empty($last_saved_search_cron))
 			$default_opts['startdate'] = $last_saved_search_cron;
 
 		$result = $sdk->queryDocs(array_merge($default_opts, (array) $query_data->query));
+		if (empty($result))
+			continue;
+
 		foreach ($result->items() as $item) {
 			$meta_args = array(
 				array(
@@ -139,12 +142,17 @@ function pmp_import_for_saved_queries() {
 				continue;
 			else {
 				if ($query_data->options->query_auto_create == 'draft')
-					_pmp_create_post(true, $item);
+					$result = _pmp_create_post(true, $item);
 				else if ($query_data->options->query_auto_create == 'publish')
-					_pmp_create_post(false, $item);
+					$result = _pmp_create_post(false, $item);
+
+				if (isset($query_data->options->post_category)) {
+					wp_set_post_categories(
+						$result['data']['post_id'], $query_data->options->post_category);
+				}
 			}
 		}
-	}
 
-	update_option('pmp_last_saved_search_cron', date('c', time()));
+		update_option('pmp_last_saved_search_cron_' + sanitize_title($query_data->options->title), date('c', time()));
+	}
 }

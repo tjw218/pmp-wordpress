@@ -409,7 +409,8 @@ function _pmp_create_post($draft=false, $doc=null) {
 	return array(
 		"success" => true,
 		"data" => array(
-			"edit_url" => html_entity_decode(get_edit_post_link($new_post))
+			"edit_url" => html_entity_decode(get_edit_post_link($new_post)),
+			"post_id" => $new_post
 		)
 	);
 }
