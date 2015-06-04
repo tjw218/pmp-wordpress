@@ -390,8 +390,15 @@ var PMP = PMP || {};
 
             var formData = {};
             _.each(serialized, function(val, idx) {
-                if (val.value !== '')
-                    formData[val.name] = val.value;
+                if (val.value !== '') {
+                    if (val.name.match(/\[\]$/)) {
+                        if (!formData[val.name.replace('[]', '')])
+                            formData[val.name.replace('[]', '')] = [];
+
+                        formData[val.name.replace('[]', '')].push(val.value);
+                    } else
+                        formData[val.name] = val.value;
+                }
             });
 
             var self = this,

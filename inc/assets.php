@@ -93,7 +93,7 @@ function pmp_modal_underscore_template() { ?>
  *
  * @since 0.3
  */
-function pmp_save_search_query_template() { ?>
+function pmp_save_search_query_template($query_data=null) { ?>
 <script type="text/template" id="pmp-save-query-tmpl">
 	<div id="pmp-save-query-modal-inner">
 		<h3><% if (typeof search_id !== 'undefined') { %>Edit<% } else { %>Save<% } %> the current query</h3>
@@ -116,6 +116,22 @@ function pmp_save_search_query_template() { ?>
 				<label for="query_auto_nothing">
 					<input id="query_auto_nothing" type="radio" name="query_auto_create" value="off" checked/> Do nothing with results for this query
 				</label>
+			</div>
+
+			<div class="form-group">
+				<label for="">Categories:</label>
+				<p>Choose categories for posts imported by this query</p>
+				<div class="pmp-category-checklist">
+					<ul>
+						<?php
+							if (!empty($query_data->options) && !empty($query_data->options->post_category))
+								$selected_cats = $query_data->options->post_category;
+							else
+								$selected_cats = null;
+							wp_category_checklist(null, null, $selected_cats);
+						?>
+					</ul>
+				</div>
 			</div>
 		</form>
 	</div>

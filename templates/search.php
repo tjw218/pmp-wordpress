@@ -104,7 +104,12 @@
 	</div>
 </script>
 
-<?php pmp_save_search_query_template(); ?>
+<?php
+if (!empty($PMP['search']))
+	pmp_save_search_query_template($PMP['search']);
+else
+	pmp_save_search_query_template();
+?>
 <?php pmp_modal_underscore_template(); ?>
 
 <script type="text/javascript">
