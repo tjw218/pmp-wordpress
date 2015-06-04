@@ -324,22 +324,21 @@ function pmp_handle_push($post_id) {
  */
 function pmp_enclosures_for_media($media_id) {
 	$allowed_sizes = array(
-		'thumbnail',
-		'small',
-		'medium',
-		'large',
-		'original'
+		'thumbnail' => 'square',
+		'small' => 'small',
+		'medium' => 'medium',
+		'large' => 'large'
 	);
 
 	$media_metadata = wp_get_attachment_metadata($media_id);
 	$enclosures = array();
 	foreach ($media_metadata['sizes'] as $name => $meta) {
-		if (in_array($name, $allowed_sizes)) {
+		if (in_array($name, array_keys($allowed_sizes))) {
 			$src = wp_get_attachment_image_src($media_id, $name);
 			$enclosures[] = (object) array(
 				'href' => $src[0],
 				'meta' => (object) array(
-					'crop' => $name,
+					'crop' => $allowed_sizes[$name],
 					'height' => $meta['height'],
 					'width' => $meta['width']
 				),
@@ -351,7 +350,7 @@ function pmp_enclosures_for_media($media_id) {
 	$enclosures[] = (object) array(
 		'href' => wp_get_attachment_url($media_id),
 		'meta' => (object) array(
-			'crop' => 'original',
+			'crop' => 'primary',
 			'height' => $media_metadata['height'],
 			'width' => $media_metadata['width'],
 		),

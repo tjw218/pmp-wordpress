@@ -183,6 +183,12 @@ class TestFunctions extends WP_UnitTestCase {
 		$expected_keys_second = array('crop', 'width', 'height');
 		foreach ($expected_keys_second as $expected_key)
 			$this->assertTrue(in_array($expected_key, array_keys((array) $first_enc->meta)));
+
+		// Make sure the 'crop' value is set using PMP best practices
+		// See: https://support.pmp.io/docs#best-practices-image-crops
+		$pmp_image_crops = array('primary', 'large', 'medium', 'small', 'square');
+		foreach ($enclosures as $enc)
+			$this->assertTrue(in_array($enc->meta->crop, $pmp_image_crops));
 	}
 
 	function test_pmp_post_is_mine() {
