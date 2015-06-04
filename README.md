@@ -80,7 +80,7 @@ Upon confirming, a new post will be created and you will be redirected to the po
 
 By default, the plugin periodically checks for updates to all content that you import from PMP.
 
-If you would like to unsubscribe from updates for a specific post, you can do so via the "PMP: Subscribe to updates" meta box on the post edit page:
+If you would like to unsubscribe from updates for a specific post, you can do so via the "PMP: Document information" meta box on the post edit page:
 
 ![Subscribe](http://assets.apps.investigativenewsnetwork.org/pmp/subscribe.png)
 
