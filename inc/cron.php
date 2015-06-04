@@ -138,19 +138,18 @@ function pmp_import_for_saved_queries() {
 				'post_status' => 'any'
 			));
 
-			if ($query->have_posts())
-				continue;
-			else {
+			if (!$query->have_posts()) {
 				if ($query_data->options->query_auto_create == 'draft')
 					$result = _pmp_create_post(true, $item);
 				else if ($query_data->options->query_auto_create == 'publish')
 					$result = _pmp_create_post(false, $item);
 
-				if (isset($query_data->options->post_category)) {
-					wp_set_post_categories(
-						$result['data']['post_id'], $query_data->options->post_category);
-				}
-			}
+				$post_id = $result['data']['post_id'];
+			} else
+				$post_id = $query->posts[0]->ID;
+
+			if (isset($query_data->options->post_category))
+				wp_set_post_categories($post_id, $query_data->options->post_category, true);
 		}
 
 		update_option('pmp_last_saved_search_cron_' + sanitize_title($query_data->options->title), date('c', time()));
