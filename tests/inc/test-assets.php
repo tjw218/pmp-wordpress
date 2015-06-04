@@ -45,11 +45,15 @@ class TestAssets extends WP_UnitTestCase {
 	}
 
 	function test_pmp_modal_underscore_template() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		// TODO: this isn't a very good test.
+		$this->expectOutputRegex('/id="pmp-modal-tmpl"/');
+		pmp_modal_underscore_template();
 	}
 
 	function test_pmp_save_search_query_template() {
-		$this->markTestIncomplete('This test has not been implemented yet.');
+		// TODO: this isn't a very good test.
+		$this->expectOutputRegex('/id="pmp-save-query-tmpl"/');
+		pmp_save_search_query_template();
 	}
 
 	function test_pmp_json_obj() {
