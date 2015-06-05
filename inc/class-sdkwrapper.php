@@ -46,7 +46,30 @@ class SDKWrapper {
 			$data = $this->prepQueryData($result);
 		}
 
+		if (isset($args_array[0]) && isset($args_array[0]['limit']))
+			$limit = $args_array[0]['limit'];
+
+		$data['existing'] = $this->identifyExisting($data['items']);
+
 		return $data;
+	}
+
+	public function identifyExisting($items) {
+		$ret = array();
+		$existing_guids = $this->getPmpGuids();
+
+		foreach ($items as $item) {
+			if (in_array($item['attributes']['guid'], $existing_guids))
+				$ret[] = $item['attributes']['guid'];
+		}
+
+		return $ret;
+	}
+
+	public function getPmpGuids() {
+		global $wpdb;
+		$result = $wpdb->get_results("select meta_value from {$wpdb->postmeta} where meta_key = 'pmp_guid'", ARRAY_N);
+		return array_map(function($x) { return $x[0]; }, $result);
 	}
 
 	/**
@@ -155,7 +178,6 @@ class SDKWrapper {
 			explode(',', $string)
 		);
 	}
-
 
 	/**
 	 * Get the first image link for a Doc

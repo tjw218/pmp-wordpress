@@ -56,6 +56,7 @@ var PMP = PMP || {};
         },
 
         onError: function(result) {
+            this.hideSpinner();
             this.$el.find('#pmp-save-query').attr('disabled', 'disabled');
         },
 
@@ -114,10 +115,8 @@ var PMP = PMP || {};
 
         initialize: function(options) {
             this.collection = (typeof options.collection != 'undefined')? options.collection : new DocCollection();
-
             this.collection.attributes.on('change', this.renderPagingation.bind(this));
-            this.collection.on('reset', this.render.bind(this));
-
+            this.collection.attributes.on('change', this.render.bind(this));
             this.collection.on('error', this.renderError.bind(this));
         },
 
@@ -136,7 +135,8 @@ var PMP = PMP || {};
             this.$el.find('p.error').remove();
             this.$el.find('.pmp-search-result').remove();
 
-            var template = _.template($('#pmp-search-result-tmpl').html());
+            var template = _.template($('#pmp-search-result-tmpl').html()),
+                existing = this.collection.attributes.get('existing');
 
             this.collection.each(function(model, idx) {
                 var image = (model.getBestThumbnail())? model.getBestThumbnail().href : null;
@@ -151,15 +151,22 @@ var PMP = PMP || {};
                     }
                 }
 
+                // Whether or not this search result has already been imported
+                var exists = false;
+                if (_.indexOf(existing || [], model.get('attributes').guid) >= 0)
+                    exists = true;
+
                 var tmpl_vars = _.extend(model.toJSON().attributes, {
                         image: image,
-                        creator: model.getCreatorAlias()
+                        creator: model.getCreatorAlias(),
+                        exists: exists
                     }),
                     res = $(template(tmpl_vars));
 
                 new ResultActions({
                     el: res.find('.pmp-result-actions'),
-                    model: model
+                    model: model,
+                    exists: exists
                 });
 
                 self.$el.append(res);
@@ -263,10 +270,20 @@ var PMP = PMP || {};
             "click a.pmp-publish-action": "publish"
         },
 
+        initialize: function(options) {
+            this.exists = options.exists;
+            Backbone.View.prototype.initialize.apply(this, arguments);
+        },
+
         draft: function() {
+            var content = '<p>Are you sure you want to create a draft of this story?</p>';
+
+            if (this.exists)
+                content = '<div class="pmp-result-exists error"><p>This post has already been imported</p></div>' + content;
+
             var self = this,
                 args = {
-                    content: 'Are you sure you want to create a draft of this story?',
+                    content: content,
                     actions: {
                         'Yes': function() {
                             self.modal.showSpinner();
@@ -283,9 +300,14 @@ var PMP = PMP || {};
         },
 
         publish: function() {
+            var content = '<p>Are you sure you want to publish this story?</p>';
+
+            if (this.exists)
+                content = '<div class="pmp-result-exists error"><p>This post has already been imported</p></div>' + content;
+
             var self = this,
                 args = {
-                    content: 'Are you sure you want to publish this story?',
+                    content: content,
                     actions: {
                         'Yes': function() {
                             self.modal.showSpinner();

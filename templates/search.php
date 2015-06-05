@@ -92,6 +92,11 @@
 				<li><a class="pmp-publish-action" href="#">Publish</a></li>
 			</ul>
 		</div>
+		<% if (exists) { %>
+			<div class="pmp-result-exists error">
+				<p>This post has already been imported</p>
+			</div>
+		<% } %>
 	</div>
 </script>
 
