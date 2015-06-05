@@ -5,6 +5,7 @@
 .env
 
 # temporary test and release directories
+/tests/_output/*
 /wptest
 /release
 
