@@ -151,22 +151,15 @@ var PMP = PMP || {};
                     }
                 }
 
-                // Whether or not this search result has already been imported
-                var exists = false;
-                if (_.indexOf(existing || [], model.get('attributes').guid) >= 0)
-                    exists = true;
-
                 var tmpl_vars = _.extend(model.toJSON().attributes, {
                         image: image,
-                        creator: model.getCreatorAlias(),
-                        exists: exists
+                        creator: model.getCreatorAlias()
                     }),
                     res = $(template(tmpl_vars));
 
                 new ResultActions({
                     el: res.find('.pmp-result-actions'),
                     model: model,
-                    exists: exists
                 });
 
                 self.$el.append(res);
@@ -270,20 +263,10 @@ var PMP = PMP || {};
             "click a.pmp-publish-action": "publish"
         },
 
-        initialize: function(options) {
-            this.exists = options.exists;
-            Backbone.View.prototype.initialize.apply(this, arguments);
-        },
-
         draft: function() {
-            var content = '<p>Are you sure you want to create a draft of this story?</p>';
-
-            if (this.exists)
-                content = '<div class="pmp-result-exists error"><p>This post has already been imported</p></div>' + content;
-
             var self = this,
                 args = {
-                    content: content,
+                    content: '<p>Are you sure you want to create a draft of this story?</p>',
                     actions: {
                         'Yes': function() {
                             self.modal.showSpinner();
@@ -300,14 +283,9 @@ var PMP = PMP || {};
         },
 
         publish: function() {
-            var content = '<p>Are you sure you want to publish this story?</p>';
-
-            if (this.exists)
-                content = '<div class="pmp-result-exists error"><p>This post has already been imported</p></div>' + content;
-
             var self = this,
                 args = {
-                    content: content,
+                    content: '<p>Are you sure you want to publish this story?</p>',
                     actions: {
                         'Yes': function() {
                             self.modal.showSpinner();

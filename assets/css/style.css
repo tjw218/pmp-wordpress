@@ -156,6 +156,11 @@ p.submit input {
   margin: 0 16px 16px 0;
 }
 
+.pmp-result-exists {
+  display: block;
+  clear: both;
+}
+
 /* Results pagination */
 #pmp-search-results-pagination {
   clear: both;

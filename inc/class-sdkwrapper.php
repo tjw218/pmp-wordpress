@@ -49,27 +49,42 @@ class SDKWrapper {
 		if (isset($args_array[0]) && isset($args_array[0]['limit']))
 			$limit = $args_array[0]['limit'];
 
-		$data['existing'] = $this->identifyExisting($data['items']);
+		$data['items'] = $this->populateEditLinks($data['items']);
 
 		return $data;
 	}
 
-	public function identifyExisting($items) {
-		$ret = array();
-		$existing_guids = $this->getPmpGuids();
+	/**
+	 * For each $item in the $items array, check for an existing WP post with the same PMP GUID and
+	 * add a `_wp_edit_link` attribute to the $item if one exists.
+	 *
+	 * @since 0.3
+	 */
+	public function populateEditLinks($items) {
+		$post_ids_and_guids = $this->getPmpPostIdsAndGuids();
 
-		foreach ($items as $item) {
-			if (in_array($item['attributes']['guid'], $existing_guids))
-				$ret[] = $item['attributes']['guid'];
+		$populated = $items;
+		foreach ($items as $idx => $item) {
+			foreach ($post_ids_and_guids as $result) {
+				if ($item['attributes']['guid'] == $result['meta_value']) {
+					$populated[$idx]['attributes']['_wp_edit_link'] = get_edit_post_link($result['post_id']);
+					break;
+				}
+			}
 		}
 
-		return $ret;
+		return $populated;
 	}
 
-	public function getPmpGuids() {
+	/**
+	 * Get the `post_id` and `pmp_guid` for all existing posts that originate from the PMP
+	 *
+	 * @since 0.3
+	 */
+	public function getPmpPostIdsAndGuids() {
 		global $wpdb;
-		$result = $wpdb->get_results("select meta_value from {$wpdb->postmeta} where meta_key = 'pmp_guid'", ARRAY_N);
-		return array_map(function($x) { return $x[0]; }, $result);
+		return $wpdb->get_results(
+			"select post_id, meta_value from {$wpdb->postmeta} where meta_key = 'pmp_guid'", ARRAY_A);
 	}
 
 	/**

@@ -86,15 +86,16 @@
 				</div>
 			<% } else if (image) { %><img class="pmp-image" src="<%= image %>" /><% } %>
 		</div>
-		<div class="pmp-result-actions">
-			<ul>
-				<li><a class="pmp-draft-action" href="#">Create draft</a></li>
-				<li><a class="pmp-publish-action" href="#">Publish</a></li>
-			</ul>
-		</div>
-		<% if (exists) { %>
+		<% if (typeof _wp_edit_link !== 'undefined') { %>
 			<div class="pmp-result-exists error">
-				<p>This post has already been imported</p>
+				<p>This post has already been imported. <a href="<%= _wp_edit_link %>">Click here to edit.</a></p>
+			</div>
+		<% } else { %>
+			<div class="pmp-result-actions">
+				<ul>
+					<li><a class="pmp-draft-action" href="#">Create draft</a></li>
+					<li><a class="pmp-publish-action" href="#">Publish</a></li>
+				</ul>
 			</div>
 		<% } %>
 	</div>
