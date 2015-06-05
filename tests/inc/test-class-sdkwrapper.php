@@ -41,6 +41,14 @@ class TestSDKWrapper extends WP_UnitTestCase {
 		$this->assertEquals(json_last_error(), JSON_ERROR_NONE);
 	}
 
+	function test_populateEditLinks() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_getPmpPostIdsAndGuids() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
 	function test_prepFetchData() {
 		$this->markTestIncomplete('This test has not been implemented yet.');
 	}
