@@ -57,6 +57,8 @@ function pmp_get_updates() {
 				if (!empty($doc)) {
 					if (pmp_needs_update($post, $doc))
 						pmp_update_post($post, $doc);
+				} else {
+					wp_delete_post($post->ID, true);
 				}
 			}
 		}
