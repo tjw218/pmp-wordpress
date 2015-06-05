@@ -21,14 +21,14 @@ release:
 
 # test setup/running
 test: ensure wp-start
-	if [ ! -f vendor/codecept.phar ]; then curl -sS http://codeception.com/codecept.phar > vendor/codecept.phar; fi
+	if [ ! -f vendor/codecept.phar ]; then curl -sS -o vendor/codecept.phar http://codeception.com/codecept.phar; fi
 	php vendor/codecept.phar run
 test-clean: test-ensure clean
 	rm -rf $(WP_CORE_DIR)
 
 # wordpress core install and config
 wp-install: ensure wp-stop
-	@if [ ! -f vendor/wp-cli.phar ]; then curl -sS https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar > vendor/wp-cli.phar; fi
+	@if [ ! -f vendor/wp-cli.phar ]; then curl -sS -o vendor/wp-cli.phar https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar; fi
 	@rm -rf wptest && mkdir wptest
 	@php vendor/wp-cli.phar core download --path=wptest --version=$(WP_VERSION)
 	@php vendor/wp-cli.phar core config --path=wptest --dbname=$(WP_TEST_DB_NAME) --dbuser=$(WP_TEST_DB_USER) --dbpass=$(WP_TEST_DB_PASS)
