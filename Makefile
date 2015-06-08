@@ -20,7 +20,7 @@ release:
 	./release.sh
 
 # test setup/running
-test: ensure wp-start
+test: ensure
 	if [ ! -f vendor/codecept.phar ]; then curl -sS -o vendor/codecept.phar http://codeception.com/codecept.phar; fi
 	php vendor/codecept.phar run
 test-clean: test-ensure clean
@@ -39,8 +39,7 @@ wp-install: ensure wp-stop
 	@php vendor/wp-cli.phar plugin activate pmp-wordpress --path=wptest
 	@php vendor/wp-cli.phar option set pmp_settings '{"pmp_api_url":"$(PMP_API_URL)","pmp_client_id":"$(PMP_CLIENT_ID)","pmp_client_secret":"$(PMP_CLIENT_SECRET)"}' --format=json --path=wptest
 wp-start:
-	@if [ -f wptest/server.pid ] && ps -p $$(cat wptest/server.pid) > /dev/null 2>&1; \
-	then \
+	@if [ -f wptest/server.pid ] && ps -p $$(cat wptest/server.pid) > /dev/null 2>&1; then \
 		echo "$$(tput setaf 2)Server already running on localhost:4000$$(tput sgr0)"; \
 	else \
 		echo "$$(tput setaf 2)Listening on localhost:4000$$(tput sgr0)" && rm -f wptest/server.log && rm -f wptest/server.pid; \
@@ -58,8 +57,16 @@ ifneq ($(strip $(wildcard .env)),)
 include .env
 endif
 ensure:
-	@if [ ! -f .env ]; then \
-		echo "$$(tput setaf 1)Error: missing .env file!  Create one using the following example:$$(tput sgr0)\n" ; \
+	@if [ -z "$$WP_VERSION" ];        then MISSING="$$MISSING WP_VERSION"; fi ; \
+	 if [ -z "$$WP_TEST_DB_NAME" ];   then MISSING="$$MISSING WP_TEST_DB_NAME"; fi ; \
+	 if [ -z "$$WP_TEST_DB_USER" ];   then MISSING="$$MISSING WP_TEST_DB_USER"; fi ; \
+	 if [ -z "$$WP_TEST_DB_PASS" ];   then MISSING="$$MISSING WP_TEST_DB_PASS"; fi ; \
+	 if [ -z "$$PMP_API_URL" ];       then MISSING="$$MISSING PMP_API_URL"; fi ; \
+	 if [ -z "$$PMP_CLIENT_ID" ];     then MISSING="$$MISSING PMP_CLIENT_ID"; fi ; \
+	 if [ -z "$$PMP_CLIENT_SECRET" ]; then MISSING="$$MISSING PMP_CLIENT_SECRET"; fi ; \
+	 if [ -n "$$MISSING" ]; then \
+		echo "$$(tput setaf 1)Missing required env variables:$$(tput sgr0)$$MISSING - try using this .env file:"; \
+		echo "" ; \
 		echo "# pmp-wordpress test configurations" ; \
 		echo "export WP_VERSION=4.1.1" ; \
 		echo "export WP_TEST_DB_NAME=<<your_tmp_test_db_name>>" ; \
@@ -69,5 +76,5 @@ ensure:
 		echo "export PMP_CLIENT_ID=<<your_client_id>>" ; \
 		echo "export PMP_CLIENT_SECRET=<<your_client_secret>>" ; \
 		echo "" ; \
-		exit 1 ; \
-	fi;
+		exit 1; \
+	fi
