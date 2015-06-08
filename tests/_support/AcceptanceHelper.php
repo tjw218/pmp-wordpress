@@ -7,4 +7,7 @@ namespace Codeception\Module;
 class AcceptanceHelper extends \Codeception\Module
 {
 
+    // public function _beforeSuite($settings = array()) {
+    // }
+
 }

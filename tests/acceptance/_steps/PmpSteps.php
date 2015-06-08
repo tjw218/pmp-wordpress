@@ -11,7 +11,15 @@ class PmpSteps extends \AcceptanceTester
         $I->fillField('Username', $username);
         $I->fillField('Password', $password);
         $I->click('Log In');
-        $I->see('Dashboard');
+        $I->waitForText('Dashboard');
+        $I->amUsingSandbox();
+    }
+
+    public function amUsingSandbox()
+    {
+        $I = $this;
+        $I->pmpNavigate('Settings');
+        $I->seeInField('pmp_settings[pmp_api_url]', 'https://api-sandbox.pmp.io');
     }
 
     public function pmpNavigate($text)

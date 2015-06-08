@@ -16,5 +16,10 @@ modules:
             url: 'http://localhost:4000/'
             browser: 'phantomjs'
             window_size: 1024x768
+            wait: 0
             capabilities:
-              loadImages: false
+                acceptSslCerts: true
+                browser: 'firefox'
+                ignoreSslErrors: true
+                loadImages: false
+                webStorageEnabled: true
