@@ -369,8 +369,26 @@ var PMP = PMP || {};
                 valid = true;
 
             _.each(inputs, function(v, i) {
-                if (!v.validity.valid)
+                if ($(v).attr('name') == 'initial_pull_limit') {
+                    var num = Number($(v).val());
+                    if (isNaN(num)) {
+                        alert('Initial pull limit must be a number.');
+                        valid = false;
+                    }
+                    if (num > 100 || num < 1) {
+                        alert('Initial pull limit must be between 1 and 100.');
+                        valid = false;
+                    }
+                }
+
+                if (!v.validity.valid) {
+                    if ($(v).attr('name') == 'title')
+                        alert('Please specify a title before saving.');
+                    else
+                        alert('Please specify all required fields before saving.');
+
                     valid = false;
+                }
             });
 
             return valid;
@@ -381,10 +399,8 @@ var PMP = PMP || {};
                 return false;
 
             var valid = this.validate();
-            if (!valid) {
-                alert('Please specify a query title before saving.');
+            if (!valid)
                 return false;
-            }
 
             var serialized = this.$el.find('form').serializeArray();
 

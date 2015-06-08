@@ -28,6 +28,9 @@
 #pmp-save-query-modal-inner .form-group {
   margin: 10px 0;
 }
+#pmp-save-query-modal-inner .form-group.disabled {
+  color: #aaa;
+}
 #pmp-save-query-modal-inner label {
   display: block;
   margin: 0 0 8px 0;

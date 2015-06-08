@@ -27,9 +27,8 @@ function pmp_search_page() {
 	);
 
 	if (isset($_GET['search_id'])) {
-		$context['PMP'] = pmp_json_obj(array(
-			'search' => pmp_get_saved_search_query($_GET['search_id'])
-		));
+		$query_data = pmp_get_saved_search_query($_GET['search_id']);
+		$context['PMP'] = pmp_json_obj(array('search' => $query_data));
 	} else
 		$context['PMP'] = pmp_json_obj();
 

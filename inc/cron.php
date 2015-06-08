@@ -115,14 +115,20 @@ function pmp_import_for_saved_queries() {
 
 		$default_opts = array(
 			'profile' => 'story',
-			'limit' => 100
+			'limit' => 25
 		);
 
-		$last_saved_search_cron = get_option('pmp_last_saved_search_cron_' + sanitize_title($query_data->options->title), false);
+		$last_saved_search_cron = get_option('pmp_last_saved_search_cron_' . sanitize_title($query_data->options->title), false);
 		if (!empty($last_saved_search_cron))
 			$default_opts['startdate'] = $last_saved_search_cron;
+		else {
+			// First time pulling, honor the initial pull limit
+			if (!empty($query_data->options->initial_pull_limit))
+				$default_opts['limit'] = $query_data->options->initial_pull_limit;
+		}
 
-		$result = $sdk->queryDocs(array_merge($default_opts, (array) $query_data->query));
+		$query_args = array_merge($default_opts, (array) $query_data->query);
+		$result = $sdk->queryDocs($query_args);
 		if (empty($result))
 			continue;
 
@@ -154,6 +160,6 @@ function pmp_import_for_saved_queries() {
 				wp_set_post_categories($post_id, $query_data->options->post_category, true);
 		}
 
-		update_option('pmp_last_saved_search_cron_' + sanitize_title($query_data->options->title), date('c', time()));
+		update_option('pmp_last_saved_search_cron_' . sanitize_title($query_data->options->title), date('c', time()));
 	}
 }

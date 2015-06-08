@@ -119,7 +119,7 @@ function pmp_save_search_query_template($query_data=null) { ?>
 			</div>
 
 			<div class="form-group">
-				<label for="">Categories:</label>
+				<label for="post_category">Categories:</label>
 				<p>Choose categories for posts imported by this query</p>
 				<div class="pmp-category-checklist">
 					<ul>
@@ -132,6 +132,18 @@ function pmp_save_search_query_template($query_data=null) { ?>
 						?>
 					</ul>
 				</div>
+			</div>
+			<?php
+				if (!empty($query_data)) {
+					$last_saved_search_cron = get_option(
+						'pmp_last_saved_search_cron_' . sanitize_title($query_data->options->title), false);
+				}
+			?>
+			<div class="form-group<?php if (!empty($last_saved_search_cron)) { ?> disabled<?php } ?>">
+				<label for="initial_pull_limit">Initial pull limit:</label>
+				<p>Specify the max number of posts to pull the first time this query runs.</p>
+				<p>The default is 25, but can be up to 100.</p>
+				<input type="text" name="initial_pull_limit" placeholder="25" <?php if (!empty($last_saved_search_cron)) { ?> disabled<?php } ?> />
 			</div>
 		</form>
 	</div>

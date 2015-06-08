@@ -543,7 +543,7 @@ function pmp_delete_saved_query_by_id($search_id) {
 	if (!isset($search_queries[$search_id]))
 		return false;
 
-	delete_option('pmp_last_saved_search_cron_' + sanitize_title($search_queries[$search_id]->options->title));
+	delete_option('pmp_last_saved_search_cron_' . sanitize_title($search_queries[$search_id]->options->title));
 
 	unset($search_queries[$search_id]);
 	return update_option('pmp_saved_search_queries', $search_queries);
