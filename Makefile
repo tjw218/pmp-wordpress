@@ -57,13 +57,13 @@ ifneq ($(strip $(wildcard .env)),)
 include .env
 endif
 ensure:
-	@if [ -z "$$WP_VERSION" ];        then MISSING="$$MISSING WP_VERSION"; fi ; \
-	 if [ -z "$$WP_TEST_DB_NAME" ];   then MISSING="$$MISSING WP_TEST_DB_NAME"; fi ; \
-	 if [ -z "$$WP_TEST_DB_USER" ];   then MISSING="$$MISSING WP_TEST_DB_USER"; fi ; \
-	 if [ -z "$$WP_TEST_DB_PASS" ];   then MISSING="$$MISSING WP_TEST_DB_PASS"; fi ; \
-	 if [ -z "$$PMP_API_URL" ];       then MISSING="$$MISSING PMP_API_URL"; fi ; \
-	 if [ -z "$$PMP_CLIENT_ID" ];     then MISSING="$$MISSING PMP_CLIENT_ID"; fi ; \
-	 if [ -z "$$PMP_CLIENT_SECRET" ]; then MISSING="$$MISSING PMP_CLIENT_SECRET"; fi ; \
+	@if [ -z "$(WP_VERSION)" ];       then MISSING="$(MISSING) WP_VERSION"; fi ; \
+	 if [ -z "$(WP_TEST_DB_NAME)" ];   then MISSING="$(MISSING) WP_TEST_DB_NAME"; fi ; \
+	 if [ -z "$(WP_TEST_DB_USER)" ];   then MISSING="$(MISSING) WP_TEST_DB_USER"; fi ; \
+	 if [ -z "$(WP_TEST_DB_PASS)" ];   then MISSING="$(MISSING) WP_TEST_DB_PASS"; fi ; \
+	 if [ -z "$(PMP_API_URL)" ];       then MISSING="$(MISSING) PMP_API_URL"; fi ; \
+	 if [ -z "$(PMP_CLIENT_ID)" ];     then MISSING="$(MISSING) PMP_CLIENT_ID"; fi ; \
+	 if [ -z "$(PMP_CLIENT_SECRET)" ]; then MISSING="$(MISSING) PMP_CLIENT_SECRET"; fi ; \
 	 if [ -n "$$MISSING" ]; then \
 		echo "$$(tput setaf 1)Missing required env variables:$$(tput sgr0)$$MISSING - try using this .env file:"; \
 		echo "" ; \
