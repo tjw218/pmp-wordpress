@@ -21,8 +21,12 @@ release:
 
 # test setup/running
 test: ensure
+	pwd
+	ls -lA .
+	ls -lA tests
+	ls -lA wptest
 	@if [ ! -f vendor/codecept.phar ]; then curl -sS -o vendor/codecept.phar https://raw.githubusercontent.com/Codeception/codeception.github.com/master/releases/2.0.14/codecept.phar; fi
-	php vendor/codecept.phar run
+	php vendor/codecept.phar run --debug
 test-clean: test-ensure clean
 	rm -rf $(WP_CORE_DIR)
 
