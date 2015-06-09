@@ -459,14 +459,12 @@ function _pmp_select_for_post($post, $type) {
 	$override = get_post_meta($post->ID, $meta_key = 'pmp_' . $type . '_override', true);
 	$options = array();
 
-	// Pad the options with an empty value when we don't have an override or a default set
-	if (empty($override) && empty($ret['default_guid'])) {
-		$options[] = array(
-			'selected' => '',
-			'guid' => '',
-			'title' => '---'
-		);
-	}
+	// Pad the options with an empty value
+	$options[] = array(
+		'selected' => '',
+		'guid' => '',
+		'title' => '--- No ' . $type . ' ---'
+	);
 
 	foreach ($pmp_things['items'] as $thing) {
 		if (!empty($override))

@@ -95,12 +95,12 @@ function pmp_save_override_defaults($post_id) {
 		$meta_key = 'pmp_' . $type . '_override';
 		$default_guid = get_option('pmp_default_' . $type, false);
 
-		if (isset($_POST[$meta_key]) && !empty($_POST[$meta_key])) {
+		if (isset($_POST[$meta_key])) {
 			$override_guid = $_POST[$meta_key];
 
-			// If we're setting the override to the default, just delete
-			// the override meta and continue
-			if ($override_guid == $default_guid) {
+			// If we're setting the override to the default, or the override is set to
+			// nothing, just delete the override meta and continue
+			if ($override_guid == $default_guid || empty($override_guid)) {
 				delete_post_meta($post_id, $meta_key);
 				continue;
 			}
