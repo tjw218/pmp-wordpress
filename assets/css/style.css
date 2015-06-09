@@ -427,3 +427,23 @@ p.error {
 
 #pmp-subscribe-to-updates { padding: 0 8px 16px 8px; }
 #pmp_document_meta .inside { padding: 4px; }
+
+#pmp-override-defaults {
+  padding: 4px 4px 8px 4px;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 14px;
+}
+#pmp-override-defaults strong {
+  display: block;
+  margin: 4px 0;
+}
+#pmp-override-defaults select {
+  width: 100%;
+}
+#pmp-override-defaults .pmp-select-for-post {
+  min-height: 56px;
+}
+#pmp-override-defaults .pmp-select-for-post .spinner {
+  background-position: center center;
+  width: 100%;
+}

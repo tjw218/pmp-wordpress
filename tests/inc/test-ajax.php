@@ -313,6 +313,10 @@ class TestAjax extends WP_Ajax_UnitTestCase {
 		}
 	}
 
+	function test_pmp_get_select_options() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
 	function test__pmp_create_doc() {
 		$this->markTestSkipped(
 			'Functional test of `_pmp_create_doc` performed by `test_pmp_create_collection` and `test_pmp_create_group`');
@@ -331,5 +335,10 @@ class TestAjax extends WP_Ajax_UnitTestCase {
 	function test__pmp_create_post() {
 		$this->markTestSkipped(
 			'Functional test of `_pmp_create_post` performed by `test_pmp_draft_post` and `test_pmp_publish_post`');
+	}
+
+	function test__pmp_select_for_post() {
+		$this->markTestSkipped(
+			'Functional test of `_pmp_select_for_post` performed by `test_pmp_get_select_options`');
 	}
 }

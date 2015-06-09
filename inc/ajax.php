@@ -261,6 +261,27 @@ function pmp_delete_saved_query() {
 }
 add_action('wp_ajax_pmp_delete_saved_query', 'pmp_delete_saved_query');
 
+/**
+ * Ajax function returns data structure describing select menu for Group, Series, Propert for
+ * a post
+ *
+ * @since 0.3
+ */
+function pmp_get_select_options() {
+	check_ajax_referer('pmp_ajax_nonce', 'security');
+
+	$data = json_decode(stripslashes($_POST['data']), true);
+
+	$post = get_post($data['post_id']);
+	$type = $data['type'];
+
+	$ret = _pmp_select_for_post($post, $type);
+	print json_encode(array_merge(array("success" => true), $ret));
+
+	wp_die();
+}
+add_action('wp_ajax_pmp_get_select_options', 'pmp_get_select_options');
+
 /* Helper functions */
 function _pmp_create_doc($type, $data) {
 	$sdk = new SDKWrapper();
@@ -413,4 +434,38 @@ function _pmp_create_post($draft=false, $doc=null) {
 			"post_id" => $new_post
 		)
 	);
+}
+
+/**
+ * Builds a data structure that describes a select menu for the post based on the $type
+ *
+ * @param $type (string) The document option to create a select menu for
+ * (i.e., 'group', 'property' or 'series').
+ * @since 0.3
+ */
+function _pmp_select_for_post($post, $type) {
+	$ret = array(
+		'default_guid' => get_option('pmp_default_' . $type, false),
+		'type' => $type
+	);
+
+	$sdk = new SDKWrapper();
+	$pmp_things = $sdk->query2json('queryDocs', array(
+		'profile' => $type,
+		'writeable' => 'true',
+		'limit' => 9999
+	));
+
+	$options = array();
+	foreach ($pmp_things['items'] as $thing) {
+		$option = array(
+			'selected' => selected($ret['default_guid'], $thing['attributes']['guid'], false),
+			'guid' => $thing['attributes']['guid'],
+			'title' => $thing['attributes']['title']
+		);
+		$options[] = $option;
+	}
+
+	$ret['options'] = $options;
+	return $ret;
 }

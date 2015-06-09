@@ -18,7 +18,7 @@ function pmp_enqueue_assets() {
 		array('jquery'), PMP_VERSION, true);
 
 	wp_register_script('pmp-post', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-post.js',
-		array('jquery'), PMP_VERSION, true);
+		array('pmp-common'), PMP_VERSION, true);
 
 	if (isset($_GET['page'])) {
 		$page = $_GET['page'];
@@ -148,6 +148,25 @@ function pmp_save_search_query_template($query_data=null) { ?>
 		</form>
 	</div>
 </script><?php
+}
+
+/**
+ * Output the underscore template for the async select menu used on the post edit page
+ *
+ * @since 0.3
+ */
+function pmp_async_select_template() { ?>
+	<script type="text/template" id="pmp-async-select-tmpl">
+		<strong><%= type.charAt(0).toUpperCase() + type.slice(1) %></strong>
+		<select name="pmp-override-default-<%= type %>">
+			<% _.each(options, function(option, idx) { %>
+				<option <%= option.selected %> value="<%= option.guid %>">
+					<%= option.title %>
+					<% if (option.guid == default_guid) { %>(default)<% } %>
+				</option>
+			<% }) %>
+		</select>
+	</script><?php
 }
 
 /**

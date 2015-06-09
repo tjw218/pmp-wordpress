@@ -56,6 +56,10 @@ class TestAssets extends WP_UnitTestCase {
 		pmp_save_search_query_template();
 	}
 
+	function test_pmp_async_select_template() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
 	function test_pmp_json_obj() {
 		$pmp_obj = pmp_json_obj(array('test_key' => 'test value'));
 

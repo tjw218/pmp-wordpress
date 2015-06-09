@@ -14,7 +14,29 @@ function pmp_mega_meta_box($post) {
 		pmp_subscribe_to_updates_markup($post);
 	} else {
 		pmp_last_modified_meta($post);
+
+		/*
+		 * Container elements for async select menus for Groups, Series and Property for the post
+		 */ ?>
+		 <div id="pmp-override-defaults">
+			<p>Modify the Group, Series and Property settings for this post.</p>
+			<?php foreach (array('group', 'series', 'property') as $type) { ?>
+			<div id="pmp-<?php echo $type; ?>-select-for-post" class="pmp-select-for-post">
+				<span class="spinner"></span>
+			</div>
+			<?php } ?>
+		</div><?php
+
 		pmp_publish_and_push_to_pmp_button($post);
+
+		/*
+		 * Javascript required for the async select menus for Groups, Series, Property
+		 */ ?>
+		<script type="text/javascript">
+			var PMP = <?php echo json_encode(pmp_json_obj(array('post_id' => $post->ID))); ?>;
+		</script><?php
+
+		pmp_async_select_template();
 	}
 }
 
