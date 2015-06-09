@@ -18,6 +18,12 @@ after_script:
 
 script: make test
 
+addons:
+    artifacts:
+        paths:
+            - ./tests/_output/*.*
+            - ./wptest/*.log
+
 notifications:
     slack:
         secure: c8vhEs/7VUE/7/FCeBoWyoX+va5YS8S/afnTY7Hk/gUCAqXR+W3nmEGpfz4uzxFUTwhrynimV/9eyt560Y9BrvkNYLMTeDLgB/Otx5jBkuwthd6x9wcLEEup8NPAOj2/r9G0DFadOwSM76ME+H/5ySZ8L5YDOWyJsWR+BZ/MjlY=
