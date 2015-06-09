@@ -31,7 +31,11 @@ wp-install: ensure wp-stop
 	@if [ ! -f vendor/wp-cli.phar ]; then curl -sS -o vendor/wp-cli.phar https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar; fi
 	@rm -rf wptest && mkdir wptest
 	@php vendor/wp-cli.phar core download --path=wptest --version=$(WP_VERSION)
-	@php vendor/wp-cli.phar core config --path=wptest --dbname=$(WP_TEST_DB_NAME) --dbuser=$(WP_TEST_DB_USER) --dbpass=$(WP_TEST_DB_PASS)
+	@if [ -z "$(WP_TEST_DB_PASS)" ]; then \
+		php vendor/wp-cli.phar core config --path=wptest --dbname=$(WP_TEST_DB_NAME) --dbuser=$(WP_TEST_DB_USER) ; \
+	else \
+		php vendor/wp-cli.phar core config --path=wptest --dbname=$(WP_TEST_DB_NAME) --dbuser=$(WP_TEST_DB_USER) --dbpass=$(WP_TEST_DB_PASS) ; \
+	fi
 	-@php vendor/wp-cli.phar db drop --path=wptest --yes
 	-@php vendor/wp-cli.phar db create --path=wptest
 	@php vendor/wp-cli.phar core install --path=wptest --url=http://localhost:4000 --title=PMPWPTests --admin_user=admin --admin_password=admin --admin_email=support@pmp.io
