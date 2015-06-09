@@ -162,7 +162,7 @@ function pmp_async_select_template() { ?>
 			<% _.each(options, function(option, idx) { %>
 				<option <%= option.selected %> value="<%= option.guid %>">
 					<%= option.title %>
-					<% if (option.guid == default_guid) { %>(default)<% } %>
+					<% if (default_guid && option.guid == default_guid) { %>(default)<% } %>
 				</option>
 			<% }) %>
 		</select>

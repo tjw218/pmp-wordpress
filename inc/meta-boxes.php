@@ -17,7 +17,9 @@ function pmp_mega_meta_box($post) {
 
 		/*
 		 * Container elements for async select menus for Groups, Series and Property for the post
-		 */ ?>
+		 */
+		if ($post->post_status == 'publish') {
+		?>
 		 <div id="pmp-override-defaults">
 			<p>Modify the Group, Series and Property settings for this post.</p>
 			<?php foreach (array('group', 'series', 'property') as $type) { ?>
@@ -26,6 +28,7 @@ function pmp_mega_meta_box($post) {
 			</div>
 			<?php } ?>
 		</div><?php
+		}
 
 		pmp_publish_and_push_to_pmp_button($post);
 
@@ -82,18 +85,27 @@ function pmp_subscribe_to_update_save($post_id) {
  * @since 0.3
  */
 function pmp_save_override_defaults($post_id) {
-	$types = array('group', 'series', 'property');
+	// Only update the override meta if we're actually pushing to PMP,
+	// otherwise this is meaningless and potentially confusing.
+	if (!isset($_POST['pmp_update_push']))
+		return;
 
+	$types = array('group', 'series', 'property');
 	foreach ($types as $type) {
 		$meta_key = 'pmp_' . $type . '_override';
 		$default_guid = get_option('pmp_default_' . $type, false);
 
-		if (isset($_POST[$meta_key])) {
+		if (isset($_POST[$meta_key]) && !empty($_POST[$meta_key])) {
 			$override_guid = $_POST[$meta_key];
 
-			if ($override_guid == $default_guid)
+			// If we're setting the override to the default, just delete
+			// the override meta and continue
+			if ($override_guid == $default_guid) {
+				delete_post_meta($post_id, $meta_key);
 				continue;
+			}
 
+			// Otherwise, set the override meta
 			update_post_meta($post_id, $meta_key, $override_guid);
 		}
 	}
