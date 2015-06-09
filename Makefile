@@ -49,19 +49,30 @@ wp-start:
 		echo "$$(tput setaf 2)Listening on localhost:4000$$(tput sgr0)" && rm -f wptest/server.log && rm -f wptest/server.pid; \
 		php -S localhost:4000 -t wptest > wptest/server.log 2>&1 & echo "$$!" > wptest/server.pid; \
 	fi
+	@if [ -f wptest/phantom.pid ] && ps -p $$(cat wptest/phantom.pid) > /dev/null 2>&1; then \
+		echo "$$(tput setaf 2)Phantomjs already running on 4444$$(tput sgr0)"; \
+	else \
+		echo "$$(tput setaf 2)Phantomjs running on 4444$$(tput sgr0)" && rm -f wptest/phantom.log && rm -f wptest/phantom.pid; \
+		phantomjs --webdriver=4444 --ssl-protocol=any > wptest/phantom.log 2>&1 & echo "$$!" > wptest/phantom.pid; \
+	fi
 wp-stop:
 	@if [ -f wptest/server.pid ] && ps -p $$(cat wptest/server.pid) > /dev/null 2>&1; \
 	then echo "$$(tput setaf 2)Stopping server$$(tput sgr0)" && kill `cat wptest/server.pid`; \
 	else echo "$$(tput setaf 2)Server not running$$(tput sgr0)"; \
 	fi
+	@if [ -f wptest/phantom.pid ] && ps -p $$(cat wptest/phantom.pid) > /dev/null 2>&1; \
+	then echo "$$(tput setaf 2)Stopping phantomjs$$(tput sgr0)" && kill `cat wptest/phantom.pid`; \
+	else echo "$$(tput setaf 2)Phantomjs not running$$(tput sgr0)"; \
+	fi
 	@rm -f wptest/server.pid
+	@rm -f wptest/phantom.pid
 
 # ensure we have a .env file
 ifneq ($(strip $(wildcard .env)),)
 include .env
 endif
 ensure:
-	@if [ -z "$(WP_VERSION)" ];       then MISSING="$(MISSING) WP_VERSION"; fi ; \
+	@if [ -z "$(WP_VERSION)" ];        then MISSING="$(MISSING) WP_VERSION"; fi ; \
 	 if [ -z "$(WP_TEST_DB_NAME)" ];   then MISSING="$(MISSING) WP_TEST_DB_NAME"; fi ; \
 	 if [ -z "$(WP_TEST_DB_USER)" ];   then MISSING="$(MISSING) WP_TEST_DB_USER"; fi ; \
 	 if [ -z "$(PMP_API_URL)" ];       then MISSING="$(MISSING) PMP_API_URL"; fi ; \
