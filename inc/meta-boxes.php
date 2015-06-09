@@ -67,18 +67,6 @@ function pmp_subscribe_to_update_save($post_id) {
 	$pmp_guid = get_post_meta($post_id, 'pmp_guid', true);
 
 	if (!empty($pmp_guid) && !pmp_post_is_mine($post_id)) {
-		if (!isset($_POST['pmp_mega_meta_box_nonce']))
-			return;
-
-		if (!wp_verify_nonce($_POST['pmp_mega_meta_box_nonce'], 'pmp_mega_meta_box'))
-			return;
-
-		if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)
-			return;
-
-		if (!current_user_can('edit_post', $post_id))
-			return;
-
 		if (!isset($_POST['pmp_subscribe_to_updates']))
 			$pmp_subscribe_to_updates = 'off';
 		else
@@ -87,4 +75,49 @@ function pmp_subscribe_to_update_save($post_id) {
 		update_post_meta($post_id, 'pmp_subscribe_to_updates', $pmp_subscribe_to_updates);
 	}
 }
-add_action('save_post', 'pmp_subscribe_to_update_save');
+
+/**
+ * Save the per-post settings for Group, Series, Property
+ *
+ * @since 0.3
+ */
+function pmp_save_override_defaults($post_id) {
+	$types = array('group', 'series', 'property');
+
+	foreach ($types as $type) {
+		$meta_key = 'pmp_' . $type . '_override';
+		$default_guid = get_option('pmp_default_' . $type, false);
+
+		if (isset($_POST[$meta_key])) {
+			$override_guid = $_POST[$meta_key];
+
+			if ($override_guid == $default_guid)
+				continue;
+
+			update_post_meta($post_id, $meta_key, $override_guid);
+		}
+	}
+}
+
+/**
+ * Save function for the PMP mega meta box
+ *
+ * @since 0.3
+ */
+function pmp_mega_meta_box_save($post_id) {
+	if (!isset($_POST['pmp_mega_meta_box_nonce']))
+		return;
+
+	if (!wp_verify_nonce($_POST['pmp_mega_meta_box_nonce'], 'pmp_mega_meta_box'))
+		return;
+
+	if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)
+		return;
+
+	if (!current_user_can('edit_post', $post_id))
+		return;
+
+	pmp_subscribe_to_update_save($post_id);
+	pmp_save_override_defaults($post_id);
+}
+add_action('save_post', 'pmp_mega_meta_box_save');

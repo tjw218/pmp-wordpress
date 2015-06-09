@@ -158,7 +158,7 @@ function pmp_save_search_query_template($query_data=null) { ?>
 function pmp_async_select_template() { ?>
 	<script type="text/template" id="pmp-async-select-tmpl">
 		<strong><%= type.charAt(0).toUpperCase() + type.slice(1) %></strong>
-		<select name="pmp-override-default-<%= type %>">
+		<select name="pmp_<%= type %>_override">
 			<% _.each(options, function(option, idx) { %>
 				<option <%= option.selected %> value="<%= option.guid %>">
 					<%= option.title %>

@@ -236,7 +236,7 @@ function pmp_handle_push($post_id) {
 		));
 	}
 
-	// Set default collections (series & property), permissions group
+	// Set default collections (series & property), permissions group or the appropriate override
 	$obj->links = new \StdClass();
 
 	// Set the alternate link
@@ -251,19 +251,22 @@ function pmp_handle_push($post_id) {
 	if ($post->post_type == 'post') {
 		$obj->links->collection = array();
 
-		$default_series = get_option('pmp_default_series', false);
-		if (!empty($default_series))
-			$obj->links->collection[] = (object) array('href' => $sdk->href4guid($default_series));
+		$series_override = get_post_meta($post_id, 'pmp_series_override', true);
+		$series = (empty($series_override))? get_option('pmp_default_series', false) : $series_override;
+		if (!empty($series))
+			$obj->links->collection[] = (object) array('href' => $sdk->href4guid($series));
 
-		$default_property = get_option('pmp_default_property', false);
-		if (!empty($default_property))
-			$obj->links->collection[] = (object) array('href' => $sdk->href4guid($default_property));
+		$property_override = get_post_meta($post_id, 'pmp_property_override', true);
+		$property = (empty($property_override))? get_option('pmp_default_property', false) : $property_override;
+		if (!empty($property))
+			$obj->links->collection[] = (object) array('href' => $sdk->href4guid($property));
 	}
 
 	// Build out the permissions group profile array
-	$default_group = get_option('pmp_default_group', false);
-	if (!empty($default_group))
-		$obj->links->permission[] = (object) array('href' => $sdk->href4guid($default_group));
+	$group_override = get_post_meta($post_id, 'pmp_group_override', true);
+	$group = (empty($group_override))? get_option('pmp_default_group', false) : $group_override;
+	if (!empty($group))
+		$obj->links->permission[] = (object) array('href' => $sdk->href4guid($group));
 
 	// If this is a post with a featured image, push the featured image as a PMP Doc and include
 	// it as a link in the Doc.

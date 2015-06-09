@@ -60,4 +60,12 @@ class TestMetaBoxes extends WP_UnitTestCase {
 		$meta = get_post_meta($post->ID, 'pmp_subscribe_to_updates', true);
 		$this->assertEquals('on', $meta);
 	}
+
+	function test_pmp_save_override_defaults() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	function test_pmp_mega_meta_box_save() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
 }
