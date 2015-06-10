@@ -8,9 +8,10 @@ class PmpSteps extends \AcceptanceTester
     {
         $I = $this;
         $I->amOnPage('/wp-login.php');
-        $I->fillField('Username', $username);
-        $I->fillField('Password', $password);
-        $I->click('Log In');
+        // $I->fillField('Username', $username);
+        // $I->fillField('Password', $password);
+        // $I->click('Log In');
+        $I->submitForm('#loginform', array('log' => $username, 'pwd' => $password, 'rememberme' => 'forever'));
         $I->waitForText('Dashboard');
         $I->amUsingSandbox();
     }
