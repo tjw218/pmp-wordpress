@@ -8,7 +8,15 @@ sudo: false
 env:
     - WP_VERSION=4.1.1 WP_TEST_DB_NAME=wordpress_tests WP_TEST_DB_USER=travis
 
+install:
+    - mkdir travis-phantomjs
+    - wget https://s3.amazonaws.com/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2 -O $PWD/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2
+    - tar -xvf $PWD/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2 -C $PWD/travis-phantomjs
+    - export PATH=$PWD/travis-phantomjs:$PATH
+
 before_script:
+    - php --version
+    - phantomjs --version
     - mysql -e "CREATE DATABASE wordpress_tests;" -uroot
     - make wp-install
     - make wp-start
