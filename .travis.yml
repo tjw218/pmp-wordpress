@@ -15,12 +15,11 @@ install:
     - export PATH=$PWD/travis-phantomjs:$PATH
 
 before_script:
-    - php --version
-    - phantomjs --version
     - mysql -e "CREATE DATABASE wordpress_tests;" -uroot
     - make wp-install
     - make wp-start
-    - sleep 2
+    - sleep 10
+    - curl http://localhost:4000
 
 after_script:
     - make wp-stop
