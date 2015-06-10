@@ -38,16 +38,16 @@ wp-install: ensure wp-stop
 	fi
 	-@php vendor/wp-cli.phar db drop --path=wptest --yes
 	-@php vendor/wp-cli.phar db create --path=wptest
-	@php vendor/wp-cli.phar core install --path=wptest --url=http://localhost:4000 --title=PMPWPTests --admin_user=admin --admin_password=admin --admin_email=support@pmp.io
+	@php vendor/wp-cli.phar core install --path=wptest --url=http://127.0.0.1:4000 --title=PMPWPTests --admin_user=admin --admin_password=admin --admin_email=support@pmp.io
 	@rm -f wptest/wp-content/plugins/pmp-wordpress && ln -s $$(pwd) wptest/wp-content/plugins/pmp-wordpress
 	@php vendor/wp-cli.phar plugin activate pmp-wordpress --path=wptest
 	@php vendor/wp-cli.phar option set pmp_settings '{"pmp_api_url":"$(PMP_API_URL)","pmp_client_id":"$(PMP_CLIENT_ID)","pmp_client_secret":"$(PMP_CLIENT_SECRET)"}' --format=json --path=wptest
 wp-start:
 	@if [ -f wptest/server.pid ] && ps -p $$(cat wptest/server.pid) > /dev/null 2>&1; then \
-		echo "$$(tput setaf 2)Server already running on localhost:4000$$(tput sgr0)"; \
+		echo "$$(tput setaf 2)Server already running on 127.0.0.1:4000$$(tput sgr0)"; \
 	else \
-		echo "$$(tput setaf 2)Listening on localhost:4000$$(tput sgr0)" && rm -f wptest/server.log && rm -f wptest/server.pid; \
-		php -S localhost:4000 -t wptest > wptest/server.log 2>&1 & echo "$$!" > wptest/server.pid; \
+		echo "$$(tput setaf 2)Listening on 127.0.0.1:4000$$(tput sgr0)" && rm -f wptest/server.log && rm -f wptest/server.pid; \
+		php -S 127.0.0.1:4000 -t wptest > wptest/server.log 2>&1 & echo "$$!" > wptest/server.pid; \
 	fi
 	@if [ -f wptest/phantom.pid ] && ps -p $$(cat wptest/phantom.pid) > /dev/null 2>&1; then \
 		echo "$$(tput setaf 2)Phantomjs already running on 4444$$(tput sgr0)"; \
