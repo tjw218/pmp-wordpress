@@ -18,7 +18,7 @@ before_script:
     - mysql -e "CREATE DATABASE wordpress_tests;" -uroot
     - make wp-install
     - make wp-start
-    - sleep 10
+    - sleep 5
 
 after_script:
     - make wp-stop

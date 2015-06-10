@@ -22,7 +22,7 @@ release:
 # test setup/running
 test: ensure
 	@if [ ! -f vendor/codecept.phar ]; then curl -sS -o vendor/codecept.phar https://raw.githubusercontent.com/Codeception/codeception.github.com/master/releases/2.0.14/codecept.phar; fi
-	php vendor/codecept.phar run --debug
+	php vendor/codecept.phar run --steps
 test-clean: test-ensure clean
 	rm -rf $(WP_CORE_DIR)
 
@@ -53,7 +53,7 @@ wp-start:
 		echo "$$(tput setaf 2)Phantomjs already running on 4444$$(tput sgr0)"; \
 	else \
 		echo "$$(tput setaf 2)Phantomjs running on 4444$$(tput sgr0)" && rm -f wptest/phantom.log && rm -f wptest/phantom.pid; \
-		phantomjs --webdriver=4444 --ssl-protocol=any --debug=true > wptest/phantom.log 2>&1 & echo "$$!" > wptest/phantom.pid; \
+		phantomjs --webdriver=4444 --ssl-protocol=any > wptest/phantom.log 2>&1 & echo "$$!" > wptest/phantom.pid; \
 	fi
 wp-stop:
 	@if [ -f wptest/server.pid ] && ps -p $$(cat wptest/server.pid) > /dev/null 2>&1; \
