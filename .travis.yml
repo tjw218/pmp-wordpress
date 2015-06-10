@@ -22,7 +22,9 @@ script: make test
 addons:
     artifacts:
         paths:
-            - $(git ls-files -o | grep "_output\|\.log" | tr "\n" ":")
+            - tests/_output
+            - wptest/phantom.log
+            - wptest/server.log
 
 notifications:
     slack:
