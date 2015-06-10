@@ -38,7 +38,7 @@ wp-install: ensure wp-stop
 	fi
 	-@php vendor/wp-cli.phar db drop --path=wptest --yes
 	-@php vendor/wp-cli.phar db create --path=wptest
-	@php vendor/wp-cli.phar core install --path=wptest --url=http://127.0.0.1:4000 --title=PMPWPTests --admin_user=admin --admin_password=admin --admin_email=support@pmp.io
+	@php vendor/wp-cli.phar core install --path=wptest --url=http://127.0.0.1:4000 --title=PMPWPTests --admin_user=admin --admin_password=admin --admin_email=testadmin@pmp.io
 	@rm -f wptest/wp-content/plugins/pmp-wordpress && ln -s $$(pwd) wptest/wp-content/plugins/pmp-wordpress
 	@php vendor/wp-cli.phar plugin activate pmp-wordpress --path=wptest
 	@php vendor/wp-cli.phar option set pmp_settings '{"pmp_api_url":"$(PMP_API_URL)","pmp_client_id":"$(PMP_CLIENT_ID)","pmp_client_secret":"$(PMP_CLIENT_SECRET)"}' --format=json --path=wptest
