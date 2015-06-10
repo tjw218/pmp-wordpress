@@ -19,8 +19,6 @@ before_script:
     - make wp-install
     - make wp-start
     - sleep 10
-    - php -i
-
 
 after_script:
     - make wp-stop

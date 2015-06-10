@@ -53,7 +53,7 @@ wp-start:
 		echo "$$(tput setaf 2)Phantomjs already running on 4444$$(tput sgr0)"; \
 	else \
 		echo "$$(tput setaf 2)Phantomjs running on 4444$$(tput sgr0)" && rm -f wptest/phantom.log && rm -f wptest/phantom.pid; \
-		phantomjs --webdriver=4444 --ssl-protocol=any > wptest/phantom.log 2>&1 & echo "$$!" > wptest/phantom.pid; \
+		phantomjs --webdriver=4444 --ssl-protocol=any --debug=true > wptest/phantom.log 2>&1 & echo "$$!" > wptest/phantom.pid; \
 	fi
 wp-stop:
 	@if [ -f wptest/server.pid ] && ps -p $$(cat wptest/server.pid) > /dev/null 2>&1; \
