@@ -1,7 +1,7 @@
 language: php
 
 php:
-    - '5.4'
+    - "5.5"
 
 sudo: false
 
@@ -12,6 +12,7 @@ before_script:
     - mysql -e "CREATE DATABASE wordpress_tests;" -uroot
     - make wp-install
     - make wp-start
+    - sleep 2
 
 after_script:
     - make wp-stop
@@ -19,7 +20,9 @@ after_script:
 script: make test
 
 addons:
-    artifacts: true
+    artifacts:
+        paths:
+            - $(git ls-files -o | grep "_output\|\.log" | tr "\n" ":")
 
 notifications:
     slack:
