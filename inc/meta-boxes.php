@@ -10,11 +10,11 @@ function pmp_mega_meta_box($post) {
 
 	$pmp_guid = get_post_meta($post->ID, 'pmp_guid', true);
 
+	pmp_last_modified_meta($post);
+
 	if (!empty($pmp_guid) && !pmp_post_is_mine($post->ID)) {
 		pmp_subscribe_to_updates_markup($post);
 	} else {
-		pmp_last_modified_meta($post);
-
 		/*
 		 * Container elements for async select menus for Groups, Series and Property for the post
 		 */
