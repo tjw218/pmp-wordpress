@@ -160,7 +160,7 @@ function pmp_import_for_saved_queries() {
 				// Make sure "Uncategorized" category doesn't stick around if it
 				// wasn't explicitly set as a category for the saved search import.
 				$assigned_categories = wp_get_post_categories($post_id);
-				$uncategorized = get_category_by_slug('uncategorized');
+				$uncategorized = get_category_by_slug(1);
 
 				// Check for "Uncategorized" in the already-assigned categories
 				$in_assigned_cats = array_search($uncategorized->term_id, $assigned_categories);
