@@ -275,6 +275,10 @@ class TestFunctions extends WP_UnitTestCase {
 		$this->assertTrue(empty($result));
 	}
 
+	function test_pmp_get_collection_override_value() {
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
 	function test_var_log() {
 		$this->markTestIncomplete('This test has not been implemented yet.');
 	}
