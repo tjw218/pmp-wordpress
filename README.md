@@ -31,8 +31,9 @@ Built by the [INN Nerds](http://nerds.inn.org/).
 - [Properties](#properties)
     - [Setting the default Property](#setting-the-default-property)
 - [Saved search queries](#saved-search-queries)
-    - [Automatically importing posts based on a saved search query](#automaticall-importing-posts-based-on-a-saved-search-query)
+    - [Automatically importing posts based on a saved search query](#automatically-importing-posts-based-on-a-saved-search-query)
     - [Saving a search query](#saving-a-search-query)
+        - [Auto-assign categories to imported posts](#auto-assign-categories-to-imported-posts)
     - [Viewing and editing a search query](#viewing-and-editing-a-search-query)
     - [View all saved search queries](#view-all-saved-search-queries)
 
@@ -225,13 +226,29 @@ Once your have your query configured and are ready to save, click the "Save quer
 
 A modal window will appear, asking you to specify a title for the saved search query.
 
-At this point, you will also be presented the opportunity to specify what action to take with new results for the saved search query.
+You will also be presented the opportunity to specify what action to take with new results for the saved search query.
+
+At this point, you might also like to [auto-assign categories to imported posts](#auto-assign-categories-to-imported-posts).
 
 Once you have specified a title and an action, click the "Save" button.
 
 See:
 
 ![Saved search query modal](http://assets.apps.investigativenewsnetwork.org/pmp/saved_search_query_modal.png)
+
+#### Auto-assign categories to imported posts
+
+When saving a search query, you also have the opportunity to set categories to be applied to all posts automatically imported for said query.
+
+For example, if you want to construct a search query for "Chicago marketplace" and funnel all posts found for that query to your site's "News" category, you would:
+
+1. Ensure you have a "News" category on your site by navigating to Posts > Categories in the WordPress dashboard.
+2. Navigate to Public Media Platform > Search and perform the steps to save a search query [outlined above](#saving-s-search-query).
+3. Before clicking the "Save" button to save your query, select the "News" category from the category list in the "Save the current query" dialog.
+
+See:
+
+![Saved search query select categories](http://assets.apps.investigativenewsnetwork.org/pmp/saved_search_select_categories.png)
 
 ### Viewing and editing a search query
 
