@@ -57,6 +57,9 @@ function pmp_get_profiles() {
  */
 function pmp_media_sideload_image($file, $post_id, $desc=null) {
 	if (!empty($file)) {
+		include_once ABSPATH . 'wp-admin/includes/file.php';
+		include_once ABSPATH . 'wp-admin/includes/media.php';
+
 		// Set variables for storage, fix file filename for query strings.
 		preg_match('/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', $file, $matches);
 		$file_array = array();
