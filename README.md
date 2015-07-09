@@ -243,7 +243,7 @@ When saving a search query, you also have the opportunity to set categories to b
 For example, if you want to construct a search query for "Chicago marketplace" and funnel all posts found for that query to your site's "News" category, you would:
 
 1. Ensure you have a "News" category on your site by navigating to Posts > Categories in the WordPress dashboard.
-2. Navigate to Public Media Platform > Search and perform the steps to save a search query [outlined above](#saving-s-search-query).
+2. Navigate to Public Media Platform > Search and perform the steps to save a search query [outlined above](#saving-a-search-query).
 3. Before clicking the "Save" button to save your query, select the "News" category from the category list in the "Save the current query" dialog.
 
 See:
