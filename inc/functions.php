@@ -498,7 +498,7 @@ function pmp_get_saved_search_queries() {
 function pmp_save_search_query($search_id=false, $query_data) {
 	$search_queries = get_option('pmp_saved_search_queries', array());
 
-	if (!empty($search_id))
+	if (is_numeric($search_id))
 		$search_queries[$search_id] = $query_data;
 	else
 		$search_queries[] = $query_data;
