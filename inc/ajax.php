@@ -466,16 +466,18 @@ function _pmp_select_for_post($post, $type) {
 		'title' => '--- No ' . $type . ' ---'
 	);
 
-	foreach ($pmp_things['items'] as $thing) {
-		if (!empty($override))
-			$selected = selected($override, $thing['attributes']['guid'], false);
+	if (!empty($pmp_things['items'])) {
+		foreach ($pmp_things['items'] as $thing) {
+			if (!empty($override))
+				$selected = selected($override, $thing['attributes']['guid'], false);
 
-		$option = array(
-			'selected' => (isset($selected))? $selected : '',
-			'guid' => $thing['attributes']['guid'],
-			'title' => $thing['attributes']['title']
-		);
-		$options[] = $option;
+			$option = array(
+				'selected' => (isset($selected))? $selected : '',
+				'guid' => $thing['attributes']['guid'],
+				'title' => $thing['attributes']['title']
+			);
+			$options[] = $option;
+		}
 	}
 
 	$ret['options'] = $options;
