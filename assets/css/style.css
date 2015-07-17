@@ -151,6 +151,11 @@ p.submit input {
   margin: 6px 0;
 }
 
+.pmp-search-result .pmp-date-line {
+  font-size: 12px;
+  margin: 6px 0;
+}
+
 .pmp-search-result .pmp-teaser {
   font-size: 14px;
   margin: 6px 0;
@@ -190,6 +195,10 @@ p.submit input {
 
 .pmp-result-actions ul li:last-child:after {
   content: "";
+}
+.pmp-support-link .dashicons {
+  font-size: 14px;
+  text-decoration: none;
 }
 
 @media (max-width: 665px) {

@@ -159,7 +159,8 @@ var PMP = PMP || {};
 
                 var tmpl_vars = _.extend(model.toJSON().attributes, {
                         image: image,
-                        creator: model.getCreatorAlias()
+                        creator: model.getCreatorAlias(),
+                        date: new Date(model.get('attributes').published)
                     }),
                     res = $(template(tmpl_vars));
 
