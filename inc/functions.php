@@ -390,7 +390,7 @@ function pmp_get_post_data_from_pmp_doc($pmp_doc) {
 	$post_data = array(
 		'post_title' => $data['attributes']['title'],
 		'post_content' => $data['attributes']['contentencoded'],
-		'post_excerpt' => $data['attributes']['teaser'],
+		'post_excerpt' => (isset($data['attributes']['teaser']))? $data['attributes']['teaser'] : '',
 		'post_date' => date('Y-m-d H:i:s', strtotime($data['attributes']['published']))
 	);
 

@@ -149,12 +149,12 @@ var PMP = PMP || {};
                 data: data,
                 method: 'post',
                 success: function(result) {
-                    if (result.success)
-                        window.location = result.data.edit_url;
+                    self.trigger(action + '_success');
                     return false;
                 },
                 error: function(response) {
                     alert('There was an error processing your request. Message: "' + response.responseJSON.message + '"');
+                    self.trigger(action + '_error');
                     window.location.reload(true);
                 }
             };
