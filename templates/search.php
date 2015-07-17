@@ -60,6 +60,7 @@
 				<input type="button" name="save_query" id="pmp-save-query" class="button button-large"
 					value="<?php if (isset($PMP['search'])) { ?>Edit<?php } else { ?>Save<?php } ?> query" disabled="disabled"></input>
 				<span class="spinner"></span>
+				<span class="pmp-total-results"></span>
 			</p>
 		</form>
 

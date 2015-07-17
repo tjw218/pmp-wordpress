@@ -4,6 +4,10 @@
   color: #777;
   margin: 4px 0;
 }
+.pmp-total-results {
+  position: relative;
+  top: 6px;
+}
 
 /* Basic text search */
 #pmp-search-page #pmp-search-form {

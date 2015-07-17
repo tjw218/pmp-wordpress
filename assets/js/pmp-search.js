@@ -26,9 +26,15 @@ var PMP = PMP || {};
             this.results = new ResultsList({ collection: this.docs });
             this.docs.on('reset', this.onReset.bind(this));
             this.docs.on('error', this.onError.bind(this));
+            this.docs.attributes.on('change', this.updateTotal.bind(this));
 
             if (options && typeof options.search !== 'undefined')
                 this.initSavedSearch(options);
+        },
+
+        updateTotal: function() {
+            this.$el.find('.pmp-total-results').html(
+                'Total results: ' + this.docs.attributes.get('total'));
         },
 
         initSavedSearch: function(options) {
