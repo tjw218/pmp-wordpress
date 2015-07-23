@@ -35,7 +35,8 @@ function pmp_init() {
 		'inc/assets.php',
 		'inc/ajax.php',
 		'inc/cron.php',
-		'inc/meta-boxes.php'
+		'inc/meta-boxes.php',
+		'inc/notifications.php'
 	);
 
 	foreach ($includes as $include)

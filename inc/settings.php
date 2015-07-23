@@ -99,6 +99,16 @@ function pmp_settings_validate($input) {
 		$errors = true;
 	}
 
+	if (!empty($input['pmp_use_api_notifications'])) {
+		$result = pmp_send_subscription_request('subscribe');
+		if (!$result)
+			$errors = true;
+	} else {
+		$result = pmp_send_subscription_request('unsubscribe');
+		if (!$result)
+			$errors = true;
+	}
+
 	if (empty($errors))
 		pmp_update_my_guid_transient();
 
