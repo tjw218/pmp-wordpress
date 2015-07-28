@@ -99,11 +99,11 @@ function pmp_settings_validate($input) {
 		$errors = true;
 	}
 
-	if (!empty($input['pmp_use_api_notifications'])) {
+	if (!empty($input['pmp_use_api_notifications']) && !isset($options['pmp_use_api_notifications'])) {
 		$result = pmp_send_subscription_request('subscribe');
 		if (!$result)
 			$errors = true;
-	} else {
+	} else if (empty($input['pmp_use_api_notifications']) && isset($options['pmp_use_api_notifications'])) {
 		$result = pmp_send_subscription_request('unsubscribe');
 		if (!$result)
 			$errors = true;

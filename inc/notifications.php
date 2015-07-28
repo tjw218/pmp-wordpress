@@ -1,9 +1,6 @@
 <?php
 
-// TODO: fix these
-define('PMP_NOTIFICATIONS_VERIFY_TOKEN', 'testverifytoken');
-define('PMP_NOTIFICATIONS_SECRET', 'testsecret');
-
+define('PMP_NOTIFICATIONS_SECRET', crypt(get_bloginfo('url'), wp_salt('auth')));
 define('PMP_NOTIFICATIONS_HUB', 'notifications');
 define('PMP_NOTIFICATIONS_TOPIC', 'topics/updated');
 
@@ -61,6 +58,9 @@ function pmp_send_subscription_request($mode='subscribe', $hub=false) {
 		$settings['pmp_client_secret']
 	);
 
+	$verify_token = hash('sha256', REQUEST_TIME);
+	set_transient('pmp_verify_token', $verify_token, HOUR_IN_SECONDS);
+
 	$ret = wp_remote_post($hub, array(
 		'method' => 'POST',
 		'headers' => array(
@@ -72,7 +72,7 @@ function pmp_send_subscription_request($mode='subscribe', $hub=false) {
 			'hub.topic' => $hub . '/' . PMP_NOTIFICATIONS_TOPIC,
 			'hub.verify' => 'sync',
 			'hub.secret' => PMP_NOTIFICATIONS_SECRET,
-			'hub.verify_token' => PMP_NOTIFICATIONS_VERIFY_TOKEN
+			'hub.verify_token' => $verify_token
 		)
 	));
 
@@ -104,7 +104,9 @@ function pmp_subscription_verification($data) {
 		PMP_NOTIFICATIONS_TOPIC
 	));
 
-	if ($data['hub_verify_token'] == PMP_NOTIFICATIONS_VERIFY_TOKEN &&
+	$verify_token = get_transient('pmp_verify_token');
+
+	if ($data['hub_verify_token'] == $verify_token &&
 		$data['hub_topic'] == $topic_url &&
 		$data['hub_mode'] == $mode)
 	{
@@ -117,4 +119,37 @@ function pmp_subscription_verification($data) {
  *
  * @since 0.3
  */
-function pmp_do_notification_callback() {}
+function pmp_do_notification_callback() {
+	global $wpdb;
+
+	$sdk = new SDKWrapper();
+	$headers = getallheaders();
+	$body = file_get_contents('php://input');
+	$hash = hash_hmac('sha1', $body, PMP_NOTIFICATIONS_SECRET);
+
+	$pmp_post_data = $wpdb->get_results("
+		select meta_value as pmp_guid, post_id
+		from $wpdb->postmeta where meta_key = 'pmp_guid'");
+	$pmp_guids = array_map(function($x) { return $x->pmp_guid; }, $pmp_post_data);
+
+	if ($headers['X-Hub-Signature'] == $hash) {
+		$xml = simplexml_load_string($body);
+
+		foreach ($xml->channel->item as $item) {
+			$item_json = json_decode(json_encode($item));
+			if ($idx = array_search($item_json->guid, $pmp_guids)) {
+				$post = get_post($pmp_post_data[$idx]->post_id);
+				// TODO: Fetching the doc seems silly if the RSS item actually
+				// has all the appropriate data. However, the notifications docs
+				// don't detail what information is sent over the wire, so
+				// we can't make that assumption.
+				$doc = $sdk->fetchDoc($pmp_post_data[$idx]->pmp_guid);
+				if (!empty($doc)) {
+					if (pmp_needs_update($post, $doc))
+						pmp_update_post($post, $doc);
+				} else
+					wp_delete_post($post->ID, true);
+			}
+		}
+	}
+}
