@@ -46,11 +46,11 @@ add_action('template_redirect', 'pmp_notifications_template_redirect');
  * @param $mode string either 'subscribe' or 'unsubscribe'
  * @since 0.3
  */
-function pmp_send_subscription_request($mode='subscribe', $hub=false) {
+function pmp_send_subscription_request($mode='subscribe') {
 	$settings = get_option('pmp_settings');
-
-	if (empty($hub))
-		$hub = rtrim($settings['pmp_api_url'], '/') . '/' . PMP_NOTIFICATIONS_HUB;
+	$trimmed = rtrim($settings['pmp_api_url'], '/');
+	$hub_url =  $trimmed . '/' . PMP_NOTIFICATIONS_HUB;
+	$hub_post_url = str_replace('api', 'publish', $trimmed) . '/' . PMP_NOTIFICATIONS_HUB;
 
 	$sdk = new \Pmp\Sdk(
 		$settings['pmp_api_url'],
@@ -61,7 +61,7 @@ function pmp_send_subscription_request($mode='subscribe', $hub=false) {
 	$verify_token = hash('sha256', REQUEST_TIME);
 	set_transient('pmp_verify_token', $verify_token, HOUR_IN_SECONDS);
 
-	$ret = wp_remote_post($hub, array(
+	$ret = wp_remote_post($hub_post_url, array(
 		'method' => 'POST',
 		'headers' => array(
 			'Authorization' => 'Bearer ' . $sdk->home->getAccessToken()
@@ -69,7 +69,7 @@ function pmp_send_subscription_request($mode='subscribe', $hub=false) {
 		'body' => array(
 			'hub.callback' => get_bloginfo('url') . '/?pmp-notifications',
 			'hub.mode' => $mode,
-			'hub.topic' => $hub . '/' . PMP_NOTIFICATIONS_TOPIC,
+			'hub.topic' => $hub_url . '/' . PMP_NOTIFICATIONS_TOPIC,
 			'hub.verify' => 'sync',
 			'hub.secret' => PMP_NOTIFICATIONS_SECRET,
 			'hub.verify_token' => $verify_token
