@@ -102,10 +102,10 @@ function pmp_subscription_verification($data) {
 
 	$settings = get_option('pmp_settings');
 
-	if (isset($settings['pmp_use_api_notifications']) && $settings['pmp_use_api_notifications'] == 'off')
-		$mode = 'subscribe';
-	else
+	if (isset($settings['pmp_use_api_notifications']) && $settings['pmp_use_api_notifications'] == 'on')
 		$mode = 'unsubscribe';
+	else
+		$mode = 'subscribe';
 
 	$topic_url = implode('/', array(
 		rtrim($settings['pmp_api_url'], '/'),
