@@ -101,12 +101,16 @@ function pmp_settings_validate($input) {
 
 	if (!empty($input['pmp_use_api_notifications']) && !isset($options['pmp_use_api_notifications'])) {
 		$result = pmp_send_subscription_request('subscribe');
-		if (!$result)
+		if ($result !== true) {
+			add_settings_error('pmp_settings_fields', 'pmp_notifications_subscribe_error', $result, 'error');
 			$errors = true;
+		}
 	} else if (empty($input['pmp_use_api_notifications']) && isset($options['pmp_use_api_notifications'])) {
 		$result = pmp_send_subscription_request('unsubscribe');
-		if (!$result)
+		if ($result !== true) {
+			add_settings_error('pmp_settings_fields', 'pmp_notifications_unsubscribe_error', $result, 'error');
 			$errors = true;
+		}
 	}
 
 	if (empty($errors))

@@ -44,6 +44,7 @@ add_action('template_redirect', 'pmp_notifications_template_redirect');
  * request to the PMP notifications server.
  *
  * @param $mode string either 'subscribe' or 'unsubscribe'
+ * @return boolean|string true on success, or a string error message
  * @since 0.3
  */
 function pmp_send_subscription_request($mode='subscribe') {
@@ -76,10 +77,18 @@ function pmp_send_subscription_request($mode='subscribe') {
 		)
 	));
 
-	if ($ret['response']['code'] == 204)
+	if ($ret['response']['code'] == 204) {
 		return true;
-	else
-		return false;
+	}
+	else if (!empty($ret['body'])) {
+		return $ret['body'];
+	}
+	else if (!empty($ret['response']['message'])) {
+		return $ret['response']['message'];
+	}
+	else {
+		return 'Unknown error - unable to update PMP notifications settings';
+	}
 }
 
 /**
