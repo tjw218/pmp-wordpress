@@ -28,9 +28,14 @@ function pmp_search_page() {
 
 	if (isset($_GET['search_id'])) {
 		$query_data = pmp_get_saved_search_query($_GET['search_id']);
-		$context['PMP'] = pmp_json_obj(array('search' => $query_data));
+		$context['PMP'] = pmp_json_obj(array(
+			'search' => $query_data,
+			'support_link_base' => pmp_get_support_link_base()
+		));
 	} else
-		$context['PMP'] = pmp_json_obj();
+		$context['PMP'] = pmp_json_obj(array(
+			'support_link_base' => pmp_get_support_link_base()
+		));
 
 	pmp_render_template('search.php', $context);
 }

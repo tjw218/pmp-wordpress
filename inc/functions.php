@@ -134,27 +134,44 @@ function pmp_last_modified_meta($post) {
 	$pmp_mod = get_post_meta($post->ID, 'pmp_modified', true);
 	if (empty($pmp_guid)) return;
 
-	// Link to the PMP support searcher (for now)
-	$options = get_option('pmp_settings');
-	if ($options && $options['pmp_api_url'] && strpos($options['pmp_api_url'], 'sandbox')) {
-		$pmp_link = 'https://support.pmp.io/sandboxsearch?text=guid%3A' . $pmp_guid;
-	}
-	else {
-		$pmp_link = 'https://support.pmp.io/search?text=guid%3A' . $pmp_guid;
-	}
-
 	// Format similar to WP's published date
 	$pmp_local = get_date_from_gmt(date('Y-m-d H:i:s', strtotime($pmp_mod)), 'M n, Y @ G:i');
 ?>
   <div id="pmp-publish-meta">
 		<div class="misc-pub-section curtime">
-			<span id="timestamp">PMP guid: <b><a target="_blank" href="<?php echo $pmp_link; ?>"><?php echo substr($pmp_guid, 0, 8); ?><span class="ext-link dashicons dashicons-external"></span></a></b></span>
+			<span id="timestamp">PMP guid: <b><a target="_blank"
+				href="<?php echo pmp_get_support_link($pmp_guid); ?>"><?php echo substr($pmp_guid, 0, 8); ?><span class="ext-link dashicons dashicons-external"></span></a></b></span>
 		</div>
 		<div class="misc-pub-section curtime">
 			<span id="timestamp">PMP modified: <b><?php echo $pmp_local; ?></b></span>
 		</div>
 	</div>
 <?php
+}
+
+/**
+ * Get the base url for linking to the PMP support site
+ *
+ * @since 0.3
+ */
+function pmp_get_support_link_base() {
+	$options = get_option('pmp_settings');
+	if ($options && $options['pmp_api_url'] && strpos($options['pmp_api_url'], 'sandbox')) {
+		$pmp_link = 'https://support.pmp.io/sandboxsearch?text=guid%3A';
+	}
+	else {
+		$pmp_link = 'https://support.pmp.io/search?text=guid%3A';
+	}
+	return $pmp_link;
+}
+
+/**
+ * Get the support site url for a guid
+ *
+ * @since 0.3
+ */
+function pmp_get_support_link($guid) {
+	return pmp_get_support_link_base() . $guid;
 }
 
 /**

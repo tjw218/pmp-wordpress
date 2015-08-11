@@ -219,11 +219,11 @@ var PMP = PMP || {};
     // Views
     PMP.BaseView = Backbone.View.extend({
         showSpinner: function() {
-            this.$el.find('.spinner').css('display', 'inline-block');
+            this.$el.find('.spinner').css({display: 'inline-block', visibility: 'visible'});
         },
 
         hideSpinner: function() {
-            this.$el.find('.spinner').css('display', 'none');
+            this.$el.find('.spinner').css({display: 'none', visibility: 'hidden'});
         }
     });
 

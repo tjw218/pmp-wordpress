@@ -60,6 +60,7 @@
 				<input type="button" name="save_query" id="pmp-save-query" class="button button-large"
 					value="<?php if (isset($PMP['search'])) { ?>Edit<?php } else { ?>Save<?php } ?> query" disabled="disabled"></input>
 				<span class="spinner"></span>
+				<span class="pmp-total-results"></span>
 			</p>
 		</form>
 
@@ -75,9 +76,13 @@
 	<div class="pmp-search-result">
 		<h3 class="pmp-title"><%= title %></h3>
 		<div class="pmp-result-details">
+			<div class="pmp-date-line">
+				<span class="pmp-date">Published <%= date.toLocaleDateString() %> at <%= date.toLocaleTimeString() %></span>
+			</div>
 			<div class="pmp-byline">
 				<% if (typeof byline != 'undefined' && byline != '') { %>By <%= byline %> | <% } %>
-				<span class="pmp-creator"><%= creator %></span>
+				<span class="pmp-creator"><%= creator %></span> |
+				<span><a class="pmp-support-link" target="_blank" title="View this document on the PMP support site" href="<%= PMP.support_link_base %><%= guid %>"><%= guid.substr(0, 8) %><span class="ext-link dashicons dashicons-external"></span></a></span>
 			</div>
 			<% if (typeof teaser != 'undefined') { %>
 				<div class="pmp-teaser">
