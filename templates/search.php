@@ -82,7 +82,7 @@
 			<div class="pmp-byline">
 				<% if (typeof byline != 'undefined' && byline != '') { %>By <%= byline %> | <% } %>
 				<span class="pmp-creator"><%= creator %></span> |
-				<span><a class="pmp-support-link" title="View this document on the PMP support site" href="<%= PMP.support_link_base %><%= guid %>"><%= guid.substr(0, 8) %><span class="ext-link dashicons dashicons-external"></span></a></span>
+				<span><a class="pmp-support-link" target="_blank" title="View this document on the PMP support site" href="<%= PMP.support_link_base %><%= guid %>"><%= guid.substr(0, 8) %><span class="ext-link dashicons dashicons-external"></span></a></span>
 			</div>
 			<% if (typeof teaser != 'undefined') { %>
 				<div class="pmp-teaser">
