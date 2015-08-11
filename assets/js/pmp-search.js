@@ -265,6 +265,7 @@ var PMP = PMP || {};
     });
 
     var ResultActions = Backbone.View.extend({
+
         events: {
             "click a.pmp-draft-action": "draft",
             "click a.pmp-publish-action": "publish"
@@ -276,6 +277,11 @@ var PMP = PMP || {};
                     content: '<p>Are you sure you want to create a draft of this story?</p>',
                     actions: {
                         'Yes': function() {
+                            self.model.on('pmp_draft_post_success', function() {
+                                PMP.instances.search_form.submit();
+                                self.model.collection.on('reset', self.modal.close.bind(self.modal));
+                                self.model.off('pmp_draft_post_success');
+                            });
                             self.modal.showSpinner();
                             self.model.draft();
                             return false;
@@ -295,6 +301,11 @@ var PMP = PMP || {};
                     content: '<p>Are you sure you want to publish this story?</p>',
                     actions: {
                         'Yes': function() {
+                            self.model.on('pmp_publish_post_success', function() {
+                                PMP.instances.search_form.submit();
+                                self.model.collection.on('reset', self.modal.close.bind(self.modal));
+                                self.model.off('pmp_publish_post_success');
+                            });
                             self.modal.showSpinner();
                             self.model.publish();
                             return false;
