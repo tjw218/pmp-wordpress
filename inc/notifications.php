@@ -2,7 +2,8 @@
 
 define('PMP_NOTIFICATIONS_SECRET', crypt(get_bloginfo('url'), wp_salt('auth')));
 define('PMP_NOTIFICATIONS_HUB', 'notifications');
-define('PMP_NOTIFICATIONS_TOPIC', 'topics/updated');
+define('PMP_NOTIFICATIONS_TOPIC_UPDATED', 'topics/updated');
+define('PMP_NOTIFICATIONS_TOPIC_DELETED', 'topics/deleted');
 
 /**
  * Add '?pmp-notifications' as a valid query var
@@ -47,35 +48,8 @@ add_action('template_redirect', 'pmp_notifications_template_redirect');
  * @return boolean|string true on success, or a string error message
  * @since 0.3
  */
-function pmp_send_subscription_request($mode='subscribe') {
-	$settings = get_option('pmp_settings');
-	$trimmed = rtrim($settings['pmp_api_url'], '/');
-	$hub_url =  $trimmed . '/' . PMP_NOTIFICATIONS_HUB;
-	$hub_post_url = str_replace('api', 'publish', $trimmed) . '/' . PMP_NOTIFICATIONS_HUB;
-
-	$sdk = new \Pmp\Sdk(
-		$settings['pmp_api_url'],
-		$settings['pmp_client_id'],
-		$settings['pmp_client_secret']
-	);
-
-	$verify_token = hash('sha256', REQUEST_TIME);
-	set_transient('pmp_verify_token', $verify_token, HOUR_IN_SECONDS);
-
-	$ret = wp_remote_post($hub_post_url, array(
-		'method' => 'POST',
-		'headers' => array(
-			'Authorization' => 'Bearer ' . $sdk->home->getAccessToken()
-		),
-		'body' => array(
-			'hub.callback' => get_bloginfo('url') . '/?pmp-notifications',
-			'hub.mode' => $mode,
-			'hub.topic' => $hub_url . '/' . PMP_NOTIFICATIONS_TOPIC,
-			'hub.verify' => 'sync',
-			'hub.secret' => PMP_NOTIFICATIONS_SECRET,
-			'hub.verify_token' => $verify_token
-		)
-	));
+function pmp_send_subscription_request($mode='subscribe', $topic_url) {
+	$ret = pmp_post_subscription_data($mode, $topic_url);
 
 	if ($ret['response']['code'] == 204) {
 		return true;
@@ -89,6 +63,63 @@ function pmp_send_subscription_request($mode='subscribe') {
 	else {
 		return 'Unknown error - unable to update PMP notifications settings';
 	}
+}
+
+/**
+ * Handle sending the actual subscription data to the hub
+ *
+ * @since 0.3
+ */
+function pmp_post_subscription_data($mode, $topic_url) {
+	$settings = get_option('pmp_settings');
+	$trimmed = rtrim($settings['pmp_api_url'], '/');
+	$hub_url =  $trimmed . '/' . PMP_NOTIFICATIONS_HUB;
+	$hub_post_url = str_replace('api', 'publish', $trimmed) . '/' . PMP_NOTIFICATIONS_HUB;
+
+	$sdk = new \Pmp\Sdk(
+		$settings['pmp_api_url'],
+		$settings['pmp_client_id'],
+		$settings['pmp_client_secret']
+	);
+
+	$verify_token = pmp_store_verification_token($topic_url);
+
+	$ret = wp_remote_post($hub_post_url, array(
+		'method' => 'POST',
+		'headers' => array(
+			'Authorization' => 'Bearer ' . $sdk->home->getAccessToken()
+		),
+		'body' => array(
+			'hub.callback' => get_bloginfo('url') . '/?pmp-notifications',
+			'hub.mode' => $mode,
+			'hub.topic' => $topic_url,
+			'hub.verify' => 'sync',
+			'hub.secret' => PMP_NOTIFICATIONS_SECRET,
+			'hub.verify_token' => $verify_token
+		)
+	));
+
+	return $ret;
+}
+
+/**
+ * Store a verification token for a topic
+ *
+ * @since 0.3
+ */
+function pmp_store_verification_token($topic) {
+	$verify_token = hash('sha256', REQUEST_TIME);
+	set_transient('pmp_verify_token_' . hash('sha256', $topic), $verify_token, HOUR_IN_SECONDS);
+	return $verify_token;
+}
+
+/**
+ * Retrieve the verification token for a topic
+ *
+ * @since 0.3
+ */
+function pmp_get_verification_token($topic) {
+	return get_transient('pmp_verify_token_' . hash('sha256', $topic));
 }
 
 /**
@@ -107,20 +138,37 @@ function pmp_subscription_verification($data) {
 	else
 		$mode = 'subscribe';
 
-	$topic_url = implode('/', array(
-		rtrim($settings['pmp_api_url'], '/'),
-		PMP_NOTIFICATIONS_HUB,
-		PMP_NOTIFICATIONS_TOPIC
-	));
-
-	$verify_token = get_transient('pmp_verify_token');
+	$topic_urls = pmp_get_topic_urls();
+	$verify_token = pmp_get_verification_token($data['hub_topic']);
 
 	if ($data['hub_verify_token'] == $verify_token &&
-		$data['hub_topic'] == $topic_url &&
+		in_array($data['hub_topic'], $topic_urls) &&
 		$data['hub_mode'] == $mode)
 	{
 		echo $data['hub_challenge'];
 	}
+}
+
+/**
+ * Get the array of topic urls for "updated" and "deleted" documents
+ *
+ * @since 0.3
+ */
+function pmp_get_topic_urls() {
+	$settings = get_option('pmp_settings');
+
+	return array(
+		implode('/', array(
+			rtrim($settings['pmp_api_url'], '/'),
+			PMP_NOTIFICATIONS_HUB,
+			PMP_NOTIFICATIONS_TOPIC_UPDATED
+		)),
+		implode('/', array(
+			rtrim($settings['pmp_api_url'], '/'),
+			PMP_NOTIFICATIONS_HUB,
+			PMP_NOTIFICATIONS_TOPIC_DELETED
+		))
+	);
 }
 
 /**
