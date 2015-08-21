@@ -180,7 +180,6 @@ function pmp_do_notification_callback() {
 	global $wpdb;
 
 	$sdk = new SDKWrapper();
-	$headers = getallheaders();
 	$body = file_get_contents('php://input');
 	$hash = hash_hmac('sha1', $body, PMP_NOTIFICATIONS_SECRET);
 
@@ -189,7 +188,7 @@ function pmp_do_notification_callback() {
 		from $wpdb->postmeta where meta_key = 'pmp_guid'");
 	$pmp_guids = array_map(function($x) { return $x->pmp_guid; }, $pmp_post_data);
 
-	if ($headers['X-Hub-Signature'] == "sha1=$hash") {
+	if ($_SERVER['HTTP_X_HUB_SIGNATURE'] == "sha1=$hash") {
 		$xml = simplexml_load_string($body);
 
 		foreach ($xml->channel->item as $item) {
