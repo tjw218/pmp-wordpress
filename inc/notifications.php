@@ -195,6 +195,17 @@ function pmp_do_notification_callback() {
 			$item_json = json_decode(json_encode($item));
 			if ($idx = array_search($item_json->guid, $pmp_guids)) {
 				$post = get_post($pmp_post_data[$idx]->post_id);
+
+				// Honor the subscription setting for posts
+				$subscribed = get_post_meta(
+					$pmp_post_data[$idx]->post_id, 'pmp_subscribe_to_updates', true);
+
+				if (empty($subscribed))
+					$subscribed = 'on';
+
+				if ($subscribed !== 'on')
+					continue;
+
 				// TODO: Fetching the doc seems silly if the RSS item actually
 				// has all the appropriate data. However, the notifications docs
 				// don't detail what information is sent over the wire, so
