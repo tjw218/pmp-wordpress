@@ -8,37 +8,57 @@ class TestSettings extends WP_UnitTestCase {
 		$this->assertTrue(isset($new_whitelist_options['pmp_settings_fields']));
 
 		global $wp_settings_sections;
-		$section = array(
-			'id' => 'pmp_main',
-			'title' => null,
-			'callback' => null
+		$sections = array(
+			'pmp_main' => array(
+				'id' => 'pmp_main',
+				'title' => 'API Credentials',
+				'callback' => null
+			),
+			'pmp_cron' => array(
+				'id' => 'pmp_cron',
+				'title' => 'Misc. options',
+				'callback' => null
+			)
 		);
-		$this->assertTrue($wp_settings_sections['pmp_settings']['pmp_main'] == $section);
+		$this->assertTrue($wp_settings_sections['pmp_settings'] == $sections);
 
 		global $wp_settings_fields;
 		$fields = array(
-			array(
-				'id' => 'pmp_api_url',
-				'title' => 'API URL',
-				'callback' => 'pmp_api_url_input',
-				'args' => null
+			'pmp_main' => array(
+				array(
+					'id' => 'pmp_api_url',
+					'title' => 'API URL',
+					'callback' => 'pmp_api_url_input',
+					'args' => null
+				),
+				array(
+					'id' => 'pmp_client_id',
+					'title' => 'Client ID',
+					'callback' => 'pmp_client_id_input',
+					'args' => null
+				),
+				array(
+					'id' => 'pmp_client_secret',
+					'title' => 'Client Secret',
+					'callback' => 'pmp_client_secret_input',
+					'args' => null
+				)
 			),
-			array(
-				'id' => 'pmp_client_id',
-				'title' => 'Client ID',
-				'callback' => 'pmp_client_id_input',
-				'args' => null
-			),
-			array(
-				'id' => 'pmp_client_secret',
-				'title' => 'Client Secret',
-				'callback' => 'pmp_client_secret_input',
-				'args' => null
+			'pmp_cron' => array(
+				array(
+					'id' => 'pmp_use_api_notifications',
+					'title' => 'Allow PMP API to send content updates?',
+					'callback' => 'pmp_use_api_notifications_input',
+					'args' => null
+				)
 			)
 		);
 
-		foreach ($fields as $field) {
-			$this->assertTrue($wp_settings_fields['pmp_settings']['pmp_main'][$field['id']] == $field);
+		foreach (array_keys($sections) as $section_id) {
+			$section_fields = $fields[$section_id];
+			foreach ($section_fields as $field) {
+				$this->assertTrue($wp_settings_fields['pmp_settings'][$section_id][$field['id']] == $field);
+			}
 		}
 	}
 

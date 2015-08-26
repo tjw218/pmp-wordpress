@@ -8,13 +8,36 @@
 function pmp_admin_init(){
 	register_setting('pmp_settings_fields', 'pmp_settings', 'pmp_settings_validate');
 
-	add_settings_section('pmp_main', null, null, 'pmp_settings');
+	add_settings_section('pmp_main', 'API Credentials', null, 'pmp_settings');
 
 	add_settings_field('pmp_api_url', 'API URL', 'pmp_api_url_input', 'pmp_settings', 'pmp_main');
 	add_settings_field('pmp_client_id', 'Client ID', 'pmp_client_id_input', 'pmp_settings', 'pmp_main');
 	add_settings_field('pmp_client_secret', 'Client Secret', 'pmp_client_secret_input', 'pmp_settings', 'pmp_main');
+
+	add_settings_section('pmp_cron', 'Misc. options', null, 'pmp_settings');
+
+	add_settings_field(
+		'pmp_use_api_notifications', 'Allow PMP API to send content updates?',
+		'pmp_use_api_notifications_input', 'pmp_settings', 'pmp_cron');
 }
 add_action('admin_init', 'pmp_admin_init');
+
+/**
+ * Input field for PMP API notifications on/off
+ *
+ * @since 0.3
+ */
+function pmp_use_api_notifications_input() {
+	$options = get_option('pmp_settings');
+	$setting = (isset($options['pmp_use_api_notifications']))? $options['pmp_use_api_notifications'] : false;
+	?>
+		<input id="pmp_use_api_notifications" type="checkbox"
+			name="pmp_settings[pmp_use_api_notifications]"
+			<?php echo checked($setting, 'on'); ?>>Enable</input>
+	<p><em>Enabling this option allows the PMP API to push to your site as new story, audio, image, etc. updates become available.<em></p>
+	<p><em>This may help improve performance of your site, especially if you have a large number of imported posts.</em></p>
+<?php
+}
 
 /**
  * Input field for PMP API URL
@@ -74,6 +97,24 @@ function pmp_settings_validate($input) {
 	} else {
 		add_settings_error('pmp_settings_fields', 'pmp_settings_updated', 'PMP settings successfully updated!', 'updated');
 		$errors = true;
+	}
+
+	if (!empty($input['pmp_use_api_notifications']) && !isset($options['pmp_use_api_notifications'])) {
+		foreach (pmp_get_topic_urls() as $topic_url) {
+			$result = pmp_send_subscription_request('subscribe', $topic_url);
+			if ($result !== true) {
+				add_settings_error('pmp_settings_fields', 'pmp_notifications_subscribe_error', $result, 'error');
+				$errors = true;
+			}
+		}
+	} else if (empty($input['pmp_use_api_notifications']) && isset($options['pmp_use_api_notifications'])) {
+		foreach (pmp_get_topic_urls() as $topic_url) {
+			$result = pmp_send_subscription_request('unsubscribe', $topic_url);
+			if ($result !== true) {
+				add_settings_error('pmp_settings_fields', 'pmp_notifications_unsubscribe_error', $result, 'error');
+				$errors = true;
+			}
+		}
 	}
 
 	if (empty($errors))
