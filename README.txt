@@ -54,6 +54,12 @@ See the [documentation on Github](https://github.com/publicmediaplatform/pmp-wor
 
 == Changelog ==
 
+= 0.2.7 =
+
+- Query interface enhancements
+- Stay on search page when pulling content
+- Ability to use PMP push-notifications
+
 = 0.2.6 =
 
 - Fix a bug causing duplicate saved-searches
