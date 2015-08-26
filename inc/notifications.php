@@ -109,7 +109,7 @@ function pmp_post_subscription_data($mode, $topic_url) {
  */
 function pmp_store_verification_token($topic) {
 	$verify_token = hash('sha256', REQUEST_TIME);
-	set_transient('pmp_verify_token_' . hash('sha256', $topic), $verify_token, HOUR_IN_SECONDS);
+	set_transient(pmp_get_verify_key($topic), $verify_token, HOUR_IN_SECONDS);
 	return $verify_token;
 }
 
@@ -119,7 +119,16 @@ function pmp_store_verification_token($topic) {
  * @since 0.3
  */
 function pmp_get_verification_token($topic) {
-	return get_transient('pmp_verify_token_' . hash('sha256', $topic));
+	return get_transient(pmp_get_verify_key($topic));
+}
+
+/**
+ * Get the transient key for a topic (must be 40 characters or less)
+ *
+ * @since 0.3
+ */
+function pmp_get_verify_key($topic) {
+	return substr('pmp_verify_token_' . hash('sha256', $topic), 0, 40);
 }
 
 /**
