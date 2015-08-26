@@ -2,7 +2,7 @@
 Contributors: publicmediaplatform
 Tags: pmp,pubmedia,publicmediaplatform,apm,npr,pri,prx,pbs,media,news
 Requires at least: 3.9
-Tested up to: 4.2.2
+Tested up to: 4.3
 Stable tag: 0.2.6
 License: MIT
 License URI: https://github.com/publicmediaplatform/pmp-wordpress/blob/master/LICENSE
