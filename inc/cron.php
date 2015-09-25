@@ -9,23 +9,45 @@ function pmp_get_pmp_posts() {
 	$sdk = new SDKWrapper();
 	$me = $sdk->fetchUser('me');
 
-	$meta_args = array(
-		'relation' => 'AND',
-		array(
+	$query = new WP_Query(array(
+		'meta_query' => array(
+			'relation' => 'AND',
+			array(
+				'key' => 'pmp_guid',
+				'compare' => 'EXISTS'
+			),
+			array(
+				'key' => 'pmp_owner',
+				'compare' => '!=',
+				'value' => pmp_get_my_guid()
+			)
+		),
+		'posts_per_page' => -1,
+		'post_type' => 'any',
+		'post_status' => 'any',
+		'post_parent' => 0, // only top-level entries
+	));
+
+	return $query->posts;
+}
+
+/**
+ * Query for Post-attachments originating from PMP media
+ *
+ * @since 0.3
+ */
+function pmp_get_pmp_attachments($parent_id) {
+	if (!$parent_id || $parent_id < 1) return array();
+
+	$query = new WP_Query(array(
+		'meta_query' => array(
 			'key' => 'pmp_guid',
 			'compare' => 'EXISTS'
 		),
-		array(
-			'key' => 'pmp_owner',
-			'compare' => '!=',
-			'value' => pmp_get_my_guid()
-		)
-	);
-
-	$query = new WP_Query(array(
-		'meta_query' => $meta_args,
 		'posts_per_page' => -1,
-		'post_status' => 'any'
+		'post_type' => 'attachment',
+		'post_status' => 'any',
+		'post_parent' => $parent_id,
 	));
 
 	return $query->posts;
@@ -38,6 +60,7 @@ function pmp_get_pmp_posts() {
  * @since 0.1
  */
 function pmp_get_updates() {
+	pmp_debug('========== pmp_get_updates ==========');
 	$posts = pmp_get_pmp_posts();
 
 	$sdk = new SDKWrapper();
@@ -66,38 +89,152 @@ function pmp_get_updates() {
 }
 
 /**
- * Compare the md5 hash of a WP post and PMP Doc to determine whether or not the WP post is different
- * from PMP and therefore needs updating.
+ * Compare the timestamps of a Wordpress post to it's upstream PMP doc,
+ * including any child-items that may have changed.
  *
  * @since 0.1
  */
 function pmp_needs_update($wp_post, $pmp_doc) {
-	$post_modified = get_post_meta($wp_post->ID, 'pmp_modified', true);
-	if ($pmp_doc->attributes->modified !== $post_modified)
+	$log_ident = "wp_post[{$wp_post->ID}] pmp[{$pmp_doc->attributes->guid}]";
+
+	// pull metadata (and turn meta-arrays into single values)
+	$pmp_modified = get_post_meta($wp_post->ID, 'pmp_modified', true);
+	$pmp_audio = get_post_meta($wp_post->ID, 'pmp_audio', true);
+	if (!$pmp_modified) {
+		pmp_debug("-- updating $log_ident due to missing meta-field 'pmp_modified'");
 		return true;
+	}
+	if (!$pmp_audio) {
+		pmp_debug("-- updating $log_ident due to missing meta-field 'pmp_audio'");
+		return true;
+	}
+
+	// map the child-item modified dates
+	$guid_to_modified = array();
+	foreach ($pmp_doc->items() as $item) {
+		$guid_to_modified[$item->attributes->guid] = $item->attributes->modified;
+	}
+
+	// check if the top-level document changed
+	if ($pmp_modified !== $pmp_doc->attributes->modified) {
+		pmp_debug("-- updating $log_ident due to top-level modified timestamp");
+		return true;
+	}
+
+	// check for changes to audio docs (embedded in the top-level post)
+	foreach ($pmp_audio as $audio_guid => $audio_modified) {
+		if (!isset($guid_to_modified[$audio_guid]) || $guid_to_modified[$audio_guid] !== $audio_modified) {
+			pmp_debug("-- updating $log_ident due to audio changes");
+			return true;
+		}
+	}
+
+	// now check for image changes (which are attachements to this post)
+	$wp_attachments = pmp_get_pmp_attachments($wp_post->ID);
+	foreach ($wp_attachments as $wp_attach) {
+		$attach_guid = get_post_meta($wp_attach->ID, 'pmp_guid', true);
+		$attach_modified = get_post_meta($wp_attach->ID, 'pmp_modified', true);
+		if (!isset($guid_to_modified[$attach_guid]) || $guid_to_modified[$attach_guid] !== $attach_modified) {
+			pmp_debug("-- updating $log_ident due to image-attachment[$attach_guid] changes");
+			return true;
+		}
+	}
+
+	pmp_debug("-- unchanged $log_ident");
 	return false;
 }
 
 /**
  * Update an existing WP post which was originally pulled from PMP with the Doc data from PMP.
  *
+ * @todo refactor to combine this with ajax _pmp_create_post
  * @since 0.1
  */
 function pmp_update_post($wp_post, $pmp_doc) {
 	$post_data = pmp_get_post_data_from_pmp_doc($pmp_doc);
 	$post_data['ID'] = $wp_post->ID;
 
-	$the_post = wp_update_post($post_data);
+	// audio shortcodes (hash guid/modified for later)
+	$audio_guid_to_modified = array();
+	$audio_codes = _pmp_get_audio_shortcodes($pmp_doc);
+	foreach ($audio_codes as $audio_data) {
+		$post_data['post_content'] = $audio_data['shortcode'] . "\n" . $post_data['post_content'];
+		$audio_guid_to_modified[$audio_data['guid']] = $audio_data['modified'];
+	}
 
-	if (is_wp_error($the_post))
-		return $the_post;
+	// update the post primary data
+	$post_or_error = wp_update_post($post_data, true);
+	if (is_wp_error($post_or_error)) {
+		var_log('pmp_update_post ERROR: ' . $post_or_error->get_error_message());
+		return $post_or_error;
+	}
 
+	// update post metadata
 	$post_meta = pmp_get_post_meta_from_pmp_doc($pmp_doc);
+	foreach ($post_meta as $key => $value) {
+		update_post_meta($wp_post->ID, $key, $value);
+	}
+	update_post_meta($wp_post->ID, 'pmp_audio', $audio_guid_to_modified);
 
-	foreach ($post_meta as $key => $value)
-		update_post_meta($the_post, $key, $value);
+	// sync image changes (which are attachements to this post)
+	$wp_attachments  = pmp_get_pmp_attachments($wp_post->ID);
+	$pmp_image_datas = _pmp_get_image_datas($pmp_doc);
+	$possible_featured_images = array();
 
-	return $the_post;
+	// update-or-delete existing attachments
+	foreach ($wp_attachments as $wp_attach) {
+		$attach_guid     = get_post_meta($wp_attach->ID, 'pmp_guid', true);
+		$attach_modified = get_post_meta($wp_attach->ID, 'pmp_modified', true);
+		$attach_url      = get_post_meta($wp_attach->ID, 'pmp_image_url', true);
+		if (isset($pmp_image_datas[$attach_guid])) {
+			if ($attach_modified === $pmp_image_datas[$attach_guid]['post_meta']['pmp_modified']) {
+				pmp_debug("  -- unchanged image {$wp_attach->ID} [$attach_guid]");
+				unset($pmp_image_datas[$attach_guid]);
+				$possible_featured_images[] = $wp_attach->ID;
+			}
+			else if ($attach_url !== $pmp_image_datas[$attach_guid]['url']) {
+				pmp_debug("  -- reloading image {$wp_attach->ID} [$attach_guid]");
+				wp_delete_post($wp_attach->ID, true);
+			}
+			else {
+				pmp_debug("  -- updating image {$wp_attach->ID} [$attach_guid]");
+				wp_update_post(array(
+					'ID' => $wp_attach->ID,
+					'post_excerpt' => $pmp_image_datas[$attach_guid]['caption'],
+					'post_title' => $pmp_image_datas[$attach_guid]['alt'],
+				));
+				foreach ($pmp_image_datas[$attach_guid]['post_meta'] as $image_meta_key => $image_meta_value) {
+					update_post_meta($wp_attach->ID, $image_meta_key, $image_meta_value);
+				}
+				unset($pmp_image_datas[$attach_guid]);
+				$possible_featured_images[] = $wp_attach->ID;
+			}
+		}
+		else  {
+			pmp_debug("  -- deleting image {$wp_attach->ID} [$attach_guid]");
+			wp_delete_post($wp_attach->ID, true);
+		}
+	}
+
+	// create new attachments
+	foreach ($pmp_image_datas as $image_guid => $metadata) {
+		$new_attachment = _pmp_create_image_attachment($wp_post->ID, $metadata);
+		if (is_wp_error($new_attachment)) {
+			var_log('pmp_media_sideload_image ERROR: ' . $new_attachment->get_error_message());
+		}
+		else {
+			$possible_featured_images[] = $new_attachment;
+		}
+	}
+
+	// ensure featured image
+	if ($wp_post->post_type == 'post' && !has_post_thumbnail($wp_post->ID)) {
+		if (count($possible_featured_images) > 0) {
+			update_post_meta($wp_post->ID, '_thumbnail_id', $possible_featured_images[0]);
+		}
+	}
+
+	return $wp_post;
 }
 
 /**
@@ -128,34 +265,48 @@ function pmp_import_for_saved_queries() {
 		}
 
 		$query_args = array_merge($default_opts, (array) $query_data->query);
+
+		pmp_debug("========== saved-searching: {$query_data->options->title} ==========");
+		pmp_debug($query_args);
+
 		$result = $sdk->queryDocs($query_args);
-		if (empty($result))
+		if (empty($result)) {
+			pmp_debug('  -- NO RESULTS!');
 			continue;
+		}
+		else {
+			pmp_debug("  -- got {$result->items()->count()} of {$result->items()->totalItems()} total");
+		}
 
 		foreach ($result->items() as $item) {
-			$meta_args = array(
-				array(
-					'key' => 'pmp_guid',
-					'value' => $item->attributes->guid
-				)
-			);
-
 			$query = new WP_Query(array(
-				'meta_query' => $meta_args,
+				'meta_query' => array(
+					array(
+						'key' => 'pmp_guid',
+						'value' => $item->attributes->guid
+					)
+				),
 				'posts_per_page' => 1,
-				'post_status' => 'any'
+				'post_type' => 'any',
+				'post_status' => 'any',
+				'post_parent' => 0, // only top-level entries
 			));
 
-			if (!$query->have_posts()) {
-				if ($query_data->options->query_auto_create == 'draft')
-					$result = _pmp_create_post(true, $item);
-				else if ($query_data->options->query_auto_create == 'publish')
-					$result = _pmp_create_post(false, $item);
-
-				$post_id = $result['data']['post_id'];
-			} else
+			// find or create the post
+			if ($query->have_posts()) {
 				$post_id = $query->posts[0]->ID;
+			}
+			else {
+				if ($query_data->options->query_auto_create == 'draft') {
+					$result = _pmp_create_post(true, $item);
+				}
+				else if ($query_data->options->query_auto_create == 'publish') {
+					$result = _pmp_create_post(false, $item);
+				}
+				$post_id = $result['data']['post_id'];
+			}
 
+			// set the category(s)
 			if (isset($query_data->options->post_category)) {
 				// Make sure "Uncategorized" category doesn't stick around if it
 				// wasn't explicitly set as a category for the saved search import.
