@@ -365,7 +365,7 @@ function _pmp_create_post($draft=false, $doc=null) {
 			var_log('pmp_media_sideload_image ERROR: ' . $new_attachment->get_error_message());
 		}
 		else if (!$have_set_featured) {
-			update_post_meta($post_id, '_thumbnail_id', $new_attachment);
+			update_post_meta($new_post, '_thumbnail_id', $new_attachment);
 			$have_set_featured = true;
 		}
 	}
