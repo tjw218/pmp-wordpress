@@ -328,105 +328,49 @@ function _pmp_create_post($draft=false, $doc=null) {
 		'post_status' => (!empty($draft))? 'draft' : 'publish'
 	));
 
-	$audio = SDKWrapper::getAudio($data);
-	if (!empty($audio)) {
-		$enclosures = $audio->links('enclosure');
+	$guid = ($data) ? $data->attributes->guid : 'unknown';
+	pmp_debug("---------- create-post [$guid] ----------");
 
-		if (!empty($enclosures)) {
-			$first_enclosure = $enclosures[0];
-			$uri_parts = parse_url($first_enclosure->href);
-
-			if (in_array($uri_parts['scheme'], array('http', 'https'))) {
-				$type = (isset($first_enclosure->type))? $first_enclosure->type:null;
-				$href = $first_enclosure->href;
-
-				if (!empty($type)) {
-					if ($type == 'audio/m3u') {
-						$response = wp_remote_get($href);
-						$lines = explode("\n", $response['body']);
-						$audio_shortcode = '[audio src="' . $lines[0] . '"]';
-					} else if (in_array($type, array_values(get_allowed_mime_types())))
-						$audio_shortcode = '[audio src="' . $href . '"]';
-				} else {
-					$uri_parts = parse_url($href);
-
-					if (in_array($uri_parts['scheme'], array('http', 'https'))) {
-						$extension = pathinfo($uri_parts['path'], PATHINFO_EXTENSION);
-
-						if (in_array($extension, wp_get_audio_extensions())) {
-							$audio_shortcode = '[audio src="' . $href . '"]';
-						} else if ($extension == 'm3u') {
-							$response = wp_remote_get($href);
-							$lines = explode("\n", $response['body']);
-							$audio_shortcode = '[audio src="' . $lines[0] . '"]';
-						}
-					}
-				}
-
-				if (!empty($audio_shortcode))
-					$post_data['post_content'] = $audio_shortcode . "\n" . $post_data['post_content'];
-			}
-		}
+	// audio shortcodes (hash guid/modified for later)
+	$audio_guid_to_modified = array();
+	$audio_codes = _pmp_get_audio_shortcodes($data);
+	foreach ($audio_codes as $audio_data) {
+		$post_data['post_content'] = $audio_data['shortcode'] . "\n" . $post_data['post_content'];
+		$audio_guid_to_modified[$audio_data['guid']] = $audio_data['modified'];
 	}
 
+	// insert the post
 	$new_post = wp_insert_post($post_data);
-
 	if (is_wp_error($new_post)) {
+		var_log('wp_insert_post ERROR: ' . $new_post->get_error_message());
 		return array(
 			"success" => false,
 			"message" => $new_post->get_error_message()
 		);
 	}
 
-	$image = SDKWrapper::getImage($data);
-	if (!empty($image)) {
-		$standard = null;
+	// update post metadata
+	$post_meta = pmp_get_post_meta_from_pmp_doc($data);
+	foreach ($post_meta as $key => $value) {
+		update_post_meta($new_post, $key, $value);
+	}
+	update_post_meta($new_post, 'pmp_audio', $audio_guid_to_modified);
 
-		// Try really hard to find the 'standard' image crop
-		foreach ($image->links->enclosure as $enc) {
-			if ($enc->meta->crop == 'standard') {
-				$standard = $enc;
-				break;
-			}
+	// download/sideload images
+	$have_set_featured = false;
+	$image_datas = _pmp_get_image_datas($data);
+	foreach ($image_datas as $image_guid => $metadata) {
+		$new_attachment = _pmp_create_image_attachment($new_post, $metadata);
+		if (is_wp_error($new_attachment)) {
+			var_log('pmp_media_sideload_image ERROR: ' . $new_attachment->get_error_message());
 		}
-
-		// If we couldn't get the 'standard' crop, fallback to the first enclosure
-		if (empty($standard) && !empty($image->links->enclosure[0]))
-			$standard = $image->links->enclosure[0];
-
-		// If we were able to get an enclosure proceed with attaching it to the post
-		if (!empty($standard)) {
-			// Import the image
-			$new_image_desc = (isset($image->attributes->description))? $image->attributes->description:'';
-			$new_image = pmp_media_sideload_image($standard->href, $new_post, $new_image_desc);
-
-			if (!is_wp_error($new_image)) {
-				// If import was successful, set basic attachment attributes
-				$image_update = array(
-					'ID' => $new_image,
-					'post_excerpt' => (isset($image->attributes->description))? $image->attributes->description:'', // caption
-					'post_title' => $image->attributes->title
-				);
-				wp_update_post($image_update);
-
-				// Also set the alt text and various PMP-related attachment meta
-				$image_meta= array_merge(pmp_get_post_meta_from_pmp_doc($image), array(
-					'_wp_attachment_image_alt' => $image->attributes->title, // alt text
-				));
-
-				foreach ($image_meta as $image_meta_key => $image_meta_value)
-					update_post_meta($new_image, $image_meta_key, $image_meta_value);
-
-				// Actually attach the image to the new post
-				update_post_meta($new_post, '_thumbnail_id', $new_image);
-			}
+		else if (!$have_set_featured) {
+			update_post_meta($post_id, '_thumbnail_id', $new_attachment);
+			$have_set_featured = true;
 		}
 	}
 
-	$post_meta = pmp_get_post_meta_from_pmp_doc($data);
-	foreach ($post_meta as $key => $value)
-		update_post_meta($new_post, $key, $value);
-
+	// structured success
 	return array(
 		"success" => true,
 		"data" => array(
@@ -434,6 +378,81 @@ function _pmp_create_post($draft=false, $doc=null) {
 			"post_id" => $new_post
 		)
 	);
+}
+
+/**
+ * Extract audio shortcodes from a PMP document
+ *
+ * @param $doc the PMP document
+ * @return array() a list of audio guid/modified/shortcode data
+ * @since 0.3
+ */
+function _pmp_get_audio_shortcodes($doc) {
+	$audio_metas = array();
+	$audios = SDKWrapper::getAudios($doc);
+	if (empty($audios)) {
+		pmp_debug('  -- NO AUDIO');
+	}
+	else {
+		pmp_debug("  -- shortcoding {$audios->count()} audios");
+		foreach ($audios as $audio) {
+			$url = SDKWrapper::getPlayableUrl($audio);
+			$audio_metas[] = array(
+				'guid' => $audio->attributes->guid,
+				'modified' => $audio->attributes->modified,
+				'shortcode' => $url ? ('[audio src="' . $url . '"]') : '',
+			);
+		}
+	}
+	return $audio_metas;
+}
+
+/**
+ * Extract image metadata from a PMP document
+ *
+ * @param $doc the PMP document
+ * @return array() a hash of image guids to metadata
+ * @since 0.3
+ */
+function _pmp_get_image_datas($doc) {
+	$metadatas = array();
+	$images = SDKWrapper::getImages($doc);
+	if (empty($images)) {
+		pmp_debug('  -- NO IMAGES');
+	}
+	else {
+		pmp_debug("  -- metadata-ing {$images->count()} images");
+		foreach ($images as $image) {
+			$data = SDKWrapper::getViewableImage($image);
+			if ($data) {
+				$metadatas[$image->attributes->guid] = $data;
+			}
+		}
+	}
+	return $metadatas;
+}
+
+/**
+ * Sideload and attach a new image to a Post
+ *
+ * @param $post_id the parent post
+ * @param $metadata the image data object (from _pmp_get_image_datas)
+ */
+function _pmp_create_image_attachment($post_id, $metadata) {
+	$new_image = pmp_media_sideload_image($metadata['url'], $post_id, $metadata['caption']);
+
+	// on success, update basic/extended fields for the new image/attachment
+	if (!is_wp_error($new_image)) {
+		wp_update_post(array(
+			'ID' => $new_image,
+			'post_excerpt' => $metadata['caption'],
+			'post_title' => $metadata['alt'],
+		));
+		foreach ($metadata['post_meta'] as $image_meta_key => $image_meta_value) {
+			update_post_meta($new_image, $image_meta_key, $image_meta_value);
+		}
+	}
+	return $new_image;
 }
 
 /**
