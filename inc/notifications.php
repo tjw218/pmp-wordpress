@@ -223,8 +223,10 @@ function pmp_do_notification_callback() {
 				if (!empty($doc)) {
 					if (pmp_needs_update($post, $doc))
 						pmp_update_post($post, $doc);
-				} else
+				} else {
+					pmp_delete_post_attachments($post->ID);
 					wp_delete_post($post->ID, true);
+				}
 			}
 		}
 	}

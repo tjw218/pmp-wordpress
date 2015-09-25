@@ -32,28 +32,6 @@ function pmp_get_pmp_posts() {
 }
 
 /**
- * Query for Post-attachments originating from PMP media
- *
- * @since 0.3
- */
-function pmp_get_pmp_attachments($parent_id) {
-	if (!$parent_id || $parent_id < 1) return array();
-
-	$query = new WP_Query(array(
-		'meta_query' => array(
-			'key' => 'pmp_guid',
-			'compare' => 'EXISTS'
-		),
-		'posts_per_page' => -1,
-		'post_type' => 'attachment',
-		'post_status' => 'any',
-		'post_parent' => $parent_id,
-	));
-
-	return $query->posts;
-}
-
-/**
  * For each PMP post in the WP database, fetch the corresponding Doc from PMP and check if
  * the WP post differs from the PMP Doc. If it does differ, update the post in the WP database.
  *
@@ -81,6 +59,8 @@ function pmp_get_updates() {
 					if (pmp_needs_update($post, $doc))
 						pmp_update_post($post, $doc);
 				} else {
+					pmp_debug("-- deleting wp_post[{$wp_post->ID}] pmp[{$pmp_doc->attributes->guid}]");
+					pmp_delete_post_attachments($post->ID);
 					wp_delete_post($post->ID, true);
 				}
 			}

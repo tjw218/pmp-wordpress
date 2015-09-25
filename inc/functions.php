@@ -88,6 +88,40 @@ function pmp_media_sideload_image($file, $post_id, $desc=null) {
 }
 
 /**
+ * Query for Post-attachments originating from PMP media
+ *
+ * @since 0.3
+ */
+function pmp_get_pmp_attachments($parent_id) {
+	if (!$parent_id || $parent_id < 1) return array();
+
+	$query = new WP_Query(array(
+		'meta_query' => array(
+			'key' => 'pmp_guid',
+			'compare' => 'EXISTS'
+		),
+		'posts_per_page' => -1,
+		'post_type' => 'attachment',
+		'post_status' => 'any',
+		'post_parent' => $parent_id,
+	));
+
+	return $query->posts;
+}
+
+/**
+ * Delete any attachments to a PMP-sourced Post
+ *
+ * @since 0.3
+ */
+function pmp_delete_post_attachments($post_id) {
+	$attachments = pmp_get_pmp_attachments($post_id);
+	foreach ($attachments as $attach) {
+		wp_delete_post($attach->ID, true);
+	}
+}
+
+/**
  * Verify that we have all settings required to successfully query the PMP API.
  *
  * @since 0.1
