@@ -603,3 +603,17 @@ if (!function_exists('var_log')) {
 	 */
 	function var_log($stuff) { error_log(var_export($stuff, true)); }
 }
+
+/**
+ * Debug logger
+ *
+ * @param mixed $stuff the data structure to send to the error log.
+ * @since 0.3
+ */
+function pmp_debug($stuff) {
+	if (PMP_DEBUG) {
+		$str = var_export($stuff, true);
+		$time = date('Y-m-d\TH:m:s');
+		error_log("DEBUG [$time] $str");
+	}
+}
