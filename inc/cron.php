@@ -56,8 +56,7 @@ function pmp_get_updates() {
 			if (!empty($guid)) {
 				$doc = $sdk->fetchDoc($guid);
 				if (empty($doc)) {
-					pmp_debug("-- deleting wp[{$wp_post->ID}] pmp[{$pmp_doc->attributes->guid}]");
-					pmp_delete_post_attachments($post->ID);
+					pmp_debug("-- deleting wp[{$post->ID}] pmp[$guid]");
 					wp_delete_post($post->ID, true);
 				}
 				else if (pmp_needs_update($post, $doc)) {

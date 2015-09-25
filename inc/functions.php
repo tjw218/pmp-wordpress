@@ -110,18 +110,6 @@ function pmp_get_pmp_attachments($parent_id) {
 }
 
 /**
- * Delete any attachments to a PMP-sourced Post
- *
- * @since 0.3
- */
-function pmp_delete_post_attachments($post_id) {
-	$attachments = pmp_get_pmp_attachments($post_id);
-	foreach ($attachments as $attach) {
-		wp_delete_post($attach->ID, true);
-	}
-}
-
-/**
  * Verify that we have all settings required to successfully query the PMP API.
  *
  * @since 0.1
@@ -506,6 +494,22 @@ function pmp_filter_media_library($wp_query) {
 add_action('pre_get_posts', 'pmp_filter_media_library');
 
 /**
+ * Delete PMP-attachments along with their parent Post
+ *
+ * @since 0.3
+ */
+function pmp_cleanup_attachments($post_id) {
+	$pmp_guid = get_post_meta($post_id, 'pmp_guid', true);
+	if ($pmp_guid) {
+		$attachments = pmp_get_pmp_attachments($post_id);
+		foreach ($attachments as $attach) {
+			wp_delete_post($attach->ID, true);
+		}
+	}
+}
+add_action('before_delete_post', 'pmp_cleanup_attachments');
+
+/**
  * Get the current user's PMP GUID
  *
  * @since 0.2
@@ -655,8 +659,9 @@ if (!function_exists('var_log')) {
  */
 function pmp_debug($stuff) {
 	if (PMP_DEBUG) {
-		$str = var_export($stuff, true);
-		$time = date('Y-m-d\TH:m:s');
-		error_log("DEBUG [$time] $str");
+		if (!is_string($stuff)) {
+			$stuff = var_export($stuff, true);
+		}
+		error_log("[PMP_DEBUG] $stuff");
 	}
 }

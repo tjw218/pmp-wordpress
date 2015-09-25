@@ -252,7 +252,6 @@ function pmp_do_notification_callback() {
 			$doc = $sdk->fetchDoc($item_guid);
 			if (empty($doc)) {
 				pmp_debug("-- deleting wp[{$post->ID}] pmp[{$item_guid}]");
-				pmp_delete_post_attachments($post->ID);
 				wp_delete_post($post->ID, true);
 			}
 			else if (pmp_needs_update($post, $doc)) {
