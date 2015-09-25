@@ -297,11 +297,17 @@ function pmp_handle_push($post_id) {
 
 		$series = pmp_get_collection_override_value($post_id, 'series');
 		if (!empty($series))
-			$obj->links->collection[] = (object) array('href' => $sdk->href4guid($series));
+			$obj->links->collection[] = (object) array(
+				'href' => $sdk->href4guid($series),
+				'rels' => array('urn:collectiondoc:collection:series'),
+			);
 
 		$property = pmp_get_collection_override_value($post_id, 'property');
 		if (!empty($property))
-			$obj->links->collection[] = (object) array('href' => $sdk->href4guid($property));
+			$obj->links->collection[] = (object) array(
+				'href' => $sdk->href4guid($property),
+				'rels' => array('urn:collectiondoc:collection:property'),
+			);
 	}
 
 	// Build out the permissions group profile array
@@ -318,7 +324,10 @@ function pmp_handle_push($post_id) {
 		$obj->links->item = array();
 
 		if (!empty($featured_img_guid))
-			$obj->links->item[] = (object) array('href' => $sdk->href4guid($featured_img_guid));
+			$obj->links->item[] = (object) array(
+				'href' => $sdk->href4guid($featured_img_guid),
+				'rels' => array('urn:collectiondoc:image', 'urn:collectiondoc:image:featured'),
+			);
 	}
 
 	// If this is an attachment post, build out the enclosures array to be sent over the wire.
