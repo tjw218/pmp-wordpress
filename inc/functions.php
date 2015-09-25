@@ -479,20 +479,28 @@ function pmp_get_post_meta_from_pmp_doc($pmp_doc) {
  */
 function pmp_filter_media_library($wp_query) {
 	if (isset($_POST['action']) && $_POST['action'] == 'query-attachments') {
-		$meta_args = array(
-			'relation' => 'OR',
-			array(
-				'key' => 'pmp_guid',
-				'compare' => 'NOT EXISTS'
-			),
-			array(
-				'key' => 'pmp_owner',
-				'compare' => '==',
-				'value' => pmp_get_my_guid()
-			)
-		);
+		$pmp_guid = get_post_meta($_POST['post_id'], 'pmp_guid', true);
+		$pmp_owner = get_post_meta($_POST['post_id'], 'pmp_owner', true);
+		$my_guid = pmp_get_my_guid();
 
-		$wp_query->set('meta_query', $meta_args);
+		// filter PMP-sourced docs separately from local/owned stuff
+		if ($pmp_guid && $pmp_owner !== $my_guid) {
+			$wp_query->set('post_parent', $_POST['post_id']);
+		}
+		else {
+			$wp_query->set('meta_query', array(
+				'relation' => 'OR',
+				array(
+					'key' => 'pmp_guid',
+					'compare' => 'NOT EXISTS'
+				),
+				array(
+					'key' => 'pmp_owner',
+					'compare' => '==',
+					'value' => pmp_get_my_guid()
+				),
+			));
+		}
 	}
 }
 add_action('pre_get_posts', 'pmp_filter_media_library');
