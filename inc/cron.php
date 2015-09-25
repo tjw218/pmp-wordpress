@@ -55,13 +55,13 @@ function pmp_get_updates() {
 			$guid = $custom_fields['pmp_guid'][0];
 			if (!empty($guid)) {
 				$doc = $sdk->fetchDoc($guid);
-				if (!empty($doc)) {
-					if (pmp_needs_update($post, $doc))
-						pmp_update_post($post, $doc);
-				} else {
-					pmp_debug("-- deleting wp_post[{$wp_post->ID}] pmp[{$pmp_doc->attributes->guid}]");
+				if (empty($doc)) {
+					pmp_debug("-- deleting wp[{$wp_post->ID}] pmp[{$pmp_doc->attributes->guid}]");
 					pmp_delete_post_attachments($post->ID);
 					wp_delete_post($post->ID, true);
+				}
+				else if (pmp_needs_update($post, $doc)) {
+					pmp_update_post($post, $doc);
 				}
 			}
 		}
@@ -75,7 +75,7 @@ function pmp_get_updates() {
  * @since 0.1
  */
 function pmp_needs_update($wp_post, $pmp_doc) {
-	$log_ident = "wp_post[{$wp_post->ID}] pmp[{$pmp_doc->attributes->guid}]";
+	$log_ident = "wp[{$wp_post->ID}] pmp[{$pmp_doc->attributes->guid}]";
 
 	// pull metadata (and turn meta-arrays into single values)
 	$pmp_modified = get_post_meta($wp_post->ID, 'pmp_modified', true);
