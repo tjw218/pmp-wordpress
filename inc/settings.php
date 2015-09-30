@@ -90,7 +90,7 @@ function pmp_client_secret_input() {
  */
 function pmp_user_title_input() {
 	$options = get_option('pmp_settings');
-	if (empty($options['pmp_api_url']) || empty($options['pmp_client_id'] || empty($options['pmp_client_secret']))) {
+	if (empty($options['pmp_api_url']) || empty($options['pmp_client_id']) || empty($options['pmp_client_secret'])) {
 		echo '<p><em>Not connected</em></p>';
 	}
 	else {
