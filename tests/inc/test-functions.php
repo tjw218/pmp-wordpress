@@ -224,9 +224,12 @@ class TestFunctions extends WP_UnitTestCase {
 		$this->assertEquals($post_meta['pmp_guid'], $this->pmp_story['attributes']['guid']);
 		$this->assertEquals($post_meta['pmp_created'], $this->pmp_story['attributes']['created']);
 		$this->assertEquals($post_meta['pmp_modified'], $this->pmp_story['attributes']['modified']);
-		$this->assertEquals($post_meta['pmp_byline'], $this->pmp_story['attributes']['byline']);
 		$this->assertEquals($post_meta['pmp_published'], $this->pmp_story['attributes']['published']);
 		$this->assertEquals($post_meta['pmp_owner'], SDKWrapper::guid4href($this->pmp_story['links']['owner'][0]->href));
+
+		// The byline is not guaranteed to be present
+		if (!empty($this->pmp_story['attributes']['byline']))
+			$this->assertEquals($post_meta['pmp_byline'], $this->pmp_story['attributes']['byline']);
 	}
 
 	function test_pmp_filter_media_library() {
