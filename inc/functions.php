@@ -313,8 +313,13 @@ function pmp_handle_push($post_id) {
 	// Build out the permissions group profile array
 	$obj->links->permission = array();
 	$group = pmp_get_collection_override_value($post_id, 'group');
-	if (!empty($group))
-		$obj->links->permission[] = (object) array('href' => $sdk->href4guid($group));
+	if (!empty($group)) {
+		if (is_array($group)) {
+			foreach ($group as $group_guid)
+				$obj->links->permission[] = (object) array('href' => $sdk->href4guid($group_guid));
+		} else
+			$obj->links->permission[] = (object) array('href' => $sdk->href4guid($group));
+	}
 
 	// If this is a post with a featured image, push the featured image as a PMP Doc and include
 	// it as a link in the Doc.

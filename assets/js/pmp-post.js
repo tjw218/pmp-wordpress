@@ -11,12 +11,12 @@ var PMP = PMP || {};
     var $ = jQuery,
         pmpsubmit = $('#pmp_document_meta');
 
-    PMP.AsyncSelectMenu = PMP.BaseView.extend({
+    PMP.AsyncMenu = PMP.BaseView.extend({
 
         initialize: function(options) {
             PMP.BaseView.prototype.initialize.apply(this, arguments);
             this.type = options.type;
-            this.template = _.template($('#pmp-async-select-tmpl').html());
+            this.template = _.template($(options.template).html());
             this.getOptions();
             return this;
         },
@@ -67,25 +67,17 @@ var PMP = PMP || {};
     });
 
     $(document).ready(function() {
-        var menus = [
-            {
-                type: 'group',
-                el: '#pmp-group-select-for-post'
-            },
-            {
-                type: 'series',
-                el: '#pmp-series-select-for-post'
-            },
-            {
-                type: 'property',
-                el: '#pmp-property-select-for-post'
-            }
-        ];
+        var menus = $('[data-pmp-override-type]');
 
         if ($('#pmp-override-defaults').length > 0) {
-            _.each(menus, function(menu, idx) {
-                new PMP.AsyncSelectMenu({
-                    type: menu.type, el: $(menu.el)
+            menus.each(function(idx, el) {
+                var type = $(el).data('pmp-override-type'),
+                    inputType = $(el).data('pmp-override-input');
+
+                new PMP.AsyncMenu({
+                    type: type,
+                    el: $(el),
+                    template: '#pmp-async-' + inputType + '-tmpl'
                 });
             });
         }

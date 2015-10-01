@@ -453,10 +453,10 @@ p.error {
 #pmp-override-defaults select {
   width: 100%;
 }
-#pmp-override-defaults .pmp-select-for-post {
+#pmp-override-defaults .pmp-override-for-post {
   min-height: 56px;
 }
-#pmp-override-defaults .pmp-select-for-post .spinner {
+#pmp-override-defaults .pmp-override-for-post .spinner {
   background-position: center center;
   width: 100%;
 }

@@ -160,13 +160,36 @@ function pmp_async_select_template() { ?>
 		<strong><%= type.charAt(0).toUpperCase() + type.slice(1) %></strong>
 		<select name="pmp_<%= type %>_override">
 			<% _.each(options, function(option, idx) { %>
-				<option <%= option.selected %> value="<%= option.guid %>">
+				<option <% if (option.selected) { %>selected="selected"<% } %> value="<%= option.guid %>">
 					<%= option.title %>
 					<% if (default_guid && option.guid == default_guid) { %>(default)<% } %>
 				</option>
 			<% }) %>
 		</select>
 	</script><?php
+}
+
+/**
+ * Output the underscore template for the async checklist menu used on the post edit page
+ *
+ * @since 0.2.7
+ */
+function pmp_async_checklist_template() { ?>
+	<script type="text/template" id="pmp-async-checklist-tmpl">
+		<strong><%= type.charAt(0).toUpperCase() + type.slice(1) %></strong>
+		<% _.each(options, function(option, idx) {
+			if (option.guid === '') { return false; } %>
+			<p>
+				<input type="checkbox"
+					id="pmp_<%= type %>_override_<%= option.guid %>"
+					name="pmp_<%= type %>_override[]"
+					value="<%= option.guid %>" <% if (option.selected) { %>checked="checked"<% } %> />
+				<label for="pmp_<%= type %>_override_<%= option.guid %>"><%= option.title %></label>
+				<% if (default_guid && option.guid == default_guid) { %>(default)<% } %>
+			</p>
+		<% }) %>
+	</script>
+<?php
 }
 
 /**

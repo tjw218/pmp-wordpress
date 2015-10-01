@@ -262,7 +262,7 @@ function pmp_delete_saved_query() {
 add_action('wp_ajax_pmp_delete_saved_query', 'pmp_delete_saved_query');
 
 /**
- * Ajax function returns data structure describing select menu for Group, Series, Propert for
+ * Ajax function returns data structure describing select/checklist menu for Group, Series, Propert for
  * a post
  *
  * @since 0.3
@@ -456,7 +456,7 @@ function _pmp_create_image_attachment($post_id, $metadata) {
 }
 
 /**
- * Builds a data structure that describes a select menu for the post based on the $type
+ * Builds a data structure that describes a select/checklist menu for the post based on the $type
  *
  * @param $type (string) The document option to create a select menu for
  * (i.e., 'group', 'property' or 'series').
@@ -475,23 +475,30 @@ function _pmp_select_for_post($post, $type) {
 		'limit' => 9999
 	));
 
-	$override = pmp_get_collection_override_value($post, $type);
 	$options = array();
 
-	// Pad the options with an empty value
-	$options[] = array(
-		'selected' => selected($override, false, false),
-		'guid' => '',
-		'title' => '--- No ' . $type . ' ---'
-	);
+	$override_value = pmp_get_collection_override_value($post, $type);
+
+	if (!is_array($override_value)) {
+		// Pad the options with an empty value
+		$options[] = array(
+			'selected' => selected($override_value, false, false),
+			'guid' => '',
+			'title' => '--- No ' . $type . ' ---'
+		);
+		$overrides = array($override_value);
+	} else
+		$overrides = $override_value;
 
 	if (!empty($pmp_things['items'])) {
 		foreach ($pmp_things['items'] as $thing) {
-			if (!empty($override))
-				$selected = selected($override, $thing['attributes']['guid'], false);
+			if (in_array($thing['attributes']['guid'], $overrides))
+				$selected = true;
+			else
+				$selected = false;
 
 			$option = array(
-				'selected' => (isset($selected))? $selected : '',
+				'selected' => $selected,
 				'guid' => $thing['attributes']['guid'],
 				'title' => $thing['attributes']['title']
 			);
