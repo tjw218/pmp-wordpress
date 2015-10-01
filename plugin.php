@@ -28,6 +28,9 @@ function pmp_init() {
 	define('PMP_TEMPLATE_DIR', PMP_PLUGIN_DIR . '/templates');
 	define('PMP_VERSION', 0.1);
 
+	if (!defined('PMP_DEBUG'))
+		define('PMP_DEBUG', WP_DEBUG);
+
 	$includes = array(
 		'inc/functions.php',
 		'inc/settings.php',

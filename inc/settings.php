@@ -10,7 +10,8 @@ function pmp_admin_init(){
 
 	add_settings_section('pmp_main', 'API Credentials', null, 'pmp_settings');
 
-	add_settings_field('pmp_api_url', 'API URL', 'pmp_api_url_input', 'pmp_settings', 'pmp_main');
+	add_settings_field('pmp_user_title', 'Connected As', 'pmp_user_title_input', 'pmp_settings', 'pmp_main');
+	add_settings_field('pmp_api_url', 'PMP Environment', 'pmp_api_url_input', 'pmp_settings', 'pmp_main');
 	add_settings_field('pmp_client_id', 'Client ID', 'pmp_client_id_input', 'pmp_settings', 'pmp_main');
 	add_settings_field('pmp_client_secret', 'Client Secret', 'pmp_client_secret_input', 'pmp_settings', 'pmp_main');
 
@@ -46,8 +47,13 @@ function pmp_use_api_notifications_input() {
  */
 function pmp_api_url_input() {
 	$options = get_option('pmp_settings');
+	$is_production = empty($options['pmp_api_url']) || $options['pmp_api_url'] === 'https://api.pmp.io';
+	$is_sandbox = !$is_production;
 	?>
-		<input id="pmp_api_url" name="pmp_settings[pmp_api_url]" type="text" value="<?php echo $options['pmp_api_url']; ?>" />
+		<select id="pmp_api_url" name="pmp_settings[pmp_api_url]">
+		  <option <?php echo $is_production ? 'selected' : '' ?> value="https://api.pmp.io">Production</option>
+		  <option <?php echo $is_sandbox ? 'selected' : '' ?> value="https://api-sandbox.pmp.io">Sandbox</option>
+		</select>
 	<?php
 }
 
@@ -76,6 +82,32 @@ function pmp_client_secret_input() {
 	<?php } else { ?>
 		<a href="#" id="pmp_client_secret_reset">Change client secret</a>
 	<?php }
+}
+/**
+ * Static field for currently connected user
+ *
+ * @since 0.3
+ */
+function pmp_user_title_input() {
+	$options = get_option('pmp_settings');
+	if (empty($options['pmp_api_url']) || empty($options['pmp_client_id']) || empty($options['pmp_client_secret'])) {
+		echo '<p><em>Not connected</em></p>';
+	}
+	else {
+		try {
+			$sdk = new SDKWrapper();
+			$me = $sdk->fetchUser('me');
+			$title = $me->attributes->title;
+			$link = pmp_get_support_link($me->attributes->guid);
+			echo "<p><a target='_blank' href='$link'>$title</a></p>";
+		}
+		catch (\Pmp\Sdk\Exception\AuthException $e) {
+			echo '<p style="color:#a94442"><b>Unable to connect - invalid Client-Id/Secret</b></p>';
+		}
+		catch (\Pmp\Sdk\Exception\HostException $e) {
+			echo '<p style="color:#a94442"><b>Unable to connect - ' . $options['pmp_api_url'] . ' is unreachable</b></p>';
+		}
+	}
 }
 
 /**

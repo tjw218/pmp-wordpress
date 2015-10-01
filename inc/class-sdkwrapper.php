@@ -195,34 +195,122 @@ class SDKWrapper {
 	}
 
 	/**
-	 * Get the first image link for a Doc
+	 * Get any image items for a Doc
 	 *
 	 * @since 0.2
 	 */
-	public static function getImage($doc) {
-		if ($doc->getProfileAlias() == 'image')
-			return $doc;
-
+	public static function getImages($doc) {
 		$images = $doc->items('image');
-		if (count($images) > 0)
-			return $images[0];
-		else
-			return false;
+		if ($doc->getProfileAlias() == 'image'){
+			$images[] = $doc;
+		}
+		return $images;
 	}
 
 	/**
-	 * Get the first audio link for a Doc
+	 * Get any audio items for a Doc
 	 *
 	 * @since 0.2
 	 */
-	public static function getAudio($doc) {
-		if ($doc->getProfileAlias() == 'audio')
-			return $doc;
-
+	public static function getAudios($doc) {
 		$audios = $doc->items('audio');
-		if (count($audios) > 0)
-			return $audios[0];
-		else
-			return false;
+		if ($doc->getProfileAlias() == 'audio'){
+			$audios[] = $doc;
+		}
+		return $audios;
 	}
+
+	/**
+	 * Get the first valid audio-enclosure-url from an audio doc
+	 *
+	 * @since 0.2
+	 */
+	public static function getPlayableUrl($audio_doc) {
+		$guid      = $audio_doc->attributes->guid;
+		$enclosure = $audio_doc->links('enclosure')->first();
+		if (!$enclosure) {
+			pmp_debug("  -- NO ENCLOSURES for audio[$guid]");
+			return null;
+		}
+
+		// supplementary data
+		$href      = $enclosure->href;
+		$type      = isset($enclosure->type) ? $enclosure->type : null;
+		$uri_parts = parse_url($href);
+		$extension = pathinfo($uri_parts['path'], PATHINFO_EXTENSION);
+		if (!in_array($uri_parts['scheme'], array('http', 'https'))) {
+			pmp_debug("  -- INVALID ENCLOSURE HREF ($href) for audio[$guid]");
+			return null;
+		}
+
+		// dereference playlists (m3u)
+		if ($type == 'audio/m3u' || $extension == 'm3u') {
+			pmp_debug("  -- dereferencing playlist for audio[$guid]");
+			$response = wp_remote_get($href);
+			$lines = explode("\n", $response['body']);
+			$href = $lines[0];
+			$uri_parts = parse_url($href);
+			$extension = pathinfo($uri_parts['path'], PATHINFO_EXTENSION);
+			$type = null; // we don't know this anymore
+		}
+
+		// check for "known" types
+		if ($type && in_array($type, array_values(get_allowed_mime_types()))) {
+			pmp_debug("  -- known mime type for audio[$guid]");
+			return $href;
+		}
+		if (in_array($extension, wp_get_audio_extensions())) {
+			pmp_debug("  -- known extension for audio[$guid]");
+			return $href;
+		}
+
+		// not sure what this is
+		pmp_debug("  -- UNABLE TO PLAY enclosure ($href) for audio[$guid]");
+		return null;
+	}
+
+	/**
+	 * Get the "best" enclosure metadata from an image doc
+	 *
+	 * @since 0.2
+	 */
+	public static function getViewableImage($image_doc) {
+		$data = array(
+			'post_meta' => pmp_get_post_meta_from_pmp_doc($image_doc),
+			'alt'       => $image_doc->attributes->title,
+			'caption'   => isset($image_doc->attributes->description) ? $image_doc->attributes->description : '',
+			'credit'    => isset($image_doc->attributes->byline) ? $image_doc->attributes->byline : '',
+			'url'       => null,
+		);
+
+		// also set the post/image alt
+		$data['post_meta']['_wp_attachment_image_alt'] = $data['alt'];
+
+		// look for the best crop
+		$best_enclosure = $image_doc->links('enclosure')->first();
+		foreach ($image_doc->links('enclosure') as $enc) {
+			if (isset($enc->meta) && isset($enc->meta->crop)) {
+				if ($enc->meta->crop == 'primary') {
+					$best_enclosure = $enc;
+					break;
+				}
+				else if ($enc->meta->crop == 'standard') {
+					$best_enclosure = $enc;
+					break;
+				}
+			}
+		}
+
+		// only return the struct if we've got a url
+		if ($best_enclosure) {
+			pmp_debug("  -- got enclosure for image[{$image_doc->attributes->guid}]");
+			$data['url'] = $best_enclosure->href;
+			$data['post_meta']['pmp_image_url'] = $best_enclosure->href;
+			return $data;
+		}
+		else {
+			return null;
+		}
+	}
+
 }

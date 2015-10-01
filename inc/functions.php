@@ -57,6 +57,7 @@ function pmp_get_profiles() {
  */
 function pmp_media_sideload_image($file, $post_id, $desc=null) {
 	if (!empty($file)) {
+		pmp_debug("  -- sideloading-image $file for post[$post_id]");
 		include_once ABSPATH . 'wp-admin/includes/image.php';
 		include_once ABSPATH . 'wp-admin/includes/file.php';
 		include_once ABSPATH . 'wp-admin/includes/media.php';
@@ -84,6 +85,28 @@ function pmp_media_sideload_image($file, $post_id, $desc=null) {
 
 		return $id;
 	}
+}
+
+/**
+ * Query for Post-attachments originating from PMP media
+ *
+ * @since 0.3
+ */
+function pmp_get_pmp_attachments($parent_id) {
+	if (!$parent_id || $parent_id < 1) return array();
+
+	$query = new WP_Query(array(
+		'meta_query' => array(
+			'key' => 'pmp_guid',
+			'compare' => 'EXISTS'
+		),
+		'posts_per_page' => -1,
+		'post_type' => 'attachment',
+		'post_status' => 'any',
+		'post_parent' => $parent_id,
+	));
+
+	return $query->posts;
 }
 
 /**
@@ -274,11 +297,17 @@ function pmp_handle_push($post_id) {
 
 		$series = pmp_get_collection_override_value($post_id, 'series');
 		if (!empty($series))
-			$obj->links->collection[] = (object) array('href' => $sdk->href4guid($series));
+			$obj->links->collection[] = (object) array(
+				'href' => $sdk->href4guid($series),
+				'rels' => array('urn:collectiondoc:collection:series'),
+			);
 
 		$property = pmp_get_collection_override_value($post_id, 'property');
 		if (!empty($property))
-			$obj->links->collection[] = (object) array('href' => $sdk->href4guid($property));
+			$obj->links->collection[] = (object) array(
+				'href' => $sdk->href4guid($property),
+				'rels' => array('urn:collectiondoc:collection:property'),
+			);
 	}
 
 	// Build out the permissions group profile array
@@ -295,7 +324,10 @@ function pmp_handle_push($post_id) {
 		$obj->links->item = array();
 
 		if (!empty($featured_img_guid))
-			$obj->links->item[] = (object) array('href' => $sdk->href4guid($featured_img_guid));
+			$obj->links->item[] = (object) array(
+				'href' => $sdk->href4guid($featured_img_guid),
+				'rels' => array('urn:collectiondoc:image', 'urn:collectiondoc:image:featured'),
+			);
 	}
 
 	// If this is an attachment post, build out the enclosures array to be sent over the wire.
@@ -444,23 +476,47 @@ function pmp_get_post_meta_from_pmp_doc($pmp_doc) {
  */
 function pmp_filter_media_library($wp_query) {
 	if (isset($_POST['action']) && $_POST['action'] == 'query-attachments') {
-		$meta_args = array(
-			'relation' => 'OR',
-			array(
-				'key' => 'pmp_guid',
-				'compare' => 'NOT EXISTS'
-			),
-			array(
-				'key' => 'pmp_owner',
-				'compare' => '==',
-				'value' => pmp_get_my_guid()
-			)
-		);
+		$pmp_guid = get_post_meta($_POST['post_id'], 'pmp_guid', true);
+		$pmp_owner = get_post_meta($_POST['post_id'], 'pmp_owner', true);
+		$my_guid = pmp_get_my_guid();
 
-		$wp_query->set('meta_query', $meta_args);
+		// filter PMP-sourced docs separately from local/owned stuff
+		if ($pmp_guid && $pmp_owner !== $my_guid) {
+			$wp_query->set('post_parent', $_POST['post_id']);
+		}
+		else {
+			$wp_query->set('meta_query', array(
+				'relation' => 'OR',
+				array(
+					'key' => 'pmp_guid',
+					'compare' => 'NOT EXISTS'
+				),
+				array(
+					'key' => 'pmp_owner',
+					'compare' => '==',
+					'value' => pmp_get_my_guid()
+				),
+			));
+		}
 	}
 }
 add_action('pre_get_posts', 'pmp_filter_media_library');
+
+/**
+ * Delete PMP-attachments along with their parent Post
+ *
+ * @since 0.3
+ */
+function pmp_cleanup_attachments($post_id) {
+	$pmp_guid = get_post_meta($post_id, 'pmp_guid', true);
+	if ($pmp_guid) {
+		$attachments = pmp_get_pmp_attachments($post_id);
+		foreach ($attachments as $attach) {
+			wp_delete_post($attach->ID, true);
+		}
+	}
+}
+add_action('before_delete_post', 'pmp_cleanup_attachments');
 
 /**
  * Get the current user's PMP GUID
@@ -602,4 +658,19 @@ if (!function_exists('var_log')) {
 	 * @since 0.2
 	 */
 	function var_log($stuff) { error_log(var_export($stuff, true)); }
+}
+
+/**
+ * Debug logger
+ *
+ * @param mixed $stuff the data structure to send to the error log.
+ * @since 0.3
+ */
+function pmp_debug($stuff) {
+	if (PMP_DEBUG) {
+		if (!is_string($stuff)) {
+			$stuff = var_export($stuff, true);
+		}
+		error_log("[PMP_DEBUG] $stuff");
+	}
 }

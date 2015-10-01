@@ -188,43 +188,74 @@ function pmp_get_topic_urls() {
 function pmp_do_notification_callback() {
 	global $wpdb;
 
+	pmp_debug('========== pmp_do_notification_callback ==========');
+
 	$sdk = new SDKWrapper();
 	$body = file_get_contents('php://input');
 	$hash = hash_hmac('sha1', $body, PMP_NOTIFICATIONS_SECRET);
 
-	$pmp_post_data = $wpdb->get_results("
-		select meta_value as pmp_guid, post_id
-		from $wpdb->postmeta where meta_key = 'pmp_guid'");
-	$pmp_guids = array_map(function($x) { return $x->pmp_guid; }, $pmp_post_data);
+	// get a COMPLETE mapping of known-PMP-guids to top-level WP-posts
+	$pmp_post_data = $wpdb->get_results(
+		'SELECT pm.meta_key, pm.meta_value, pm.post_id, p.post_parent ' .
+		'FROM wp_postmeta pm JOIN wp_posts p ON (pm.post_id = p.id) ' .
+		'WHERE meta_key = "pmp_guid" OR meta_key = "pmp_audio"'
+	);
 
-	if ($_SERVER['HTTP_X_HUB_SIGNATURE'] == "sha1=$hash") {
-		$xml = simplexml_load_string($body);
+	// map to the TOP LEVEL post (including the pmp_audio arrays)
+	$pmp_guids = array();
+	foreach ($pmp_post_data as $data) {
+		if ($data->meta_key === 'pmp_guid' && $data->post_parent > 0) {
+			if ($data->post_parent > 0) {
+				$pmp_guids[$data->meta_value] = $data->post_parent;
+			}
+			else {
+				$pmp_guids[$data->meta_value] = $data->post_id;
+			}
+		}
+		else {
+			$audios = unserialize($data->meta_value);
+			if ($audios && is_array($audios)) {
+				foreach ($audios as $guid => $modified) {
+					$pmp_guids[$guid] = $data->post_id;
+				}
+			}
+		}
+	}
 
-		foreach ($xml->channel->item as $item) {
-			$item_json = json_decode(json_encode($item));
-			if ($idx = array_search($item_json->guid, $pmp_guids)) {
-				$post = get_post($pmp_post_data[$idx]->post_id);
+	// check hub signature
+	if ($_SERVER['HTTP_X_HUB_SIGNATURE'] !== "sha1=$hash") {
+		var_log('INVALID PMP notifications HTTP_X_HUB_SIGNATURE');
+		var_log("  Expected: sha1=$hash");
+		var_log("  Got:      " . $_SERVER['HTTP_X_HUB_SIGNATURE']);
+		return;
+	}
 
-				// Honor the subscription setting for posts
-				$subscribed = get_post_meta(
-					$pmp_post_data[$idx]->post_id, 'pmp_subscribe_to_updates', true);
+	// parse xml pubsubhubbub body
+	$xml = simplexml_load_string($body);
+	foreach ($xml->channel->item as $item) {
+		$item_json = json_decode(json_encode($item));
+		$item_guid = $item_json->guid;
 
-				if (empty($subscribed))
-					$subscribed = 'on';
+		// look for Posts tied to that guid
+		if (isset($pmp_guids[$item_guid])) {
+			$post = get_post($pmp_guids[$item_guid]);
 
-				if ($subscribed !== 'on')
-					continue;
+			// Honor the subscription setting for posts
+			$subscribed = get_post_meta($post->ID, 'pmp_subscribe_to_updates', true);
+			$subscribed = empty($subscribed) ? 'on' : $subscribed;
+			if ($subscribed !== 'on') {
+				pmp_debug("-- skipping wp[{$post->ID}] pmp[{$item_guid}] due to 'off' setting");
+				continue;
+			}
 
-				// TODO: Fetching the doc seems silly if the RSS item actually
-				// has all the appropriate data. However, the notifications docs
-				// don't detail what information is sent over the wire, so
-				// we can't make that assumption.
-				$doc = $sdk->fetchDoc($pmp_post_data[$idx]->pmp_guid);
-				if (!empty($doc)) {
-					if (pmp_needs_update($post, $doc))
-						pmp_update_post($post, $doc);
-				} else
-					wp_delete_post($post->ID, true);
+			// Fetch document from PMP and sync changes
+			$doc = $sdk->fetchDoc($item_guid);
+			if (empty($doc)) {
+				pmp_debug("-- deleting wp[{$post->ID}] pmp[{$item_guid}]");
+				wp_delete_post($post->ID, true);
+			}
+			else if (pmp_needs_update($post, $doc)) {
+				pmp_update_post($post, $doc);
 			}
 		}
 	}

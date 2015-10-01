@@ -26,8 +26,14 @@ class TestSettings extends WP_UnitTestCase {
 		$fields = array(
 			'pmp_main' => array(
 				array(
+					'id' => 'pmp_user_title',
+					'title' => 'Connected As',
+					'callback' => 'pmp_user_title_input',
+					'args' => null
+				),
+				array(
 					'id' => 'pmp_api_url',
-					'title' => 'API URL',
+					'title' => 'PMP Environment',
 					'callback' => 'pmp_api_url_input',
 					'args' => null
 				),
@@ -63,7 +69,7 @@ class TestSettings extends WP_UnitTestCase {
 	}
 
 	function test_pmp_api_url_input() {
-		$expect = '/<input id="pmp_api_url" name="pmp_settings\[pmp_api_url\]" type="text"/';
+		$expect = '/<select id="pmp_api_url" name="pmp_settings\[pmp_api_url\]"/';
 		$this->expectOutputRegex($expect);
 		pmp_api_url_input();
 	}
