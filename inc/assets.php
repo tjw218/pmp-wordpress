@@ -1,60 +1,134 @@
 <?php
 
+function pmp_register_assets() {
+	/* Styles */
+	wp_register_style(
+		'pmp-common',
+		PMP_PLUGIN_DIR_URI . '/assets/css/style.css'
+	);
+
+	wp_register_style(
+		'pmp-chosen',
+		PMP_PLUGIN_DIR_URI . '/assets/js/vendor/chosen/chosen.min.css'
+	);
+
+	/* PMP Scripts */
+	$pmp_scripts = array(
+		array(
+			'pmp-utils',
+			PMP_PLUGIN_DIR_URI . '/assets/js/pmp-utils.js',
+			array('jquery'),
+			PMP_VERSION,
+			true
+		),
+		array(
+			'pmp-common',
+			PMP_PLUGIN_DIR_URI . '/assets/js/pmp-common.js',
+			array('pmp-utils', 'underscore', 'backbone'),
+			PMP_VERSION,
+			true
+		),
+		array(
+			'pmp-post',
+			PMP_PLUGIN_DIR_URI . '/assets/js/pmp-post.js',
+			array('pmp-common', 'pmp-chosen'),
+			PMP_VERSION,
+			true
+		),
+		array(
+			'pmp-search',
+			PMP_PLUGIN_DIR_URI . '/assets/js/pmp-search.js',
+			array('pmp-common'),
+			PMP_VERSION,
+			true
+		),
+		array(
+			'pmp-groups-menu',
+			PMP_PLUGIN_DIR_URI . '/assets/js/pmp-groups-menu.js',
+			array('pmp-common','pmp-typeahead'),
+			PMP_VERSION,
+			true
+		),
+		array(
+			'pmp-collections-menu',
+			PMP_PLUGIN_DIR_URI . '/assets/js/pmp-collections-menu.js',
+			array('pmp-common'),
+			PMP_VERSION,
+			true
+		),
+		array(
+			'pmp-options-menu',
+			PMP_PLUGIN_DIR_URI . '/assets/js/pmp-options.js',
+			array('jquery', 'underscore'),
+			PMP_VERSION,
+			true
+		),
+		array(
+			'pmp-manage-searches',
+			PMP_PLUGIN_DIR_URI . '/assets/js/pmp-manage-searches.js',
+			array('pmp-common'),
+			PMP_VERSION,
+			true
+		)
+	);
+
+	foreach ($pmp_scripts as $pmp_script)
+		call_user_func_array('wp_register_script', $pmp_script);
+
+	/* Vendor scripts */
+	$vendor_scripts = array(
+		array(
+			'pmp-typeahead',
+			PMP_PLUGIN_DIR_URI . '/assets/js/vendor/typeahead.js/dist/typeahead.bundle' . ((PMP_DEBUG)? '':'.min') . '.js',
+			array('jquery'),
+			PMP_VERSION,
+			true
+		),
+		array(
+			'pmp-chosen',
+			PMP_PLUGIN_DIR_URI . '/assets/js/vendor/chosen/chosen.jquery.min.js',
+			array('jquery'),
+			PMP_VERSION,
+			true
+		)
+	);
+
+	foreach ($vendor_scripts as $vendor_script)
+		call_user_func_array('wp_register_script', $vendor_script);
+}
+add_action('admin_enqueue_scripts', 'pmp_register_assets', 1);
+
 /**
  * Enqueue styles and scripts for the search page
  *
  * @since 0.1
  */
 function pmp_enqueue_assets() {
-	wp_register_script('pmp-utils', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-utils.js',
-		array('jquery'), PMP_VERSION, true);
-
-	wp_register_script('pmp-common', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-common.js',
-		array('pmp-utils', 'underscore', 'backbone'), PMP_VERSION, true);
-
-	wp_register_style('pmp-common', PMP_PLUGIN_DIR_URI . '/assets/css/style.css');
-
-	wp_register_script('pmp-typeahead', PMP_PLUGIN_DIR_URI . '/assets/js/vendor/typeahead.bundle.js',
-		array('jquery'), PMP_VERSION, true);
-
-	wp_register_script('pmp-post', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-post.js',
-		array('pmp-common'), PMP_VERSION, true);
-
 	if (isset($_GET['page'])) {
 		$page = $_GET['page'];
 
 		if ($page == 'pmp-search') {
 			wp_enqueue_style('pmp-common');
-			wp_enqueue_script(
-				'pmp-search', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-search.js',
-				array('pmp-common'), PMP_VERSION, true);
+			wp_enqueue_script('pmp-search');
 		}
 
 		if ($page == 'pmp-groups-menu') {
 			wp_enqueue_style('pmp-common');
-			wp_enqueue_script(
-				'pmp-groups-menu', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-groups-menu.js',
-				array('pmp-common', 'pmp-typeahead'), PMP_VERSION, true);
+			wp_enqueue_script('pmp-groups-menu');
 		}
 
 		if (in_array($page, array('pmp-series-menu', 'pmp-properties-menu'))) {
 			wp_enqueue_style('pmp-common');
-			wp_enqueue_script(
-				'pmp-collections-menu', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-collections-menu.js',
-				array('pmp-common'), PMP_VERSION, true);
+			wp_enqueue_script('pmp-collections-menu');
 		}
 
 		if ($page == 'pmp-options-menu') {
-			wp_enqueue_script(
-				'pmp-options-menu', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-options.js',
-				array('jquery', 'underscore'), PMP_VERSION, true);
+			wp_enqueue_script('pmp-options-menu');
 		}
 
 		if ($page == 'pmp-manage-saved-searches') {
 			wp_enqueue_style('pmp-common');
-			wp_enqueue_script(
-				'pmp-manage-searches', PMP_PLUGIN_DIR_URI . '/assets/js/pmp-manage-searches.js',
-				array('pmp-common'), PMP_VERSION, true);
+			wp_enqueue_style('pmp-manage-searches');
 		}
 
 		return;
@@ -63,10 +137,11 @@ function pmp_enqueue_assets() {
 	$screen = get_current_screen();
 	if ($screen->base == 'post' && $screen->post_type == 'post') {
 		wp_enqueue_style('pmp-common');
+		wp_enqueue_style('pmp-chosen');
 		wp_enqueue_script('pmp-post');
 	}
 }
-add_action('admin_enqueue_scripts', 'pmp_enqueue_assets');
+add_action('admin_enqueue_scripts', 'pmp_enqueue_assets', 2);
 
 /**
  * Print the underscore template for the PMP.Modal view.
