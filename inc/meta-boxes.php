@@ -24,18 +24,14 @@ function pmp_mega_meta_box($post) {
 		if ($post->post_status == 'publish') { ?>
 		 <div id="pmp-override-defaults">
 			<p>Modify the Group, Series and Property settings for this post.</p>
-			<?php foreach (array('group', 'series', 'property') as $type) {
-				ob_start(); ?>
+			<?php foreach (array('group', 'series', 'property') as $type) { ?>
 			<div
 				id="pmp-<?php echo $type; ?>-for-post"
-				data-pmp-override-type="<?php echo $type; ?>"
-				data-pmp-override-input="<?php echo (($type == 'group')? 'checklist':'select'); ?>"
-				class="pmp-override-for-post">
+				class="pmp-override-for-post"
+				data-pmp-override-type="<?php echo $type; ?>">
 				<span class="spinner"></span>
 			</div>
-			<?php
-				echo apply_filters('pmp_override_markup', ob_get_clean(), $type, $post);
-			} ?>
+			<?php } ?>
 		</div><?php
 		}
 
@@ -49,7 +45,6 @@ function pmp_mega_meta_box($post) {
 		</script><?php
 
 		pmp_async_select_template();
-		pmp_async_checklist_template();
 	}
 
 	do_action('pmp_after_mega_meta_box_content', $post);
@@ -107,9 +102,8 @@ function pmp_save_override_defaults($post_id) {
 		$meta_key = 'pmp_' . $type . '_override';
 		$default_guid = get_option('pmp_default_' . $type, false);
 
-
 		// Indicate that the $type was explicitly net to false
-		if (empty($_POST[$meta_key]))
+		if (!isset($_POST[$meta_key]) || empty($_POST[$meta_key]))
 			$override_guid = false;
 		else
 			$override_guid = $_POST[$meta_key];

@@ -1,6 +1,12 @@
 <?php
 
 class TestAssets extends WP_UnitTestCase {
+
+	function setUp() {
+		parent::setUp();
+		pmp_register_assets();
+	}
+
 	function test_pmp_enqueue_assets_pmp_search() {
 		// The page variable must be set for `pmp_enqueue_assets` to work
 		$_GET['page'] = 'pmp-search';

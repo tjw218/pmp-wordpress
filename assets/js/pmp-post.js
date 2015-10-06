@@ -17,6 +17,7 @@ var PMP = PMP || {};
             PMP.BaseView.prototype.initialize.apply(this, arguments);
             this.type = options.type;
             this.template = _.template($(options.template).html());
+            this.multiSelect = (typeof options.multiSelect !== 'undefined')? options.multiSelect : false;
             this.getOptions();
             return this;
         },
@@ -57,11 +58,19 @@ var PMP = PMP || {};
 
         render: function() {
             var markup = $('<div />');
+
+            var renderedTmpl = this.template(_.extend(
+              this.optionData, { multiSelect: this.multiSelect }
+            ));
+
             markup
-                .append(this.template(this.optionData))
+                .append(renderedTmpl)
                 .hide()
                 .appendTo(this.$el)
                 .fadeIn(500);
+
+            this.$el.find('select').chosen({disable_search_threshold: 10});
+
             return this;
         }
     });
@@ -71,13 +80,13 @@ var PMP = PMP || {};
 
         if ($('#pmp-override-defaults').length > 0) {
             menus.each(function(idx, el) {
-                var type = $(el).data('pmp-override-type'),
-                    inputType = $(el).data('pmp-override-input');
+                var type = $(el).data('pmp-override-type');
 
-                new PMP.AsyncMenu({
+                var menu = new PMP.AsyncMenu({
                     type: type,
                     el: $(el),
-                    template: '#pmp-async-' + inputType + '-tmpl'
+                    template: '#pmp-async-select-tmpl',
+                    multiSelect: (type == 'group') ? true : false
                 });
             });
         }
