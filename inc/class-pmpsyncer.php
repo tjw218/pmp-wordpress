@@ -84,9 +84,11 @@ class PmpSyncer {
     if ($doc_modified != $post_modified) {
       return true;
     }
-    foreach ($this->attachment_syncers as $syncer) {
-      if ($syncer->is_modified()) {
-        return true;
+    if ($this->attachment_syncers) {
+      foreach ($this->attachment_syncers as $syncer) {
+        if ($syncer->is_modified()) {
+          return true;
+        }
       }
     }
     return false;
@@ -138,8 +140,10 @@ class PmpSyncer {
     }
 
     // sync post attachments
-    foreach ($this->attachment_syncers as $syncer) {
-      $syncer->pull();
+    if ($this->attachment_syncers) {
+      foreach ($this->attachment_syncers as $syncer) {
+        $syncer->pull();
+      }
     }
 
     // sync primary post data
