@@ -7,8 +7,10 @@
 # basic commands
 install:
 	composer install
+	bower install
 install-release: clean
 	composer install --no-dev
+	bower install --production
 clean:
 	find vendor -maxdepth 1 -mindepth 1 ! -name 'pmpsdk.phar' -exec rm -rf {} +
 pristine: clean test-clean
