@@ -89,7 +89,7 @@ class PmpSyncer {
    */
   public function is_modified() {
     $doc_modified = $this->doc ? $this->doc->attributes->modified : null;
-    $post_modified = $this->post_meta['pmp_modified'];
+    $post_modified = isset($this->post_meta['pmp_modified']) ? $this->post_meta['pmp_modified'] : null;
 
     // check this doc, then child items/attachments
     if ($doc_modified != $post_modified) {

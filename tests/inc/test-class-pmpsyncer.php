@@ -23,8 +23,7 @@ class TestPmpSyncer extends PMP_SyncerTestCase {
     $syncer = new PmpSyncer($this->pmp_story, null);
     $this->assertEquals($this->pmp_story->attributes->guid, $syncer->doc->attributes->guid);
     $this->assertNull($syncer->post);
-    $this->assertArrayHasKey('pmp_guid', $syncer->post_meta);
-    $this->assertNull($syncer->post_meta['pmp_guid']);
+    $this->assertArrayNotHasKey('pmp_guid', $syncer->post_meta);
     $this->assertCount(2, $syncer->attachment_syncers);
 
     // post only
@@ -61,11 +60,9 @@ class TestPmpSyncer extends PMP_SyncerTestCase {
 
     // top-level vs attachments
     update_post_meta($this->wp_post->ID, 'pmp_guid', $this->pmp_story->attributes->guid);
-    $syncer = PmpSyncer::fromDoc($this->pmp_story, false);
-    $this->assertNull($syncer->post);
     wp_update_post(array('ID' => $this->wp_post->ID, 'post_parent' => 9999));
-    $syncer = PmpSyncer::fromDoc($this->pmp_story, false);
-    $this->assertNotNull($syncer->post);
+    $syncer = PmpSyncer::fromDoc($this->pmp_story);
+    $this->assertNull($syncer->post);
   }
 
 
