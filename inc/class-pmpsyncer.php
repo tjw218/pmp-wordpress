@@ -120,9 +120,10 @@ class PmpSyncer {
   /**
    * Get upstream changes to this doc
    *
+   * @param $post_status the status you'd like to set for the post
    * @return boolean success
    */
-  public function pull() {
+  public function pull($post_status = 'draft') {
     if (!$this->doc) {
       throw new RuntimeException('No PMP doc specified!');
     }
@@ -154,7 +155,7 @@ class PmpSyncer {
       return $this->pull_attachment();
     }
     else {
-      return $this->pull_top_level_post();
+      return $this->pull_top_level_post($post_status);
     }
   }
 
@@ -193,10 +194,12 @@ class PmpSyncer {
   /**
    * Pull changes for a top-level post (usually a profile=story doc)
    *
+   * @param $post_status the status you'd like to set on the post
    * @return boolean success
    */
-  protected function pull_top_level_post() {
+  protected function pull_top_level_post($post_status) {
     $data = array('ID' => $this->post->ID);
+    $data['post_status'] = $post_status;
     $data['post_title'] = $this->doc->attributes->title;
     if (isset($this->doc->attributes->teaser)) {
       $data['post_excerpt'] = $this->doc->attributes->teaser;

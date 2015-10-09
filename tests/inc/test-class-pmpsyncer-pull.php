@@ -44,6 +44,31 @@ class TestPmpSyncerPull extends PMP_SyncerTestCase {
   }
 
   /**
+   * create a new post, when one doesn't exist
+   */
+  function test_pull_create() {
+    update_post_meta($this->wp_post->ID, 'pmp_guid', 'foobar');
+    $syncer = new PmpSyncer($this->pmp_story, null);
+    $success = $syncer->pull();
+    $this->assertTrue($success);
+
+    // should have created a draft post with attachments
+    $stories = new WP_Query(array('post_status' => 'draft', 'meta_key' => 'pmp_guid', 'meta_value' => $this->pmp_story->attributes->guid));
+    $this->assertCount(1, $stories->posts);
+    $post = $stories->posts[0];
+    $images = new WP_Query(array('post_parent' => $post->ID, 'post_status' => 'any', 'post_type' => 'attachment'));
+    $this->assertCount(1, $images->posts);
+    $audios = new WP_Query(array('post_parent' => $post->ID, 'post_status' => 'any', 'post_type' => 'pmp_attachment'));
+    $this->assertCount(1, $audios->posts);
+
+    // pull as published
+    $success = $syncer->pull('publish');
+    $this->assertTrue($success);
+    $stories = new WP_Query(array('post_status' => 'publish', 'meta_key' => 'pmp_guid', 'meta_value' => $this->pmp_story->attributes->guid));
+    $this->assertCount(1, $stories->posts);
+  }
+
+  /**
    * pull attachments
    */
   function test_pull_creating_attachments() {
