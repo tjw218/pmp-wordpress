@@ -106,18 +106,6 @@ class PmpSyncer {
   }
 
   /**
-   * Push local changes to the PMP
-   *
-   * @return boolean success
-   */
-  public function push() {
-    if (!$this->post) {
-      throw new RuntimeException('No WP post specified!');
-    }
-
-  }
-
-  /**
    * Get upstream changes to this doc
    *
    * @param $post_status the status you'd like to set for the post
