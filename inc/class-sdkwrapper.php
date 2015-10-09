@@ -313,4 +313,26 @@ class SDKWrapper {
 		}
 	}
 
+	/**
+	 * Get the "best" enclosure metadata from an image doc
+	 * (this replaces the above function - returning the enclosure itself)
+	 *
+	 * @since 0.4
+	 */
+	public static function getImageEnclosure($image_doc) {
+		$preferred = array('primary', 'standard', 'large');
+
+		// first look for a preferred crop size
+		foreach ($preferred as $crop) {
+			foreach ($image_doc->links('enclosure') as $enc) {
+				if (isset($enc->meta) && isset($enc->meta->crop) && $enc->meta->crop == $crop) {
+					return $enc;
+				}
+			}
+		}
+
+		// fall back to the first enclosure
+		return $image_doc->links('enclosure')->first();
+	}
+
 }

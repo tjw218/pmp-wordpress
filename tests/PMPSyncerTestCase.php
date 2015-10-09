@@ -56,6 +56,7 @@ class PMP_SyncerTestCase extends WP_UnitTestCase {
     wp_update_post(array(
       'ID' => $id,
       'post_parent' => $parent_id,
+      'post_status' => $parent_id ? 'inherit' : 'draft',
       'post_type' => $parent_id ? 'attachment' : 'post',
       'post_title' => 'foo',
       'post_content' => 'bar',
