@@ -125,7 +125,28 @@ class PmpSyncer {
    */
   public function pull($post_status = 'draft') {
     if (!$this->doc) {
-      throw new RuntimeException('No PMP doc specified!');
+      if ($this->post->post_type == 'attachment') {
+        pmp_debug("  -- deleting stale attachment[{$this->post->ID}]");
+        wp_delete_attachment($this->post->ID, true);
+      }
+      else {
+        pmp_debug("  -- deleting stale post[{$this->post->ID}]");
+        wp_delete_post($this->post->ID, true);
+      }
+      $this->post = null;
+      $this->post_meta = array();
+      return true;
+    }
+
+    // SPECIAL CASE: if the image-url changes, nuke the attachment
+    if ($this->doc->getProfileAlias() == 'image' && $this->post) {
+      $enclosure = SdkWrapper::getImageEnclosure($this->doc);
+      if (!isset($this->post_meta['pmp_image_url']) || $this->post_meta['pmp_image_url'] != $enclosure->href) {
+        pmp_debug("  -- refreshing attachment[{$this->post->ID}] guid[{$this->doc->attributes->guid}]");
+        wp_delete_attachment($this->post->ID, true);
+        $this->post = null;
+        $this->post_meta = array();
+      }
     }
 
     // create the post/attachment, if it doesn't exist yet
@@ -307,6 +328,10 @@ class PmpSyncer {
       return true;
     }
     else {
+      unset($this->post_meta['pmp_audio_url']);
+      unset($this->post_meta['pmp_audio_shortcode']);
+      update_post_meta($this->post->ID, 'pmp_audio_url', null);
+      update_post_meta($this->post->ID, 'pmp_audio_shortcode', null);
       return false;
     }
   }

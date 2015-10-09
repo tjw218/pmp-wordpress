@@ -65,7 +65,12 @@ function pmp_media_sideload_image($file, $post_id, $desc=null) {
 		// Set variables for storage, fix file filename for query strings.
 		preg_match('/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', $file, $matches);
 		$file_array = array();
-		$file_array['name'] = basename($matches[0]);
+		if (empty($matches)) {
+			$file_array['name'] = basename($file);
+		}
+		else {
+			$file_array['name'] = basename($matches[0]);
+		}
 
 		// Download file to temp location.
 		$file_array['tmp_name'] = download_url($file);
@@ -101,7 +106,7 @@ function pmp_get_pmp_attachments($parent_id) {
 			'compare' => 'EXISTS'
 		),
 		'posts_per_page' => -1,
-		'post_type' => 'attachment',
+		'post_type' => array('attachment', 'pmp_attachment'),
 		'post_status' => 'any',
 		'post_parent' => $parent_id,
 	));

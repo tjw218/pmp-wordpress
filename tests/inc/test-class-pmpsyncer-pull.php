@@ -13,8 +13,7 @@ class TestPmpSyncerPull extends PMP_SyncerTestCase {
    */
   function test_pull_story() {
     $syncer = new PmpSyncer($this->pmp_story, $this->wp_post);
-    $success = $syncer->pull();
-    $this->assertTrue($success);
+    $this->assertTrue($syncer->pull());
 
     $id = $this->wp_post->ID;
     $post = get_post($id);
@@ -49,8 +48,7 @@ class TestPmpSyncerPull extends PMP_SyncerTestCase {
   function test_pull_create() {
     update_post_meta($this->wp_post->ID, 'pmp_guid', 'foobar');
     $syncer = new PmpSyncer($this->pmp_story, null);
-    $success = $syncer->pull();
-    $this->assertTrue($success);
+    $this->assertTrue($syncer->pull());
 
     // should have created a draft post with attachments
     $stories = new WP_Query(array('post_status' => 'draft', 'meta_key' => 'pmp_guid', 'meta_value' => $this->pmp_story->attributes->guid));
@@ -62,10 +60,33 @@ class TestPmpSyncerPull extends PMP_SyncerTestCase {
     $this->assertCount(1, $audios->posts);
 
     // pull as published
-    $success = $syncer->pull('publish');
-    $this->assertTrue($success);
+    $this->assertTrue($syncer->pull('publish'));
     $stories = new WP_Query(array('post_status' => 'publish', 'meta_key' => 'pmp_guid', 'meta_value' => $this->pmp_story->attributes->guid));
     $this->assertCount(1, $stories->posts);
+  }
+
+  /**
+   * delete a post, when you lose access upstream
+   */
+  function test_pull_delete() {
+    $syncer = new PmpSyncer($this->pmp_story, $this->wp_post);
+    $this->assertTrue($syncer->pull());
+    $this->assertCount(2, $syncer->attachment_syncers);
+
+    // make sure these posts all get cleaned up
+    $id = $this->wp_post->ID;
+    $attach_id1 = $syncer->attachment_syncers[0]->post->ID;
+    $attach_id2 = $syncer->attachment_syncers[1]->post->ID;
+
+    // make it look like the top-level doc disappeared
+    update_post_meta($id, 'pmp_guid', 'foobar');
+    $syncer = PmpSyncer::fromPost($this->wp_post);
+    $this->assertTrue($syncer->pull());
+    $this->assertNull($syncer->post);
+    $this->assertCount(2, $syncer->attachment_syncers);
+    $this->assertNull(get_post($id));
+    $this->assertNull(get_post($attach_id1));
+    $this->assertNull(get_post($attach_id2));
   }
 
   /**
@@ -79,8 +100,7 @@ class TestPmpSyncerPull extends PMP_SyncerTestCase {
     unset($this->pmp_story->items[1]->attributes->byline);
 
     $syncer = new PmpSyncer($this->pmp_story, $this->wp_post);
-    $success = $syncer->pull();
-    $this->assertTrue($success);
+    $this->assertTrue($syncer->pull());
 
     $id1 = $syncer->attachment_syncers[0]->post->ID;
     $id2 = $syncer->attachment_syncers[1]->post->ID;
@@ -141,6 +161,105 @@ class TestPmpSyncerPull extends PMP_SyncerTestCase {
     $post = get_post($this->wp_post->ID);
     $this->assertEquals($id1, get_post_meta($post->ID, '_thumbnail_id', true));
     $this->assertContains($audio_shortcode, $post->post_content);
+  }
+
+  /**
+   * image attachment changes
+   */
+  function test_pull_images() {
+    $syncer = new PmpSyncer($this->pmp_story, $this->wp_post);
+    $this->assertTrue($syncer->pull());
+    $attach_id = $syncer->attachment_syncers[0]->post->ID;
+
+    // changing doc attributes updates attachment
+    $syncer->attachment_syncers[0]->doc->attributes->title = 'foobar';
+    $this->assertTrue($syncer->pull());
+    $this->assertEquals($attach_id, $syncer->attachment_syncers[0]->post->ID);
+    $this->assertEquals('foobar', $syncer->attachment_syncers[0]->post->post_title);
+    $this->assertEquals($attach_id, get_post_meta($syncer->post->ID, '_thumbnail_id', true));
+
+    // changing the enclosure href ends up nuking/recreating the attachment
+    $syncer->attachment_syncers[0]->doc->links->enclosure[0]->href = 'http://placehold.it/350x150.jpg';
+    $this->assertTrue($syncer->pull());
+    $this->assertNotEquals($attach_id, $syncer->attachment_syncers[0]->post->ID);
+    $this->assertEquals('foobar', $syncer->attachment_syncers[0]->post->post_title);
+    $this->assertEquals($syncer->attachment_syncers[0]->post->ID, get_post_meta($syncer->post->ID, '_thumbnail_id', true));
+
+    // invalid enclosures hrefs just end up deleting the image altogether
+    $syncer->attachment_syncers[0]->doc->links->enclosure[0]->href = 'http://foo.bar';
+    $this->assertTrue($syncer->pull());
+    $this->assertFalse($syncer->attachment_syncers[0]->pull());
+    $this->assertNull($syncer->attachment_syncers[0]->post);
+    $images = new WP_Query(array('post_parent' => $syncer->post->ID, 'post_status' => 'any', 'post_type' => 'attachment'));
+    $this->assertCount(0, $images->posts);
+    $this->assertEquals('', get_post_meta($syncer->post->ID, '_thumbnail_id', true));
+
+    // but we can always put it back
+    $syncer->attachment_syncers[0]->doc->links->enclosure[0]->href = 'http://placehold.it/350x150.jpg';
+    $this->assertTrue($syncer->pull());
+    $this->assertEquals('foobar', $syncer->attachment_syncers[0]->post->post_title);
+    $this->assertEquals($syncer->attachment_syncers[0]->post->ID, get_post_meta($syncer->post->ID, '_thumbnail_id', true));
+    $last_image_id = $syncer->attachment_syncers[0]->post->ID;
+
+    // or maybe the parent-story removed the image
+    $this->pmp_story->links->item = array();
+    $this->pmp_story->items = array();
+    $syncer = new PmpSyncer($this->pmp_story, $this->wp_post);
+    $this->assertCount(2, $syncer->attachment_syncers);
+    $this->assertNull($syncer->attachment_syncers[0]->doc);
+    $this->assertNotNull($syncer->attachment_syncers[0]->post);
+    $this->assertTrue($syncer->pull());
+    $this->assertNull($syncer->attachment_syncers[0]->post);
+    $images = new WP_Query(array('post_parent' => $syncer->post->ID, 'post_status' => 'any', 'post_type' => 'attachment'));
+    $this->assertCount(0, $images->posts);
+    $this->assertEquals('', get_post_meta($syncer->post->ID, '_thumbnail_id', true));
+  }
+
+  /**
+   * audio (post_type=pmp_attachment) changes
+   */
+  function test_pull_audio() {
+    $syncer = new PmpSyncer($this->pmp_story, $this->wp_post);
+    $this->assertTrue($syncer->pull());
+    $attach_id = $syncer->attachment_syncers[1]->post->ID;
+    $audio_url = $syncer->attachment_syncers[1]->post_meta['pmp_audio_url'];
+    $shortcode = $syncer->attachment_syncers[1]->post_meta['pmp_audio_shortcode'];
+
+    // changing doc attributes updates pmpattachment
+    $syncer->attachment_syncers[1]->doc->attributes->title = 'foobar';
+    $this->assertTrue($syncer->pull());
+    $this->assertEquals($attach_id, $syncer->attachment_syncers[1]->post->ID);
+    $this->assertEquals('foobar', $syncer->attachment_syncers[1]->post->post_title);
+    $this->assertContains($shortcode, $syncer->post->post_content);
+
+    // changing the enclosure href updates the shortcode
+    $syncer->attachment_syncers[1]->doc->links->enclosure[0]->href = 'http://foobar.org/test.mp3';
+    $this->assertTrue($syncer->pull());
+    $this->assertEquals($attach_id, $syncer->attachment_syncers[1]->post->ID);
+    $this->assertEquals('foobar', $syncer->attachment_syncers[1]->post->post_title);
+    $this->assertNotEquals($audio_url, $syncer->attachment_syncers[1]->post_meta['pmp_audio_url']);
+    $this->assertNotEquals($shortcode, $syncer->attachment_syncers[1]->post_meta['pmp_audio_shortcode']);
+    $this->assertNotContains($shortcode, $syncer->post->post_content);
+    $this->assertContains($syncer->attachment_syncers[1]->post_meta['pmp_audio_shortcode'], $syncer->post->post_content);
+
+    // non-playable enclosures
+    $syncer->attachment_syncers[1]->doc->links->enclosure[0]->href = 'http://foobar.org/test.foobar';
+    $syncer->attachment_syncers[1]->doc->links->enclosure[0]->type = 'foobar';
+    $this->assertTrue($syncer->pull());
+    $this->assertEquals($attach_id, $syncer->attachment_syncers[1]->post->ID);
+    $this->assertEquals('foobar', $syncer->attachment_syncers[1]->post->post_title);
+    $this->assertEquals('', get_post_meta($attach_id, 'pmp_audio_url', true));
+    $this->assertEquals('', get_post_meta($attach_id, 'pmp_audio_shortcode', true));
+    $this->assertNotContains('[audio', $syncer->post->post_content);
+
+    // delete stale pmp_attachments
+    $syncer->attachment_syncers[1]->doc = null;
+    $this->assertTrue($syncer->pull());
+    $this->assertNull($syncer->attachment_syncers[1]->post);
+    $this->assertNull(get_post($attach_id));
+    $audios = new WP_Query(array('post_parent' => $syncer->post->ID, 'post_status' => 'any', 'post_type' => 'pmp_attachment'));
+    $this->assertCount(0, $audios->posts);
+    $this->assertNotContains('[audio', $syncer->post->post_content);
   }
 
 }

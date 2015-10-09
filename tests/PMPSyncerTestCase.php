@@ -35,7 +35,7 @@ class PMP_SyncerTestCase extends WP_UnitTestCase {
   public function setUp() {
     parent::setUp();
     if (self::$_sdk_wrapper) {
-      $this->pmp_story = self::$_pmp_story;
+      $this->pmp_story = clone self::$_pmp_story;
       $this->wp_post = $this->reset_post(null, $this->pmp_story->attributes->guid, $this->pmp_story->attributes->modified);
     }
     else {
