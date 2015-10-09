@@ -6,7 +6,7 @@ require_once __DIR__ . '/../inc/class-pmpsyncer.php';
  *
  * todo: mock out some of these dependencies
  */
-class PMP_SyncerTestCase extends WP_UnitTestCase {
+abstract class PMP_SyncerTestCase extends WP_UnitTestCase {
 
   private static $_sdk_wrapper;
   private static $_pmp_story_guid = '753d0442-7133-4507-974e-65639ba6535c';
