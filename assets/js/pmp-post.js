@@ -86,7 +86,7 @@ var PMP = PMP || {};
                     type: type,
                     el: $(el),
                     template: '#pmp-async-select-tmpl',
-                    multiSelect: (type == 'group') ? true : false
+                    multiSelect: true
                 });
             });
         }

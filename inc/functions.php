@@ -295,30 +295,32 @@ function pmp_handle_push($post_id) {
 	if ($post->post_type == 'post') {
 		$obj->links->collection = array();
 
-		$series = pmp_get_collection_override_value($post_id, 'series');
-		if (!empty($series))
-			$obj->links->collection[] = (object) array(
-				'href' => $sdk->href4guid($series),
-				'rels' => array('urn:collectiondoc:collection:series'),
-			);
+		foreach (array('series', 'property') as $collection) {
+			$collection_override = pmp_get_collection_override_value($post_id, $collection_override);
 
-		$property = pmp_get_collection_override_value($post_id, 'property');
-		if (!empty($property))
-			$obj->links->collection[] = (object) array(
-				'href' => $sdk->href4guid($property),
-				'rels' => array('urn:collectiondoc:collection:property'),
-			);
+			if (!empty($collection_override)) {
+				if (!is_array($collection_override))
+					$collection_override = array($collection_override);
+
+				foreach ($collection_override as $guid) {
+					$obj->links->collection[] = (object) array(
+						'href' => $sdk->href4guid($guid),
+						'rels' => array('urn:collectiondoc:collection:' . $collection)
+					);
+				}
+			}
+		}
 	}
 
 	// Build out the permissions group profile array
 	$obj->links->permission = array();
-	$group = pmp_get_collection_override_value($post_id, 'group');
-	if (!empty($group)) {
-		if (is_array($group)) {
-			foreach ($group as $group_guid)
-				$obj->links->permission[] = (object) array('href' => $sdk->href4guid($group_guid));
-		} else
-			$obj->links->permission[] = (object) array('href' => $sdk->href4guid($group));
+	$groups = pmp_get_collection_override_value($post_id, 'group');
+	if (!empty($groups)) {
+		if (!is_array($groups))
+			$groups = array($groups);
+
+		foreach ($groups as $group_guid)
+			$obj->links->permission[] = (object) array('href' => $sdk->href4guid($group_guid));
 	}
 
 	// If this is a post with a featured image, push the featured image as a PMP Doc and include
