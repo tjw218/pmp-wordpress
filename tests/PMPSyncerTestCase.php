@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../inc/class-pmpsyncer.php';
+require_once __DIR__ . '/../inc/class-pmppost.php';
 
 /**
  * Abstract class for PMP Syncer utility testing

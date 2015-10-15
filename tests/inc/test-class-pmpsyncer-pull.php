@@ -12,7 +12,7 @@ class TestPmpSyncerPull extends PMP_SyncerTestCase {
    * pull a story
    */
   function test_pull_story() {
-    $syncer = new PmpSyncer($this->pmp_story, $this->wp_post);
+    $syncer = new PmpPost($this->pmp_story, $this->wp_post);
     $this->assertTrue($syncer->pull());
 
     $id = $this->wp_post->ID;
@@ -47,7 +47,7 @@ class TestPmpSyncerPull extends PMP_SyncerTestCase {
    */
   function test_pull_create() {
     update_post_meta($this->wp_post->ID, 'pmp_guid', 'foobar');
-    $syncer = new PmpSyncer($this->pmp_story, null);
+    $syncer = new PmpPost($this->pmp_story, null);
     $this->assertTrue($syncer->pull());
 
     // should have created a draft post with attachments
@@ -69,7 +69,7 @@ class TestPmpSyncerPull extends PMP_SyncerTestCase {
    * delete a post, when you lose access upstream
    */
   function test_pull_delete() {
-    $syncer = new PmpSyncer($this->pmp_story, $this->wp_post);
+    $syncer = new PmpPost($this->pmp_story, $this->wp_post);
     $this->assertTrue($syncer->pull());
     $this->assertCount(2, $syncer->attachment_syncers);
 
@@ -80,7 +80,7 @@ class TestPmpSyncerPull extends PMP_SyncerTestCase {
 
     // make it look like the top-level doc disappeared
     update_post_meta($id, 'pmp_guid', 'foobar');
-    $syncer = PmpSyncer::fromPost($this->wp_post);
+    $syncer = PmpPost::fromPost($this->wp_post);
     $this->assertTrue($syncer->pull());
     $this->assertNull($syncer->post);
     $this->assertCount(2, $syncer->attachment_syncers);
@@ -99,7 +99,7 @@ class TestPmpSyncerPull extends PMP_SyncerTestCase {
     unset($this->pmp_story->items[1]->attributes->description);
     unset($this->pmp_story->items[1]->attributes->byline);
 
-    $syncer = new PmpSyncer($this->pmp_story, $this->wp_post);
+    $syncer = new PmpPost($this->pmp_story, $this->wp_post);
     $this->assertTrue($syncer->pull());
 
     $id1 = $syncer->attachment_syncers[0]->post->ID;
@@ -167,7 +167,7 @@ class TestPmpSyncerPull extends PMP_SyncerTestCase {
    * image attachment changes
    */
   function test_pull_images() {
-    $syncer = new PmpSyncer($this->pmp_story, $this->wp_post);
+    $syncer = new PmpPost($this->pmp_story, $this->wp_post);
     $this->assertTrue($syncer->pull());
     $attach_id = $syncer->attachment_syncers[0]->post->ID;
 
@@ -204,7 +204,7 @@ class TestPmpSyncerPull extends PMP_SyncerTestCase {
     // or maybe the parent-story removed the image
     $this->pmp_story->links->item = array();
     $this->pmp_story->items = array();
-    $syncer = new PmpSyncer($this->pmp_story, $this->wp_post);
+    $syncer = new PmpPost($this->pmp_story, $this->wp_post);
     $this->assertCount(2, $syncer->attachment_syncers);
     $this->assertNull($syncer->attachment_syncers[0]->doc);
     $this->assertNotNull($syncer->attachment_syncers[0]->post);
@@ -219,7 +219,7 @@ class TestPmpSyncerPull extends PMP_SyncerTestCase {
    * audio (post_type=pmp_attachment) changes
    */
   function test_pull_audio() {
-    $syncer = new PmpSyncer($this->pmp_story, $this->wp_post);
+    $syncer = new PmpPost($this->pmp_story, $this->wp_post);
     $this->assertTrue($syncer->pull());
     $attach_id = $syncer->attachment_syncers[1]->post->ID;
     $audio_url = $syncer->attachment_syncers[1]->post_meta['pmp_audio_url'];
