@@ -32,11 +32,12 @@ class TestPmpSyncerPush extends PMP_SyncerTestCase {
     $this->assertObjectNotHasAttribute('collection', $syncer->doc->links);
 
     // attached image(s)
-    $this->assertCount(2, $syncer->doc->links->item);
-    $this->assertCount(2, $syncer->doc->items);
+    $this->assertCount(3, $syncer->doc->links->item);
+    $this->assertCount(3, $syncer->doc->items);
     $this->assertContains('urn:collectiondoc:image', $syncer->doc->links->item[0]->rels);
     $this->assertContains('urn:collectiondoc:image:featured', $syncer->doc->links->item[0]->rels);
     $this->assertContains('urn:collectiondoc:image', $syncer->doc->links->item[1]->rels);
+    $this->assertContains('urn:collectiondoc:audio', $syncer->doc->links->item[2]->rels);
 
     // check everything on the first image
     $image = $syncer->doc->items[0];
@@ -56,10 +57,23 @@ class TestPmpSyncerPush extends PMP_SyncerTestCase {
 
     // second image should have different attributes
     $image = $syncer->doc->items[1];
-    $this->assertRegexp('/profiles\/image$/', $image->links->profile[0]->href);
-    $this->assertEquals('canola', $image->attributes->title);
+    $this->assertEquals('imagetest', $image->attributes->title);
     $this->assertEquals('my-excerpt', $image->attributes->description);
     $this->assertEquals('my-byline', $image->attributes->byline);
+    $this->assertRegexp('/profiles\/image$/', $image->links->profile[0]->href);
+
+    // and how about that audio attachment?
+    $audio = $syncer->doc->items[2];
+    $this->assertEquals('mpthreetest', $audio->attributes->title);
+    $this->assertObjectNotHasAttribute('description', $audio->attributes);
+    $this->assertObjectNotHasAttribute('byline', $audio->attributes);
+    $this->assertRegexp('/profiles\/audio$/', $audio->links->profile[0]->href);
+    $this->assertCount(1, $audio->links->alternate);
+    $this->assertRegexp("/^http.*\?attachment_id={$syncer->attachment_syncers[2]->post->ID}$/", $audio->links->alternate[0]->href);
+    $this->assertCount(1, $audio->links->enclosure);
+    $this->assertRegexp('/mpthreetest\.mp3$/', $audio->links->enclosure[0]->href);
+    $this->assertEquals('audio/mpeg', $audio->links->enclosure[0]->type);
+    $this->assertEquals(12, $audio->links->enclosure[0]->meta->duration);
   }
 
 }

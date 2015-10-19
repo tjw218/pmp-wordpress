@@ -420,6 +420,23 @@ function pmp_enclosures_for_media($media_id) {
 }
 
 /**
+ * Build an array of enclosures for a given "audio" attachment post.
+ *
+ * @since 0.4
+ */
+function pmp_enclosures_for_audio($audio_id) {
+	$audio_metadata = wp_get_attachment_metadata($audio_id);
+	$enclosure = array(
+		'href' => wp_get_attachment_url($audio_id),
+		'type' => $audio_metadata['mime_type'],
+		'meta' => array(
+			'duration' => $audio_metadata['length'],
+		),
+	);
+	return array($enclosure);
+}
+
+/**
  * Find out if your PMP API user is the owner of a given post/PMP Doc
  *
  * @since 0.2

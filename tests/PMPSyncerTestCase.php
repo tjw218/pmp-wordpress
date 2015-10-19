@@ -98,35 +98,44 @@ abstract class PMP_SyncerTestCase extends WP_UnitTestCase {
       'post_author'   => 1,
     ));
 
-    // image attachment
-    $attach1_id = $this->make_local_image($id);
+    // attachments
+    $attach1_id = $this->make_local_attachment($id, 'image');
     update_post_meta($attach1_id, '_wp_attachment_image_alt', 'real-alt-text');
-    $attach2_id = $this->make_local_image($id, 'my-excerpt', 'my-byline');
+    $attach2_id = $this->make_local_attachment($id, 'image', 'my-excerpt', 'my-byline');
     set_post_thumbnail($id, $attach1_id);
+    $attach3_id = $this->make_local_attachment($id, 'audio');
 
     // update_post_meta($id, 'pmp_byline', 'my byline goes here');
     return get_post($id);
   }
 
   /**
-   * Create a test image attachment for a post
+   * Create a test attachment for a post
    *
    * @param $post_id the parent post
+   * @param $type the type of attachment (image/audio)
    * @param $excerpt an optional excerpt
    * @param $byline an optional byline
    * @return $attach_id the created attachment
    */
-  public function make_local_image($post_id, $excerpt = '', $byline = '') {
+  public function make_local_attachment($post_id, $type, $excerpt = '', $byline = '') {
     include_once ABSPATH . 'wp-admin/includes/image.php';
     include_once ABSPATH . 'wp-admin/includes/file.php';
     include_once ABSPATH . 'wp-admin/includes/media.php';
 
     // grab an image from the WP tests
-    $filename = getenv('WP_TESTS_DIR') . '/data/images/canola.jpg';
+    if ($type == 'image') {
+      $filename = __DIR__ . '/data/imagetest.jpg';
+      $filetype = 'image/jpeg';
+    }
+    else if ($type == 'audio') {
+      $filename = __DIR__ . '/data/mpthreetest.mp3';
+      $filetype = 'audio/mpeg';
+    }
     $wp_upload_dir = wp_upload_dir();
     $attachment = array(
       'guid'           => $wp_upload_dir['url'] . '/' . basename($filename),
-      'post_mime_type' => 'image/jpeg',
+      'post_mime_type' => $filetype,
       'post_title'     => preg_replace('/\.[^.]+$/', '', basename($filename)),
       'post_content'   => '',
       'post_excerpt'   => $excerpt,

@@ -207,10 +207,7 @@ class PmpAttachment extends PmpSyncer {
       $this->doc->links->enclosure = pmp_enclosures_for_media($this->post->ID);
     }
     else if ($profile == 'audio') {
-      // TODO: what does this look like?
-    }
-    else if ($profile == 'video') {
-      // TODO: what does this look like?
+      $this->doc->links->enclosure = pmp_enclosures_for_audio($this->post->ID);
     }
   }
 
@@ -227,7 +224,7 @@ class PmpAttachment extends PmpSyncer {
       return 'audio';
     }
     else if (preg_match('/^video/', $this->post->post_mime_type)) {
-      return 'video';
+      return null; // unsupported, at the moment
     }
     else {
       return null;
