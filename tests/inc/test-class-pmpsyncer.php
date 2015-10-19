@@ -118,4 +118,21 @@ class TestPmpSyncer extends PMP_SyncerTestCase {
     $this->assertFalse($syncer->is_modified());
   }
 
+  /**
+   * check push-ability
+   */
+  function test_is_writeable() {
+    $syncer = new PmpPost($this->pmp_story, $this->wp_post);
+    $this->assertFalse($syncer->is_writeable());
+
+    // i can always push new stories (even with a guid)
+    $syncer = new PmpPost(null, $this->wp_post);
+    $this->assertTrue($syncer->is_writeable());
+
+    // or an actual writeable doc
+    $this->pmp_story->scope = 'write';
+    $syncer = new PmpPost($this->pmp_story, $this->wp_post);
+    $this->assertTrue($syncer->is_writeable());
+  }
+
 }

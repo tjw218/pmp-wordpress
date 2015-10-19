@@ -184,4 +184,64 @@ class PmpPost extends PmpSyncer {
     }
   }
 
+  /**
+   * Turn a post into a story-doc
+   */
+  protected function set_doc_data() {
+    parent::set_doc_data();
+
+    // story-specific fields
+    if (!empty($this->post->post_excerpt)) {
+      $this->doc->attributes->teaser = $this->post->post_excerpt;
+    }
+    if (!empty($this->post->post_content)) {
+      $this->doc->attributes->description = strip_tags(apply_filters('the_content', $this->post->post_content));
+      $this->doc->attributes->contentencoded = $this->post->post_content;
+    }
+    $this->doc->links->profile = $this->get_profile_links('story');
+    $this->doc->links->alternate = array(array(
+      'href' => get_permalink($this->post->ID),
+      'type' => 'text/html',
+    ));
+
+    // use the custom byline, if it exists - otherwise post author
+    if (!empty($this->post_meta['pmp_byline'])) {
+      $this->doc->attributes->byline = $this->post_meta['pmp_byline'];
+    }
+    else {
+      $author = get_user_by('id', $this->post->post_author);
+      if ($author && !empty($author->display_name)) {
+        $this->doc->attributes->byline = $author->display_name;
+      }
+    }
+
+    // collections
+    $this->doc->links->collection = array();
+    $series = pmp_get_collection_override_value($this->post->ID, 'series');
+    $property = pmp_get_collection_override_value($this->post->ID, 'property');
+    if (!empty($series)) {
+      $this->doc->links->collection[] = get_collection_link($series, 'series');
+    }
+    if (!empty($property)) {
+      $this->doc->links->collection[] = get_collection_link($property, 'property');
+    }
+
+    // items (push them first!)
+    $this->doc->links->item = array();
+    foreach ($this->attachment_syncers as $syncer) {
+      $success = $syncer->push();
+      if ($success) {
+        $rels = array();
+        if (in_array($syncer->doc->getProfileAlias(), array('image', 'audio', 'video'))) {
+          $rels[] = 'urn:collectiondoc:' . $syncer->doc->getProfileAlias();
+        }
+        if ($syncer->doc->getProfileAlias() == 'image' && get_post_thumbnail_id($this->post->ID) == $syncer->post->ID) {
+          $rels[] = 'urn:collectiondoc:image:featured';
+        }
+        $this->doc->links->item[] = array('href' => $syncer->doc->href, 'rels' => $rels);
+      }
+    }
+
+  }
+
 }

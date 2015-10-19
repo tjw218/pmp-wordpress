@@ -662,7 +662,12 @@ if (!function_exists('var_log')) {
 	 * @param mixed $stuff the data structure to send to the error log.
 	 * @since 0.2
 	 */
-	function var_log($stuff) { error_log(var_export($stuff, true)); }
+	function var_log($stuff) {
+		if (!is_string($stuff)) {
+			$stuff = var_export($stuff, true);
+		}
+		error_log($stuff);
+	}
 }
 
 /**

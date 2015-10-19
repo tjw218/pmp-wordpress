@@ -162,4 +162,76 @@ class PmpAttachment extends PmpSyncer {
     return true;
   }
 
+  /**
+   * Only push known attachment types
+   *
+   * @return boolean success
+   */
+  public function push() {
+    if ($this->post_profile_type()) {
+      return parent::push();
+    }
+    else {
+      return false;
+    }
+  }
+
+  /**
+   * Turn a post into a media-doc
+   */
+  protected function set_doc_data() {
+    parent::set_doc_data();
+
+    // set profile link
+    $profile = $this->post_profile_type();
+    $this->doc->links->profile = $this->get_profile_links($profile);
+
+    // media fields
+    if (!empty($this->post->post_excerpt)) {
+      $this->doc->attributes->description = $this->post->post_excerpt;
+    }
+    if (!empty($this->post_meta['pmp_byline'])) {
+      $this->doc->attributes->byline = $this->post_meta['pmp_byline'];
+    }
+    $this->doc->links->alternate = array(array(
+      'href' => get_permalink($this->post->ID),
+      'type' => 'text/html',
+    ));
+
+    // media sub-profile fields
+    if ($profile == 'image') {
+      $alt_text = get_post_meta($this->post->ID, '_wp_attachment_image_alt', true);
+      if (!empty($alt_text)) {
+        $this->doc->attributes->title = $alt_text;
+      }
+      $this->doc->links->enclosure = pmp_enclosures_for_media($this->post->ID);
+    }
+    else if ($profile == 'audio') {
+      // TODO: what does this look like?
+    }
+    else if ($profile == 'video') {
+      // TODO: what does this look like?
+    }
+  }
+
+  /**
+   * Try to guess what PMP profile-type this attachment should be
+   *
+   * @return $type the matched profile type
+   */
+  protected function post_profile_type() {
+    if (preg_match('/^image/', $this->post->post_mime_type)) {
+      return 'image';
+    }
+    else if (preg_match('/^audio/', $this->post->post_mime_type)) {
+      return 'audio';
+    }
+    else if (preg_match('/^video/', $this->post->post_mime_type)) {
+      return 'video';
+    }
+    else {
+      return null;
+    }
+  }
+
 }

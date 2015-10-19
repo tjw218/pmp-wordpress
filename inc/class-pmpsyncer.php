@@ -11,6 +11,9 @@ abstract class PmpSyncer {
   public $post;
   public $post_meta;
 
+  // keep track of content with some itags
+  public static $ITAGS = array('pmp-wordpress');
+
   /**
    * Generic initializer for syncing PMP docs
    *
@@ -55,6 +58,23 @@ abstract class PmpSyncer {
   }
 
   /**
+   * Does it seem like I can write to the upstream Doc?
+   *
+   * @return boolean writeable
+   */
+  public function is_writeable() {
+    if (!$this->doc) {
+      return true;
+    }
+    else if ($this->doc->scope == 'write') {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  /**
    * Get upstream changes to this doc
    *
    * @return boolean success
@@ -82,6 +102,39 @@ abstract class PmpSyncer {
     $data_success = $this->pull_post_data();
     $meta_success = $this->pull_post_metadata();
     return ($data_success && $meta_success);
+  }
+
+  /**
+   * Send this post to the PMP
+   *
+   * @return boolean success
+   */
+  public function push() {
+    if (!$this->post) {
+      throw new RuntimeException('A post object is required');
+    }
+
+    // create the PMP doc, if it doesn't exist
+    if (!$this->doc) {
+      if (!$this->new_doc()) {
+        return false;
+      }
+    }
+
+    // set the data, save, and refresh local metadata
+    try {
+      $this->set_doc_data();
+      $this->doc->save();
+    }
+    catch (\Pmp\Sdk\Exception\ValidationException $e) {
+      var_log("ERROR: pmp invalid pushing post[{$this->post->ID}]: {$e->getValidationMessage()}");
+      return false;
+    }
+    catch (\Pmp\Sdk\Exception\RemoteException $e) {
+      var_log("ERROR: pmp exception pushing post[{$this->post->ID}]: $e");
+      return false;
+    }
+    return $this->pull_post_metadata();
   }
 
   /**
@@ -117,6 +170,24 @@ abstract class PmpSyncer {
   protected function delete_post() {
     pmp_debug("  -- deleting stale post[{$this->post->ID}]");
     wp_delete_post($this->post->ID, true);
+    return true;
+  }
+
+  /**
+   * Handle new-ing a pmp doc (without saving it)
+   *
+   * @return boolean success
+   */
+  protected function new_doc() {
+    pmp_debug("  -- newing a doc for post[{$this->post->ID}]");
+    $sdk = new SDKWrapper();
+    $this->doc = $sdk->newDoc('base', array(
+      'attributes' => array(
+        'title'     => $this->post->post_title,
+        'published' => date('c', strtotime($this->post->post_date)),
+        'itags'     => array_merge(self::$ITAGS, array("post-id-{$this->post->ID}")),
+      ),
+    ));
     return true;
   }
 
@@ -180,6 +251,57 @@ abstract class PmpSyncer {
       update_post_meta($this->post->ID, $key, $val);
     }
     return true;
+  }
+
+  /**
+   * Generic logic for setting PMP doc data from a post
+   */
+  protected function set_doc_data() {
+    $this->doc->attributes->title = $this->post->post_title;
+    $this->doc->attributes->published = date('c', strtotime($this->post->post_date_gmt));
+    $this->doc->attributes->itags = array_merge(self::$ITAGS, array("post-id-{$this->post->ID}"));
+  }
+
+  /**
+   * Helper for getting profile links
+   *
+   * @param $alias the profile alias
+   * @return a profile link object
+   */
+  protected function get_profile_links($alias) {
+    if (!$this->doc) {
+      return null;
+    }
+    $fetch_profile = $this->doc->link(\Pmp\Sdk::FETCH_PROFILE);
+    if (empty($fetch_profile)) {
+      var_log('WOH: unable to get the fetch-profile link from this document');
+      return null;
+    }
+    return array(array(
+      'href' => $fetch_profile->expand(array('guid' => $alias)),
+    ));
+  }
+
+  /**
+   * Helper for getting collection links
+   *
+   * @param $guid the collection guid
+   * @param $type the type of collection (property/series/etc)
+   * @return a link object
+   */
+  protected function get_collection_link($guid, $type) {
+    if (!$this->doc) {
+      return null;
+    }
+    $fetch_doc = $this->doc->link(\Pmp\Sdk::FETCH_DOC);
+    if (empty($fetch_profile)) {
+      var_log('WOH: unable to get the fetch-doc link from this document');
+      return null;
+    }
+    return array(
+      'href' => $fetch_doc->expand(array('guid' => $guid)),
+      'rels' => array("urn:collectiondoc:collection:$type"),
+    );
   }
 
 }
