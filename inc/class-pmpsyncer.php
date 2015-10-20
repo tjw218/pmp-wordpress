@@ -145,7 +145,6 @@ abstract class PmpSyncer {
 
     // create the post/attachment, if it doesn't exist yet
     if (!$this->post) {
-      $this->pmp_debug('   ** creating new post');
       if (!$this->insert_post()) {
         return false; // failed to create
       }
@@ -215,6 +214,7 @@ abstract class PmpSyncer {
     }
     else {
       $this->post = get_post($id_or_error);
+      $this->pmp_debug('   ** created new post');
       return true;
     }
   }

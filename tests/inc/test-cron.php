@@ -26,8 +26,8 @@ class TestCron extends WP_UnitTestCase {
 
 			$result = $this->sdk_wrapper->queryDocs($this->query);
 			$this->pmp_story = $result->items()->first();
-			$_POST['post_data'] = addslashes(json_encode($this->pmp_story));
-			$ret = _pmp_create_post();
+			$syncer = PmpPost::fromDoc($this->pmp_story);
+			$syncer->pull();
 		}
 	}
 
@@ -56,42 +56,6 @@ class TestCron extends WP_UnitTestCase {
 			$success = false;
 		}
 		$this->assertTrue($success);
-	}
-
-	function test_pmp_needs_update() {
-		if ($this->skip) {
-			$this->markTestSkipped(
-				'This test requires site options `pmp_api_url`, `pmp_client_id` and `pmp_client_secret`');
-			return;
-		}
-
-		$pmp_posts = pmp_get_pmp_posts();
-		$pmp_post = $pmp_posts[0];
-
-		// Using the story we originally fetched to determine if the WP Post
-		// needs updated. They should be the same, so $ret should be false.
-		$ret = pmp_needs_update($pmp_post, $this->pmp_story);
-		$this->assertTrue(!$ret);
-	}
-
-	function test_pmp_update_post() {
-		if ($this->skip) {
-			$this->markTestSkipped(
-				'This test requires site options `pmp_api_url`, `pmp_client_id` and `pmp_client_secret`');
-			return;
-		}
-
-		$pmp_posts = pmp_get_pmp_posts();
-		$pmp_post = $pmp_posts[0];
-
-		$success = true;
-		try {
-			$ret = pmp_update_post($pmp_post, $this->pmp_story);
-		} catch (Exception $e) {
-			$success = false;
-		}
-		$this->assertTrue($success);
-		$this->assertTrue(!is_wp_error($ret));
 	}
 
 	function test_pmp_import_for_saved_queries() {

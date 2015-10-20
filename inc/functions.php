@@ -259,8 +259,8 @@ add_action('save_post', 'pmp_push_to_pmp', 11);
 function pmp_handle_push($post_id) {
 	$post = get_post($post_id);
 	$syncer = PmpPost::fromPost($post);
-	if ($syncer->push) {
-		return $doc->attributes->guid;
+	if ($syncer->push()) {
+		return $syncer->doc->attributes->guid;
 	}
 	else {
 		return null;
@@ -334,6 +334,11 @@ function pmp_enclosures_for_audio($audio_id) {
  * @since 0.2
  */
 function pmp_post_is_mine($post_id) {
+	$pmp_guid = get_post_meta($post_id, 'pmp_guid', true);
+	if (empty($pmp_guid))
+		return true;
+
+	// check for the new "last_pushed" timestamp
 	$pmp_last_pushed = get_post_meta($post_id, 'pmp_last_pushed', true);
 	if (!empty($pmp_last_pushed))
 		return true;

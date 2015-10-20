@@ -74,8 +74,8 @@ class PmpAttachment extends PmpSyncer {
       return false;
     }
     else {
-      $this->pmp_debug("   ** creating new attachment for doc[{$this->doc->attributes->guid}]");
       $this->post = get_post($id_or_error);
+      $this->pmp_debug("   ** created new attachment");
       return true;
     }
   }

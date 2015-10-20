@@ -230,13 +230,15 @@ class SDKWrapper {
 			$type = null; // we don't know this anymore
 		}
 
-		// check for "known" types
+		// check for "known" types that start with audio/*
 		if ($type && in_array($type, array_values(get_allowed_mime_types()))) {
-			pmp_debug("      ** known mime type for audio[$guid]");
-			return $href;
+			if (preg_match('/^audio/', $type)) {
+				pmp_debug("      ** known mime type '$type' for audio[$guid]");
+				return $href;
+			}
 		}
 		if (in_array($extension, wp_get_audio_extensions())) {
-			pmp_debug("      ** known extension for audio[$guid]");
+			pmp_debug("      ** known extension '$extension' for audio[$guid]");
 			return $href;
 		}
 
