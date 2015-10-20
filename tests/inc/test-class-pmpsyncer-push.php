@@ -33,11 +33,17 @@ class TestPmpSyncerPush extends PMP_SyncerTestCase {
 
     // attached image(s)
     $this->assertCount(3, $syncer->doc->links->item);
-    $this->assertCount(3, $syncer->doc->items);
     $this->assertContains('urn:collectiondoc:image', $syncer->doc->links->item[0]->rels);
     $this->assertContains('urn:collectiondoc:image:featured', $syncer->doc->links->item[0]->rels);
     $this->assertContains('urn:collectiondoc:image', $syncer->doc->links->item[1]->rels);
     $this->assertContains('urn:collectiondoc:audio', $syncer->doc->links->item[2]->rels);
+
+    // re-fetch the doc, to make sure indexing has caught up
+    $syncer->doc->load();
+    $this->assertCount(3, $syncer->doc->items);
+    $this->assertNotNull($syncer->doc->items[0]);
+    $this->assertNotNull($syncer->doc->items[1]);
+    $this->assertNotNull($syncer->doc->items[2]);
 
     // check everything on the first image
     $image = $syncer->doc->items[0];
