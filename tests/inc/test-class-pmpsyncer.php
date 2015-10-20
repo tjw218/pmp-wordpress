@@ -119,6 +119,56 @@ class TestPmpSyncer extends PMP_SyncerTestCase {
   }
 
   /**
+   * did a doc originate from this wordpress site?
+   */
+  function test_is_local() {
+    $syncer = new PmpPost($this->pmp_story, $this->wp_post);
+    $this->assertFalse($syncer->is_local());
+
+    // should unset pmp_owner
+    update_post_meta($this->wp_post->ID, 'pmp_owner', 'somebody-else');
+    $this->assertNotEmpty(get_post_meta($this->wp_post->ID, 'pmp_owner', true));
+    $syncer = new PmpPost($this->pmp_story, $this->wp_post);
+    $this->assertEmpty(get_post_meta($this->wp_post->ID, 'pmp_owner', true));
+    $this->assertArrayNotHasKey('pmp_owner', $syncer->post_meta);
+    $this->assertArrayNotHasKey('pmp_last_pushed', $syncer->post_meta);
+    $this->assertFalse($syncer->is_local());
+
+    // unset the pmp_owner, but set the pmp_last_pushed
+    update_post_meta($this->wp_post->ID, 'pmp_owner', pmp_get_my_guid());
+    $this->assertNotEmpty(get_post_meta($this->wp_post->ID, 'pmp_owner', true));
+    $syncer = new PmpPost($this->pmp_story, $this->wp_post);
+    $this->assertEmpty(get_post_meta($this->wp_post->ID, 'pmp_owner', true));
+    $this->assertArrayNotHasKey('pmp_owner', $syncer->post_meta);
+    $this->assertEquals($this->pmp_story->attributes->modified, $syncer->post_meta['pmp_last_pushed']);
+    $this->assertTrue($syncer->is_local());
+
+    // local-only docs
+    $syncer = new PmpPost(null, $this->wp_post);
+    $this->assertTrue($syncer->is_local());
+  }
+
+  /**
+   * automatic updates to posts
+   */
+  function test_is_subscribed_to_updates() {
+    $syncer = new PmpPost($this->pmp_story, $this->wp_post);
+    $this->assertEmpty(get_post_meta($this->wp_post->ID, 'pmp_subscribe_to_updates', true));
+    $this->assertArrayNotHasKey('pmp_subscribe_to_updates', $syncer->post_meta);
+    $this->assertTrue($syncer->is_subscribed_to_updates());
+
+    // explicitly set to "off"
+    update_post_meta($this->wp_post->ID, 'pmp_subscribe_to_updates', 'off');
+    $syncer = new PmpPost($this->pmp_story, $this->wp_post);
+    $this->assertFalse($syncer->is_subscribed_to_updates());
+
+    // anything but "off" means "on"
+    update_post_meta($this->wp_post->ID, 'pmp_subscribe_to_updates', 'this-means-on');
+    $syncer = new PmpPost($this->pmp_story, $this->wp_post);
+    $this->assertTrue($syncer->is_subscribed_to_updates());
+  }
+
+  /**
    * check push-ability
    */
   function test_is_writeable() {

@@ -76,10 +76,7 @@ abstract class PmpSyncer {
    * Does this Post have a local origin?
    */
   public function is_local() {
-    if (!empty($this->post_meta['pmp_last_pushed'])) {
-      pmp_debug($this->post_meta);
-    }
-    return !empty($this->post_meta['pmp_last_pushed']);
+    return !$this->doc || !empty($this->post_meta['pmp_last_pushed']);
   }
 
   /**
