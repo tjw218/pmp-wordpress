@@ -43,7 +43,6 @@ class TestPmpSyncer extends PMP_SyncerTestCase {
     $this->assertCount(2, $syncer->attachment_syncers);
   }
 
-
   /**
    * lookup post from pmp document
    */
@@ -65,7 +64,6 @@ class TestPmpSyncer extends PMP_SyncerTestCase {
     $this->assertNull($syncer->post);
   }
 
-
   /**
    * lookup pmp document from a post
    */
@@ -85,7 +83,6 @@ class TestPmpSyncer extends PMP_SyncerTestCase {
     $syncer = PmpPost::fromPost($this->wp_post);
     $this->assertNull($syncer->doc);
   }
-
 
   /**
    * check for modifications (local or remote)
@@ -141,10 +138,6 @@ class TestPmpSyncer extends PMP_SyncerTestCase {
     $this->assertEmpty(get_post_meta($this->wp_post->ID, 'pmp_owner', true));
     $this->assertArrayNotHasKey('pmp_owner', $syncer->post_meta);
     $this->assertEquals($this->pmp_story->attributes->modified, $syncer->post_meta['pmp_last_pushed']);
-    $this->assertTrue($syncer->is_local());
-
-    // local-only docs
-    $syncer = new PmpPost(null, $this->wp_post);
     $this->assertTrue($syncer->is_local());
   }
 

@@ -57,7 +57,7 @@ function pmp_get_profiles() {
  */
 function pmp_media_sideload_image($file, $post_id, $desc=null) {
 	if (!empty($file)) {
-		pmp_debug("  -- sideloading-image $file for post[$post_id]");
+		pmp_debug("      ** sideloading-image $file for post[$post_id]");
 		include_once ABSPATH . 'wp-admin/includes/image.php';
 		include_once ABSPATH . 'wp-admin/includes/file.php';
 		include_once ABSPATH . 'wp-admin/includes/media.php';

@@ -76,7 +76,7 @@ abstract class PmpSyncer {
    * Does this Post have a local origin?
    */
   public function is_local() {
-    return !$this->doc || !empty($this->post_meta['pmp_last_pushed']);
+    return !empty($this->post_meta['pmp_last_pushed']);
   }
 
   /**
@@ -111,26 +111,28 @@ abstract class PmpSyncer {
   /**
    * Get upstream changes to this doc
    *
+   * @param $force force updates, ignoring local/modified/subscribed flags
    * @return boolean success
    */
-  public function pull() {
-    if ($this->is_local()) {
-      $this->pmp_debug('-- skipping local');
-      return false;
-    }
-    if (!$this->is_modified()) {
-      $this->pmp_debug('-- skipping not modified');
-      return false;
-    }
-    if (!$this->is_subscribed_to_updates()) {
-      $this->pmp_debug('-- skipping updates off');
-      return false;
+  public function pull($force = false) {
+    if (!$force) {
+      if ($this->is_local()) {
+        $this->pmp_debug('-- pull skipping local');
+        return false;
+      }
+      if (!$this->is_modified()) {
+        $this->pmp_debug('-- pull skipping not modified');
+        return true;
+      }
+      if (!$this->is_subscribed_to_updates()) {
+        $this->pmp_debug('-- pull skipping updates off');
+        return false;
+      }
     }
     $this->pmp_debug('-- pulling');
 
     // remove post, if upstream doc is gone
     if (!$this->doc) {
-      $this->pmp_debug('  -- deleting stale post');
       if ($this->delete_post()) {
         $this->post = null;
         $this->post_meta = array();
@@ -143,7 +145,7 @@ abstract class PmpSyncer {
 
     // create the post/attachment, if it doesn't exist yet
     if (!$this->post) {
-      $this->pmp_debug('  -- creating new post');
+      $this->pmp_debug('   ** creating new post');
       if (!$this->insert_post()) {
         return false; // failed to create
       }
@@ -168,7 +170,7 @@ abstract class PmpSyncer {
 
     // create the PMP doc, if it doesn't exist
     if (!$this->doc) {
-      $this->pmp_debug('  -- newing a doc');
+      $this->pmp_debug('   ** newing a doc');
       if (!$this->new_doc()) {
         return false;
       }
@@ -223,6 +225,7 @@ abstract class PmpSyncer {
    * @return boolean success
    */
   protected function delete_post() {
+    $this->pmp_debug('   ** deleting stale post');
     wp_delete_post($this->post->ID, true);
     return true;
   }

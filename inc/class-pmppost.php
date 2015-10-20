@@ -12,6 +12,7 @@ class PmpPost extends PmpSyncer {
 
   // child attachments (PMP items)
   public $attachment_syncers;
+  private $attachment_force = false;
 
   /**
    * Initialize the sync process for a document-to-post
@@ -87,10 +88,13 @@ class PmpPost extends PmpSyncer {
   /**
    * Allow setting post-status
    *
+   * @param $force force updates, ignoring local/modified/subscribed flags
+   * @param $post_status optionally set a new post status after pulling
    * @return boolean success
    */
-  public function pull($post_status = null) {
-    if (!parent::pull()) {
+  public function pull($force = false, $post_status = null) {
+    $this->attachment_force = $force;
+    if (!parent::pull($force)) {
       return false;
     }
 
@@ -119,7 +123,7 @@ class PmpPost extends PmpSyncer {
     // sync children NOW, so we can embed attachments
     $content = $this->post->post_content;
     foreach ($this->attachment_syncers as $syncer) {
-      $success = $syncer->pull();
+      $success = $syncer->pull($this->attachment_force);
       if ($success) {
         if (isset($syncer->post_meta['pmp_audio_shortcode'])) {
           $content = $syncer->post_meta['pmp_audio_shortcode'] . "\n" . $content;

@@ -205,7 +205,7 @@ class SDKWrapper {
 		$guid      = $audio_doc->attributes->guid;
 		$enclosure = $audio_doc->links('enclosure')->first();
 		if (!$enclosure) {
-			pmp_debug("  -- NO ENCLOSURES for audio[$guid]");
+			pmp_debug("      ** NO ENCLOSURES for audio[$guid]");
 			return null;
 		}
 
@@ -215,13 +215,13 @@ class SDKWrapper {
 		$uri_parts = parse_url($href);
 		$extension = pathinfo($uri_parts['path'], PATHINFO_EXTENSION);
 		if (!in_array($uri_parts['scheme'], array('http', 'https'))) {
-			pmp_debug("  -- INVALID ENCLOSURE HREF ($href) for audio[$guid]");
+			pmp_debug("      ** INVALID ENCLOSURE HREF ($href) for audio[$guid]");
 			return null;
 		}
 
 		// dereference playlists (m3u)
 		if ($type == 'audio/m3u' || $extension == 'm3u') {
-			pmp_debug("  -- dereferencing playlist for audio[$guid]");
+			pmp_debug("      ** dereferencing playlist for audio[$guid]");
 			$response = wp_remote_get($href);
 			$lines = explode("\n", $response['body']);
 			$href = $lines[0];
@@ -232,16 +232,16 @@ class SDKWrapper {
 
 		// check for "known" types
 		if ($type && in_array($type, array_values(get_allowed_mime_types()))) {
-			pmp_debug("  -- known mime type for audio[$guid]");
+			pmp_debug("      ** known mime type for audio[$guid]");
 			return $href;
 		}
 		if (in_array($extension, wp_get_audio_extensions())) {
-			pmp_debug("  -- known extension for audio[$guid]");
+			pmp_debug("      ** known extension for audio[$guid]");
 			return $href;
 		}
 
 		// not sure what this is
-		pmp_debug("  -- UNABLE TO PLAY enclosure ($href) for audio[$guid]");
+		pmp_debug("      ** UNABLE TO PLAY enclosure ($href) for audio[$guid]");
 		return null;
 	}
 

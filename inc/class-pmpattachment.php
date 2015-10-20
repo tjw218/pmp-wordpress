@@ -30,19 +30,20 @@ class PmpAttachment extends PmpSyncer {
   /**
    * SPECIAL CASE: if the image-url changes, nuke the attachment
    *
+   * @param $force force updates, ignoring local/modified/subscribed flags
    * @return boolean success
    */
-  public function pull() {
+  public function pull($force = false) {
     if (!$this->is_local() && $this->doc && $this->post && $this->doc->getProfileAlias() == 'image') {
       $enclosure = SdkWrapper::getImageEnclosure($this->doc);
       if (!isset($this->post_meta['pmp_image_url']) || $this->post_meta['pmp_image_url'] != $enclosure->href) {
-        pmp_debug("  -- refreshing attachment[{$this->post->ID}] guid[{$this->doc->attributes->guid}]");
+        $this->pmp_debug("   ** refreshing attachment[{$this->post->ID}] guid[{$this->doc->attributes->guid}]");
         wp_delete_attachment($this->post->ID, true);
         $this->post = null;
         $this->post_meta = array();
       }
     }
-    return parent::pull();
+    return parent::pull($force);
   }
 
   /**
@@ -73,7 +74,7 @@ class PmpAttachment extends PmpSyncer {
       return false;
     }
     else {
-      pmp_debug("  -- creating new attachment for doc[{$this->doc->attributes->guid}]");
+      $this->pmp_debug("   ** creating new attachment for doc[{$this->doc->attributes->guid}]");
       $this->post = get_post($id_or_error);
       return true;
     }
@@ -86,11 +87,11 @@ class PmpAttachment extends PmpSyncer {
    */
   protected function delete_post() {
     if ($this->post->post_type == 'attachment') {
-      pmp_debug("  -- deleting stale attachment[{$this->post->ID}]");
+      $this->pmp_debug("** deleting stale attachment");
       wp_delete_attachment($this->post->ID, true);
     }
     else {
-      pmp_debug("  -- deleting stale {$this->post->post_type}[{$this->post->ID}]");
+      $this->pmp_debug("** deleting stale {$this->post->post_type}");
       wp_delete_post($this->post->ID, true);
     }
     return true;
@@ -235,7 +236,7 @@ class PmpAttachment extends PmpSyncer {
    * Indent an extra level on the debugger
    */
   protected function pmp_debug($msg) {
-    $msg = preg_replace('/ post /', 'attachment', "  $msg");
+    $msg = preg_replace('/ post /', 'attachment', "   $msg");
     parent::pmp_debug($msg);
   }
 

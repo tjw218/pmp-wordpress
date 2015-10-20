@@ -92,10 +92,10 @@ function pmp_import_for_saved_queries() {
 				$syncer->pull();
 			}
 			else if ($query_data->options->query_auto_create == 'draft') {
-				$syncer->pull('draft');
+				$syncer->pull(false, 'draft');
 			}
 			else {
-				$syncer->pull('publish');
+				$syncer->pull(false, 'publish');
 			}
 
 			// make sure we got a post out of the deal
