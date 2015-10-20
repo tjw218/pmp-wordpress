@@ -39,6 +39,7 @@ class TestPmpSyncerPush extends PMP_SyncerTestCase {
     $this->assertContains('urn:collectiondoc:audio', $syncer->doc->links->item[2]->rels);
 
     // re-fetch the doc, to make sure indexing has caught up
+    sleep(1);
     $syncer->doc->load();
     $this->assertCount(3, $syncer->doc->items);
     $this->assertNotNull($syncer->doc->items[0]);
