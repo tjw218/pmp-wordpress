@@ -89,13 +89,13 @@ class PmpPost extends PmpSyncer {
    *
    * @return boolean success
    */
-  public function pull($post_status = 'draft') {
+  public function pull($post_status = null) {
     if (!parent::pull()) {
       return false;
     }
 
     // change status, if necessary
-    if ($this->post && $this->post->post_status != $post_status) {
+    if ($this->post && $post_status && $post_status != $this->post->post_status) {
       $data = array('ID' => $this->post->ID, 'post_status' => $post_status);
       $id_or_error = wp_update_post($data, true);
       if (is_wp_error($id_or_error)) {

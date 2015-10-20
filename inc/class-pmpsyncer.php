@@ -44,6 +44,21 @@ abstract class PmpSyncer {
         }
       }
     }
+
+    // BACKWARDS COMPATIBILITY: set pmp_last_pushed from pmp_owner
+    if (!empty($this->post_meta['pmp_owner'])) {
+      if ($this->post_meta['pmp_owner'] == pmp_get_my_guid()) {
+        if (isset($this->post_meta['pmp_modified'])) {
+          $this->post_meta['pmp_last_pushed'] = $this->post_meta['pmp_modified'];
+        }
+        else {
+          $this->post_meta['pmp_last_pushed'] = date('c', time());
+        }
+        update_post_meta($this->post->ID, 'pmp_last_pushed', $this->post_meta['pmp_last_pushed']);
+      }
+      unset($this->post_meta['pmp_owner']);
+      delete_post_meta($this->post->ID, 'pmp_owner');
+    }
   }
 
   /**
@@ -55,6 +70,28 @@ abstract class PmpSyncer {
     $doc_modified = $this->doc ? $this->doc->attributes->modified : null;
     $post_modified = isset($this->post_meta['pmp_modified']) ? $this->post_meta['pmp_modified'] : null;
     return ($doc_modified != $post_modified);
+  }
+
+  /**
+   * Does this Post have a local origin?
+   */
+  public function is_local() {
+    if (!empty($this->post_meta['pmp_last_pushed'])) {
+      pmp_debug($this->post_meta);
+    }
+    return !empty($this->post_meta['pmp_last_pushed']);
+  }
+
+  /**
+   * Is this Post subscribed to updates?
+   */
+  public function is_subscribed_to_updates() {
+    if (!$this->post || empty($this->post_meta['pmp_subscribe_to_updates'])) {
+      return true;
+    }
+    else {
+      return ($this->post_meta['pmp_subscribe_to_updates'] != 'off');
+    }
   }
 
   /**
@@ -80,7 +117,23 @@ abstract class PmpSyncer {
    * @return boolean success
    */
   public function pull() {
+    if ($this->is_local()) {
+      $this->pmp_debug('-- skipping local');
+      return false;
+    }
+    if (!$this->is_modified()) {
+      $this->pmp_debug('-- skipping not modified');
+      return false;
+    }
+    if (!$this->is_subscribed_to_updates()) {
+      $this->pmp_debug('-- skipping updates off');
+      return false;
+    }
+    $this->pmp_debug('-- pulling');
+
+    // remove post, if upstream doc is gone
     if (!$this->doc) {
+      $this->pmp_debug('  -- deleting stale post');
       if ($this->delete_post()) {
         $this->post = null;
         $this->post_meta = array();
@@ -93,6 +146,7 @@ abstract class PmpSyncer {
 
     // create the post/attachment, if it doesn't exist yet
     if (!$this->post) {
+      $this->pmp_debug('  -- creating new post');
       if (!$this->insert_post()) {
         return false; // failed to create
       }
@@ -110,12 +164,14 @@ abstract class PmpSyncer {
    * @return boolean success
    */
   public function push() {
+    $this->pmp_debug('-- pushing');
     if (!$this->post) {
       throw new RuntimeException('A post object is required');
     }
 
     // create the PMP doc, if it doesn't exist
     if (!$this->doc) {
+      $this->pmp_debug('  -- newing a doc');
       if (!$this->new_doc()) {
         return false;
       }
@@ -124,7 +180,10 @@ abstract class PmpSyncer {
     // set the data, save, and refresh local metadata
     try {
       $this->set_doc_data();
+      $this->doc = apply_filters('pmp_before_push', $this->doc, $this->post->ID);
       $this->doc->save();
+      do_action('pmp_after_push', $this->doc, $this->post->ID);
+      update_post_meta($this->post->ID, 'pmp_last_pushed', $this->doc->attributes->modified);
     }
     catch (\Pmp\Sdk\Exception\ValidationException $e) {
       var_log("ERROR: pmp invalid pushing post[{$this->post->ID}]: {$e->getValidationMessage()}");
@@ -156,7 +215,6 @@ abstract class PmpSyncer {
       return false;
     }
     else {
-      pmp_debug("  -- creating new post for doc[{$this->doc->attributes->guid}]");
       $this->post = get_post($id_or_error);
       return true;
     }
@@ -168,7 +226,6 @@ abstract class PmpSyncer {
    * @return boolean success
    */
   protected function delete_post() {
-    pmp_debug("  -- deleting stale post[{$this->post->ID}]");
     wp_delete_post($this->post->ID, true);
     return true;
   }
@@ -179,7 +236,6 @@ abstract class PmpSyncer {
    * @return boolean success
    */
   protected function new_doc() {
-    pmp_debug("  -- newing a doc for post[{$this->post->ID}]");
     $sdk = new SDKWrapper();
     $this->doc = $sdk->newDoc('base', array(
       'attributes' => array(
@@ -260,6 +316,12 @@ abstract class PmpSyncer {
     $this->doc->attributes->title = $this->post->post_title;
     $this->doc->attributes->published = date('c', strtotime($this->post->post_date_gmt));
     $this->doc->attributes->itags = array_merge(self::$ITAGS, array("post-id-{$this->post->ID}"));
+
+    // TODO: permissions
+    // $obj->links->permission = array();
+    // $group = pmp_get_collection_override_value($post_id, 'group');
+    // if (!empty($group))
+    //   $obj->links->permission[] = (object) array('href' => $sdk->href4guid($group));
   }
 
   /**
@@ -302,6 +364,19 @@ abstract class PmpSyncer {
       'href' => $fetch_doc->expand(array('guid' => $guid)),
       'rels' => array("urn:collectiondoc:collection:$type"),
     );
+  }
+
+  /**
+   * Debug helper to attach post/doc information
+   */
+  protected function pmp_debug($msg) {
+    if ($this->post) {
+      $msg = "$msg wp[{$this->post->ID}]";
+    }
+    if ($this->doc) {
+      $msg = "$msg pmp[{$this->doc->attributes->guid}]";
+    }
+    pmp_debug($msg);
   }
 
 }

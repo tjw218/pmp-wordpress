@@ -33,7 +33,7 @@ class PmpAttachment extends PmpSyncer {
    * @return boolean success
    */
   public function pull() {
-    if ($this->doc && $this->post && $this->doc->getProfileAlias() == 'image') {
+    if (!$this->is_local() && $this->doc && $this->post && $this->doc->getProfileAlias() == 'image') {
       $enclosure = SdkWrapper::getImageEnclosure($this->doc);
       if (!isset($this->post_meta['pmp_image_url']) || $this->post_meta['pmp_image_url'] != $enclosure->href) {
         pmp_debug("  -- refreshing attachment[{$this->post->ID}] guid[{$this->doc->attributes->guid}]");
@@ -229,6 +229,14 @@ class PmpAttachment extends PmpSyncer {
     else {
       return null;
     }
+  }
+
+  /**
+   * Indent an extra level on the debugger
+   */
+  protected function pmp_debug($msg) {
+    $msg = preg_replace('/ post /', 'attachment', "  $msg");
+    parent::pmp_debug($msg);
   }
 
 }
