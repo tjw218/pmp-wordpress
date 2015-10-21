@@ -158,6 +158,16 @@ function pmp_setup_cron_on_activation() {
 register_activation_hook(__FILE__, 'pmp_setup_cron_on_activation');
 
 /**
+ * On deactivation, clear pmp cron
+ *
+ * @since 0.4
+ */
+function pmp_remove_cron_on_deactivation() {
+	wp_clear_scheduled_hook('pmp_hourly_cron');
+}
+register_deactivation_hook(__FILE__, 'pmp_remove_cron_on_deactivation');
+
+/**
  * On the scheduled action hook, run the function.
  *
  * @since 0.1
