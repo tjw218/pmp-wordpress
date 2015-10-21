@@ -317,11 +317,26 @@ abstract class PmpSyncer {
     $this->doc->attributes->published = date('c', strtotime($this->post->post_date_gmt));
     $this->doc->attributes->itags = array_merge(self::$ITAGS, array("post-id-{$this->post->ID}"));
 
-    // TODO: permissions
-    // $obj->links->permission = array();
-    // $group = pmp_get_collection_override_value($post_id, 'group');
-    // if (!empty($group))
-    //   $obj->links->permission[] = (object) array('href' => $sdk->href4guid($group));
+    // pull collection/group settings based on the TOP-LEVEL post id
+    $top_level_id = ($this->post->post_parent > 0) ? $this->post->post_parent : $this->post->ID;
+
+    // collections
+    $this->doc->links->collection = array();
+    $series = pmp_get_collection_override_value($top_level_id, 'series');
+    $property = pmp_get_collection_override_value($top_level_id, 'property');
+    if (!empty($series)) {
+      $this->doc->links->collection[] = $this->get_collection_link($series, 'series');
+    }
+    if (!empty($property)) {
+      $this->doc->links->collection[] = $this->get_collection_link($property, 'property');
+    }
+
+    // permissions
+    $this->doc->links->permission = array();
+    $group = pmp_get_collection_override_value($top_level_id, 'group');
+    if (!empty($group)) {
+      $this->doc->links->permission[] = $this->get_group_link($group);
+    }
   }
 
   /**
@@ -339,7 +354,7 @@ abstract class PmpSyncer {
       var_log('WOH: unable to get the fetch-profile link from this document');
       return null;
     }
-    return array(array(
+    return array((object) array(
       'href' => $fetch_profile->expand(array('guid' => $alias)),
     ));
   }
@@ -356,13 +371,33 @@ abstract class PmpSyncer {
       return null;
     }
     $fetch_doc = $this->doc->link(\Pmp\Sdk::FETCH_DOC);
-    if (empty($fetch_profile)) {
+    if (empty($fetch_doc)) {
       var_log('WOH: unable to get the fetch-doc link from this document');
       return null;
     }
-    return array(
+    return (object) array(
       'href' => $fetch_doc->expand(array('guid' => $guid)),
       'rels' => array("urn:collectiondoc:collection:$type"),
+    );
+  }
+
+  /**
+   * Helper for getting group links
+   *
+   * @param $guid the group guid
+   * @return a link object
+   */
+  protected function get_group_link($guid) {
+    if (!$this->doc) {
+      return null;
+    }
+    $fetch_doc = $this->doc->link(\Pmp\Sdk::FETCH_DOC);
+    if (empty($fetch_doc)) {
+      var_log('WOH: unable to get the fetch-doc link from this document');
+      return null;
+    }
+    return (object) array(
+      'href' => $fetch_doc->expand(array('guid' => $guid)),
     );
   }
 

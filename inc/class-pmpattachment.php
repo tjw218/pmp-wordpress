@@ -194,7 +194,7 @@ class PmpAttachment extends PmpSyncer {
     if (!empty($this->post_meta['pmp_byline'])) {
       $this->doc->attributes->byline = $this->post_meta['pmp_byline'];
     }
-    $this->doc->links->alternate = array(array(
+    $this->doc->links->alternate = array((object) array(
       'href' => get_permalink($this->post->ID),
       'type' => 'text/html',
     ));

@@ -200,10 +200,10 @@ class PmpPost extends PmpSyncer {
     }
     if (!empty($this->post->post_content)) {
       $this->doc->attributes->description = strip_tags(apply_filters('the_content', $this->post->post_content));
-      $this->doc->attributes->contentencoded = $this->post->post_content;
+      $this->doc->attributes->contentencoded = apply_filters('the_content', $this->post->post_content);
     }
     $this->doc->links->profile = $this->get_profile_links('story');
-    $this->doc->links->alternate = array(array(
+    $this->doc->links->alternate = array((object) array(
       'href' => get_permalink($this->post->ID),
       'type' => 'text/html',
     ));
@@ -219,17 +219,6 @@ class PmpPost extends PmpSyncer {
       }
     }
 
-    // collections
-    $this->doc->links->collection = array();
-    $series = pmp_get_collection_override_value($this->post->ID, 'series');
-    $property = pmp_get_collection_override_value($this->post->ID, 'property');
-    if (!empty($series)) {
-      $this->doc->links->collection[] = get_collection_link($series, 'series');
-    }
-    if (!empty($property)) {
-      $this->doc->links->collection[] = get_collection_link($property, 'property');
-    }
-
     // items (push them first!)
     $this->doc->links->item = array();
     foreach ($this->attachment_syncers as $syncer) {
@@ -242,7 +231,7 @@ class PmpPost extends PmpSyncer {
         if ($syncer->doc->getProfileAlias() == 'image' && get_post_thumbnail_id($this->post->ID) == $syncer->post->ID) {
           $rels[] = 'urn:collectiondoc:image:featured';
         }
-        $this->doc->links->item[] = array('href' => $syncer->doc->href, 'rels' => $rels);
+        $this->doc->links->item[] = (object) array('href' => $syncer->doc->href, 'rels' => $rels);
       }
     }
 
