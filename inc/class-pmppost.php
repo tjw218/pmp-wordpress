@@ -199,8 +199,9 @@ class PmpPost extends PmpSyncer {
       $this->doc->attributes->teaser = $this->post->post_excerpt;
     }
     if (!empty($this->post->post_content)) {
-      $this->doc->attributes->description = strip_tags(apply_filters('the_content', $this->post->post_content));
-      $this->doc->attributes->contentencoded = apply_filters('the_content', $this->post->post_content);
+      $this->doc->attributes->description = pmp_sanitize_content($this->post->post_content, true);
+      $this->doc->attributes->contentencoded = pmp_sanitize_content($this->post->post_content);
+      $this->doc->attributes->wp_content = apply_filters('the_content', $this->post->post_content);
     }
     $this->doc->links->profile = $this->get_profile_links('story');
     $this->doc->links->alternate = array((object) array(

@@ -47,6 +47,38 @@ function pmp_get_profiles() {
 }
 
 /**
+ * Clean up post_content before sending to the PMP
+ *
+ * @param string $content the original wp_content
+ * @param boolean $tagless whether to also strip tags from the content
+ * @return string the sanitized content
+ */
+function pmp_sanitize_content($content, $tagless = false) {
+	global $shortcode_tags;
+
+	// remove audio shortcodes
+	$stack = $shortcode_tags;
+	$shortcode_tags = array('audio' => 1);
+	$content = strip_shortcodes($content);
+	$shortcode_tags = $stack;
+
+	// convert remaining shortcodes to html
+	$content = apply_filters('the_content', $content);
+
+	// strip newlines (convert to spaces, if non-html)
+	if ($tagless) {
+		$content = str_replace('&nbsp;', ' ', $content); // these are weird
+		$content = strip_tags(html_entity_decode($content));
+		$content = trim(preg_replace("/[\n\r]+/", ' ', $content));
+	}
+	else {
+		$content = trim(preg_replace("/[\n\r]/", '', $content));
+	}
+
+	return $content;
+}
+
+/**
  * Similar to `media_sideload_image` except that it simply returns the attachment's ID on success
  *
  * @param (string) $file the url of the image to download and attach to the post

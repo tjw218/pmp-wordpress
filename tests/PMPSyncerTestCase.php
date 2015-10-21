@@ -91,7 +91,7 @@ abstract class PMP_SyncerTestCase extends WP_UnitTestCase {
   public function make_local_post() {
     $id = wp_insert_post(array(
       'post_title'    => 'my post title',
-      'post_content'  => 'my <p>html encoded</p> post content',
+      'post_content'  => 'SEE BELOW',
       'post_excerpt'  => 'my post excerpt',
       'post_status'   => 'publish',
       'post_date_gmt' => '1999-12-31 12:12:12',
@@ -104,6 +104,18 @@ abstract class PMP_SyncerTestCase extends WP_UnitTestCase {
     $attach2_id = $this->make_local_attachment($id, 'image', 'my-excerpt', 'my-byline');
     set_post_thumbnail($id, $attach1_id);
     $attach3_id = $this->make_local_attachment($id, 'audio');
+
+    // real looking content, with shortcodes and the like
+    $real_image = wp_get_attachment_image($attach2_id);
+    $real_audio = wp_get_attachment_url($attach3_id);
+    $real_content = "here it is with content\n\n" .
+      "[caption id=\"attachment_$attach2_id\"]" .
+      "<a href=\"http://somewhere.foo\">$real_image</a> my caption" .
+      "[/caption]\n\n" .
+      "and some more content\n\n" .
+      "[audio mp3=\"$real_audio\"][/audio]\n\n" .
+      "&nbsp;";
+    wp_update_post(array('ID' => $id, 'post_content' => $real_content));
 
     // update_post_meta($id, 'pmp_byline', 'my byline goes here');
     return get_post($id);
