@@ -227,8 +227,10 @@ function pmp_do_notification_callback() {
 		// look for Posts tied to that guid
 		if (isset($pmp_guids[$item_guid])) {
 			$post = get_post($pmp_guids[$item_guid]);
-			$syncer = PmpPost::fromPost($post);
-			$syncer->pull();
+			if ($post) {
+				$syncer = PmpPost::fromPost($post);
+				$syncer->pull();
+			}
 		}
 	}
 }
