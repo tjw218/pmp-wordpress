@@ -24,10 +24,10 @@ class TestFunctions extends WP_UnitTestCase {
 			$user->set_role('editor');
 			wp_set_current_user($user->ID);
 
-			$result = $this->sdk_wrapper->query2json('queryDocs', $this->query);
-			$this->pmp_story = $result['items'][0];
-			$_POST['post_data'] = addslashes(json_encode($this->pmp_story));
-			$ret = _pmp_create_post();
+			$result = $this->sdk_wrapper->queryDocs($this->query);
+			$this->pmp_story = $result->items()->first();
+			$syncer = PmpPost::fromDoc($this->pmp_story);
+			$syncer->pull();
 
 			$this->post = $this->factory->post->create(array(
 				'post_title' => 'WP PMP Unit Test Story'
@@ -145,6 +145,7 @@ class TestFunctions extends WP_UnitTestCase {
 	function test_pmp_publish_actions_helper_pushed() {
 		$post = get_post($this->post);
 		update_post_meta($post->ID, 'pmp_guid', 'foobar');
+		update_post_meta($post->ID, 'pmp_last_pushed', 'foobar');
 		$this->expectOutputRegex('/Post will be updated/');
 		pmp_publish_and_push_to_pmp_button($post);
 	}
@@ -207,29 +208,6 @@ class TestFunctions extends WP_UnitTestCase {
 		$pmp_post = $pmp_posts[0];
 		$is_mine = pmp_post_is_mine($pmp_post->ID);
 		$this->assertTrue(!$is_mine);
-	}
-
-	function test_pmp_get_post_data_from_pmp_doc() {
-		$post_data = pmp_get_post_data_from_pmp_doc($this->pmp_story);
-
-		$this->assertEquals($post_data['post_title'], $this->pmp_story['attributes']['title']);
-		$this->assertEquals($post_data['post_content'], $this->pmp_story['attributes']['contentencoded']);
-		$this->assertEquals($post_data['post_excerpt'], $this->pmp_story['attributes']['teaser']);
-		$this->assertEquals($post_data['post_date'], date('Y-m-d H:i:s', strtotime($this->pmp_story['attributes']['published'])));
-	}
-
-	function test_pmp_get_post_meta_from_pmp_doc() {
-		$post_meta = pmp_get_post_meta_from_pmp_doc($this->pmp_story);
-
-		$this->assertEquals($post_meta['pmp_guid'], $this->pmp_story['attributes']['guid']);
-		$this->assertEquals($post_meta['pmp_created'], $this->pmp_story['attributes']['created']);
-		$this->assertEquals($post_meta['pmp_modified'], $this->pmp_story['attributes']['modified']);
-		$this->assertEquals($post_meta['pmp_published'], $this->pmp_story['attributes']['published']);
-		$this->assertEquals($post_meta['pmp_owner'], SDKWrapper::guid4href($this->pmp_story['links']['owner'][0]->href));
-
-		// The byline is not guaranteed to be present
-		if (!empty($this->pmp_story['attributes']['byline']))
-			$this->assertEquals($post_meta['pmp_byline'], $this->pmp_story['attributes']['byline']);
 	}
 
 	function test_pmp_filter_media_library() {

@@ -66,7 +66,7 @@ class TestAjax extends WP_Ajax_UnitTestCase {
 		$result = $this->sdk_wrapper->query2json('queryDocs', $this->query);
 		$pmp_story = $result['items'][0];
 
-		$_POST['post_data'] = addslashes(json_encode($pmp_story));
+		$_POST['pmp_guid'] = $pmp_story['attributes']['guid'];
 		$_POST['security'] = wp_create_nonce('pmp_ajax_nonce');
 
 		try {
@@ -87,7 +87,7 @@ class TestAjax extends WP_Ajax_UnitTestCase {
 		$result = $this->sdk_wrapper->query2json('queryDocs', $this->query);
 		$pmp_story = $result['items'][0];
 
-		$_POST['post_data'] = addslashes(json_encode($pmp_story));
+		$_POST['pmp_guid'] = $pmp_story['attributes']['guid'];
 		$_POST['security'] = wp_create_nonce('pmp_ajax_nonce');
 
 		try {

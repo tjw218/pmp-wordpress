@@ -190,35 +190,23 @@ function pmp_do_notification_callback() {
 
 	pmp_debug('========== pmp_do_notification_callback ==========');
 
-	$sdk = new SDKWrapper();
 	$body = file_get_contents('php://input');
 	$hash = hash_hmac('sha1', $body, PMP_NOTIFICATIONS_SECRET);
 
 	// get a COMPLETE mapping of known-PMP-guids to top-level WP-posts
 	$pmp_post_data = $wpdb->get_results(
-		'SELECT pm.meta_key, pm.meta_value, pm.post_id, p.post_parent ' .
-		'FROM wp_postmeta pm JOIN wp_posts p ON (pm.post_id = p.id) ' .
-		'WHERE meta_key = "pmp_guid" OR meta_key = "pmp_audio"'
-	);
+		"select post_id, meta_value, post_parent " .
+		"from {$wpdb->posts} join {$wpdb->postmeta} on (ID = post_id) " .
+		"where meta_key = 'pmp_guid'", ARRAY_A);
 
-	// map to the TOP LEVEL post (including the pmp_audio arrays)
+	// map to the TOP LEVEL post (attachments map to their parent)
 	$pmp_guids = array();
-	foreach ($pmp_post_data as $data) {
-		if ($data->meta_key === 'pmp_guid' && $data->post_parent > 0) {
-			if ($data->post_parent > 0) {
-				$pmp_guids[$data->meta_value] = $data->post_parent;
-			}
-			else {
-				$pmp_guids[$data->meta_value] = $data->post_id;
-			}
+	foreach ($pmp_post_data as $row) {
+		if ($row['post_parent'] > 0) {
+			$pmp_guids[$row['meta_value']] = $row['post_parent'];
 		}
 		else {
-			$audios = unserialize($data->meta_value);
-			if ($audios && is_array($audios)) {
-				foreach ($audios as $guid => $modified) {
-					$pmp_guids[$guid] = $data->post_id;
-				}
-			}
+			$pmp_guids[$row['meta_value']] = $row['post_id'];
 		}
 	}
 
@@ -239,23 +227,9 @@ function pmp_do_notification_callback() {
 		// look for Posts tied to that guid
 		if (isset($pmp_guids[$item_guid])) {
 			$post = get_post($pmp_guids[$item_guid]);
-
-			// Honor the subscription setting for posts
-			$subscribed = get_post_meta($post->ID, 'pmp_subscribe_to_updates', true);
-			$subscribed = empty($subscribed) ? 'on' : $subscribed;
-			if ($subscribed !== 'on') {
-				pmp_debug("-- skipping wp[{$post->ID}] pmp[{$item_guid}] due to 'off' setting");
-				continue;
-			}
-
-			// Fetch document from PMP and sync changes
-			$doc = $sdk->fetchDoc($item_guid);
-			if (empty($doc)) {
-				pmp_debug("-- deleting wp[{$post->ID}] pmp[{$item_guid}]");
-				wp_delete_post($post->ID, true);
-			}
-			else if (pmp_needs_update($post, $doc)) {
-				pmp_update_post($post, $doc);
+			if ($post) {
+				$syncer = PmpPost::fromPost($post);
+				$syncer->pull();
 			}
 		}
 	}

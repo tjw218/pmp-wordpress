@@ -28,8 +28,16 @@ function pmp_init() {
 	define('PMP_TEMPLATE_DIR', PMP_PLUGIN_DIR . '/templates');
 	define('PMP_VERSION', 0.1);
 
-	if (!defined('PMP_DEBUG'))
-		define('PMP_DEBUG', WP_DEBUG);
+	// debug PMP stuff based on env variables - or fall back to WP_DEBUG
+	if (!defined('PMP_DEBUG')) {
+		$env_debug = getenv('PMP_DEBUG');
+		if ($env_debug !== false) {
+			define('PMP_DEBUG', in_array($env_debug, array(1, '1', true, 'true')));
+		}
+		else {
+			define('PMP_DEBUG', WP_DEBUG);
+		}
+	}
 
 	$includes = array(
 		'inc/functions.php',
@@ -148,6 +156,16 @@ function pmp_setup_cron_on_activation() {
 	wp_schedule_event(time(), 'hourly', 'pmp_hourly_cron');
 }
 register_activation_hook(__FILE__, 'pmp_setup_cron_on_activation');
+
+/**
+ * On deactivation, clear pmp cron
+ *
+ * @since 0.4
+ */
+function pmp_remove_cron_on_deactivation() {
+	wp_clear_scheduled_hook('pmp_hourly_cron');
+}
+register_deactivation_hook(__FILE__, 'pmp_remove_cron_on_deactivation');
 
 /**
  * On the scheduled action hook, run the function.
