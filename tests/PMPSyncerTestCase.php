@@ -117,6 +117,9 @@ abstract class PMP_SyncerTestCase extends WP_UnitTestCase {
       "&nbsp;";
     wp_update_post(array('ID' => $id, 'post_content' => $real_content));
 
+    // some tags (override old tags)
+    wp_set_post_tags($id, array('foo', 'bar', 'and another one'), false);
+
     // update_post_meta($id, 'pmp_byline', 'my byline goes here');
     return get_post($id);
   }
