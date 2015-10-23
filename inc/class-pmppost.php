@@ -147,6 +147,21 @@ class PmpPost extends PmpSyncer {
   }
 
   /**
+   * Set tags for top-level posts
+   *
+   * @return boolean success
+   */
+  protected function pull_post_metadata() {
+    if (!parent::pull_post_metadata()) {
+      return false;
+    }
+    if (!empty($this->doc->attributes->tags)) {
+      wp_set_post_tags($this->post->ID, $this->doc->attributes->tags, true);
+    }
+    return true;
+  }
+
+  /**
    * Get child items/attachments of this post
    */
   protected function load_attachment_syncers() {
@@ -217,6 +232,15 @@ class PmpPost extends PmpSyncer {
       $author = get_user_by('id', $this->post->post_author);
       if ($author && !empty($author->display_name)) {
         $this->doc->attributes->byline = $author->display_name;
+      }
+    }
+
+    // tags!
+    $tags = wp_get_post_tags($this->post->ID);
+    if (!empty($tags)) {
+      $this->doc->attributes->tags = array();
+      foreach ($tags as $tagObj) {
+        $this->doc->attributes->tags[] = $tagObj->name;
       }
     }
 
