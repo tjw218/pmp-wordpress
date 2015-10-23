@@ -31,6 +31,10 @@ class TestPmpSyncerPush extends PMP_SyncerTestCase {
     $this->assertContains("post-id-{$syncer->post->ID}", $story->attributes->itags);
     $this->assertEquals('1999-12-31T12:12:12+00:00', $story->attributes->published);
     $this->assertEquals('admin', $story->attributes->byline);
+    $this->assertObjectHasAttribute('tags', $story->attributes);
+    $this->assertContains('foo', $story->attributes->tags);
+    $this->assertContains('bar', $story->attributes->tags);
+    $this->assertContains('and another one', $story->attributes->tags);
     $this->assertCount(1, $story->links->profile);
     $this->assertRegexp('/profiles\/story$/', $story->links->profile[0]->href);
     $this->assertCount(1, $story->links->alternate);

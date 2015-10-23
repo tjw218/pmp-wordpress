@@ -262,4 +262,50 @@ class TestPmpSyncerPull extends PMP_SyncerTestCase {
     $this->assertNotContains('[audio', $syncer->post->post_content);
   }
 
+  /**
+   * pull tags into post
+   */
+  function test_pull_tags() {
+    $tags = wp_get_post_tags($this->wp_post->ID);
+    $this->assertCount(0, $tags);
+
+    $this->pmp_story->attributes->tags = array('foo', 'bar', 'something else here');
+    $syncer = new PmpPost($this->pmp_story, $this->wp_post);
+    $this->assertTrue($syncer->pull(true));
+
+    // check tags
+    $tags = wp_get_post_tags($this->wp_post->ID);
+    $this->assertCount(3, $tags);
+    $get_tag_names = function($tag) {
+      return $tag->name;
+    };
+    $ordered_tags = array_map($get_tag_names, $tags);
+    sort($ordered_tags);
+    $this->assertEquals('bar', $ordered_tags[0]);
+    $this->assertEquals('foo', $ordered_tags[1]);
+    $this->assertEquals('something else here', $ordered_tags[2]);
+
+    // additional tag
+    $this->pmp_story->attributes->tags = array('bar', 'tags are additive!');
+    $syncer = new PmpPost($this->pmp_story, $this->wp_post);
+    $this->assertTrue($syncer->pull(true));
+
+    // should have added new tag
+    $tags = wp_get_post_tags($this->wp_post->ID);
+    $this->assertCount(4, $tags);
+    $ordered_tags = array_map($get_tag_names, $tags);
+    sort($ordered_tags);
+    $this->assertEquals('bar', $ordered_tags[0]);
+    $this->assertEquals('foo', $ordered_tags[1]);
+    $this->assertEquals('something else here', $ordered_tags[2]);
+    $this->assertEquals('tags are additive!', $ordered_tags[3]);
+
+    // they don't just go away
+    unset($this->pmp_story->attributes->tags);
+    $syncer = new PmpPost($this->pmp_story, $this->wp_post);
+    $this->assertTrue($syncer->pull(true));
+    $tags = wp_get_post_tags($this->wp_post->ID);
+    $this->assertCount(4, $tags);
+  }
+
 }
