@@ -3,7 +3,7 @@ Contributors: publicmediaplatform
 Tags: pmp,pubmedia,publicmediaplatform,apm,npr,pri,prx,pbs,media,news
 Requires at least: 3.9
 Tested up to: 4.3
-Stable tag: 0.2.7
+Stable tag: 0.2.8
 License: MIT
 License URI: https://github.com/publicmediaplatform/pmp-wordpress/blob/master/LICENSE
 
@@ -53,6 +53,12 @@ For information on the PMP in general, head to [support.pmp.io](https://support.
 See the [documentation on Github](https://github.com/publicmediaplatform/pmp-wordpress).
 
 == Changelog ==
+
+= 0.2.8 =
+
+- Better support for attachment media (push/pull for multiple images and audio files)
+- Fix bug with saved-searches missing content
+- Fix bug with images not showing up consistently
 
 = 0.2.7 =
 
