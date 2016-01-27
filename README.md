@@ -76,7 +76,7 @@ Here's an example of search results for Chicago.  Since we didn't use a prefix, 
 
 From the search results list, you can choose to create a draft post or choose to immediately publish a post based on a search result.
 
-![Search result](http://assets.apps.investigativenewsnetwork.org/pmp/search_result.png)
+![Search result](/assets/img/pmp-story-in-largo-search-results.png)
 
 After clicking one of the "Create draft" or "Publish" links, you'll see a confirmation dialog:
 
