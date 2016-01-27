@@ -91,6 +91,8 @@ If you want to see the full story on the public media site where it was original
 
 ![Story on the Hear and Now website](/assets/img/here-and-new-story.png)
 
+Note that you can [save a search query for reuse later](/pmp-wordpress#saved-search-queries). So once you set up a search that returns stories for a particular content source or topic, you can run the saved search to import more matching stories in the future. 
+
 ## Import content
 
 From the search results list, you can choose to create a draft post or choose to immediately publish a post based on a search result.
