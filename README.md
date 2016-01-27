@@ -203,7 +203,7 @@ Once you've added or removed users from a group, you must click the "Save" butto
 
 ## Series
 
-Series are somewhat loosely defined in the PMP as a collection of related stories. A series may correspond to a broadcast program, or reports on a particular topic or beat, or any other relationship between stories you care to make. 
+Series are somewhat loosely defined in the PMP as a collection of related stories. A series may correspond to a broadcast program, or reports on a particular topic or beat, or any other relationship between stories you care to make. (See the [Terminology section of the PMP User Docs](https://support.pmp.io/guides#pmp-terminology) for more on what a Series is in the PMP.)
 
 You can create a new Series in the PMP plugin, and add relevant Tags to it which become part of the series data in the PMP. The plugin will push new series and their tags to the PMP. You can edit the series name and its tags, and changes will propagate to the PMP. But like Groups you can’t delete a series in the plugin, you can only modify it.
 
@@ -229,9 +229,15 @@ After clicking "Yes" to confirm, the confirmation prompt will close and the list
 
 ## Properties
 
-To manage properties, navigate to Public Media Platform > Properties in the WordPress dashboard.
+Properties are defined in the PMP as the highest level of organization for a collection of content. It could be akin to a brand for a broadcast program, or an entire news organization. (See the [Terminology section of the PMP User Docs](https://support.pmp.io/guides#pmp-terminology) for more on what a Property is in the PMP.)
 
-![Navigate to series](http://assets.apps.investigativenewsnetwork.org/pmp/navigate-properties.png)
+Like Series and Groups, you can create new Properties in the PMP plugin and add tags to them, and they will propagate to the PMP. You can modify the title and tags of a property in the plugin, and this will update the PMP. You can’t delete properties in the PMP plugin once they are created, you can only modify them to suit your needs.
+
+To manage properties, navigate to **Public Media Platform** > **Properties** in the WordPress dashboard.
+
+Create a new property by clicking the **Create new properties** button, then enter a Title for the property and any relevant tags:
+
+![creating new PMP property](/assets/img/create-pmp-property.png)
 
 ### Setting the default property
 
@@ -239,11 +245,11 @@ To set the default property to which all new content pushed to PMP will be added
 
 You will asked to confirm your choice:
 
-![Confirm default property](http://assets.apps.investigativenewsnetwork.org/pmp/confirm-default-property.png)
+![Confirm default property](/assets/img/set-default-property.png)
 
 After clicking "Yes" to confirm, the confirmation prompt will close and the list of series will update. The property you set as the default will appear with "(default)" near its name:
 
-![Default property set](http://assets.apps.investigativenewsnetwork.org/pmp/default-property-set.png)
+![Default property set](/assets/img/default-property-set.png)
 
 ## Saved search queries
 
