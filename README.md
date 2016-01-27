@@ -113,7 +113,7 @@ You can now edit the PMP story in the usual WordPress way. Note that if you subs
 
 By default, the plugin periodically checks for updates to all content that you import from PMP. Any updates to stories in the PMP will automatically update the corresponding posts on your site. Typically this is useful, but if you've edited the post for your site you might want to disable PMP updates. 
 
-You can disable automatic updates to each post via the "PMP: Document information" meta box on the post edit page:
+You can disable automatic updates to each post via the **PMP: Document information** meta box on the post edit page:
 
 ![PMP plugin settings for subscribing to post updates](/assets/img/post-pmp-subscribe-settings.png)
 
@@ -121,21 +121,17 @@ To unsubscribe to updates, simply uncheck "Subscribe to updates for this post" a
 
 ## Pushing content to PMP
 
-To push a new story to the PMP, navigate to Posts > Add New in the WordPress dashboard.
+To push a new story to the PMP, create and edit your new post as you would any other. When you are ready to publish your post, click the "Publish" button as you normally would. Note that you can't push the post to the PMP until it's published on your site.
 
-![Add new](http://assets.apps.investigativenewsnetwork.org/pmp/add-new.png)
+![Before publishing Push to PMP is disabled](/assets/img/post-prepush-to-pmp.png)
 
-Create and edit your new post as you would any other. When you are ready to publish your post, click the "Publish" button as you normally would.
+If you would like to push the post to the PMP, click the "Push to PMP" button in the "PMP: Document information" meta box after your post is published. Note that as you push the post to the PMP you have options to assign it to a Group, Series, or Property. We cover these things below.
 
-![Before publishing](http://assets.apps.investigativenewsnetwork.org/pmp/before-publish.png)
+![After publishing the post Push to PMP is enabled](/assets/img/post-published-prepush-to-pmp.png)
 
-If you would like to push said post to the PMP, click the "Push to PMP" button in the "PMP: Document information" meta box after your post is published. 
+Once your post is published, if you make changes to it in WordPress and would like to push your changes to the PMP, click the "Push to PMP" button located in the "PMP: Document information" meta box.
 
-![After publishing](http://assets.apps.investigativenewsnetwork.org/pmp/after-publish.png)
-
-Once your post is published, if you make changes and would like to push your changes to PMP, click the "Push to PMP" button located in the "PMP: Document information" meta box.
-
-![Update and push](http://assets.apps.investigativenewsnetwork.org/pmp/update-and-push.png)
+![Update the post and push the changes to the PMP](/assets/img/post-published-and-pushed-to-pmp.png)
 
 ## Groups & Permissions
 
