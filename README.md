@@ -57,9 +57,17 @@ If you don't yet have a Client ID and Client Secret, you'll probably need to [re
 
 ### Keyword search
 
-Search for content by visiting the Public Media Platform > Search link in the WordPress dashboard.
+Search for content by visiting the **Public Media Platform** > **Search** link in the WordPress dashboard. Perform a simple search by entering keywords in the search field. If you want to search by a specific phrase, use quotes around the phrase, like "Chicago fire".
 
-Example of search results:
+You can also limit the search to story titles etc by using these prefixes:
+
+- title:”search term”
+- teaser:”search term”
+- tags:”search term”
+- content:”search term”
+- byline:”name”
+
+Here's an example of search results for Chicago.  Since we didn't use a prefix, this search will return stories that have "Chicago" anywhere in the story:
 
 ![Search results](/assets/img/pmp-search-in-largo-chicago.png)
 
