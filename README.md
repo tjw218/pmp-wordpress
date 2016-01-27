@@ -107,17 +107,17 @@ Upon confirming, a new post will be created and you will be redirected to the po
 
 ![Editing draft of PMP story in WordPress](/assets/img/draft-pmp-post-in-largo.png)
 
-
+You can now edit the PMP story in the usual WordPress way. Note that if you subscribe to updates for this post (which is enabled by default), any future changes to the PMP story will automatically overwrite your existing post.
 
 ## (Un)Subscribe from content updates
 
-By default, the plugin periodically checks for updates to all content that you import from PMP.
+By default, the plugin periodically checks for updates to all content that you import from PMP. Any updates to stories in the PMP will automatically update the corresponding posts on your site. Typically this is useful, but if you've edited the post for your site you might want to disable PMP updates. 
 
-If you would like to unsubscribe from updates for a specific post, you can do so via the "PMP: Document information" meta box on the post edit page:
+You can disable automatic updates to each post via the "PMP: Document information" meta box on the post edit page:
 
-![Subscribe](http://assets.apps.investigativenewsnetwork.org/pmp/subscribe.png)
+![PMP plugin settings for subscribing to post updates](/assets/img/post-pmp-subscribe-settings.png)
 
-To unsubscribe, simply uncheck "Subscribe to updates for this post" and click "Publish", "Update" or "Save Draft" to save.
+To unsubscribe to updates, simply uncheck "Subscribe to updates for this post" and then click "Publish", "Update" or "Save Draft" to save.
 
 ## Pushing content to PMP
 
