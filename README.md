@@ -270,21 +270,18 @@ Start by visiting the Public Media Platform > Search link in the WordPress dashb
 
 Configure the search form to your liking. For example:
 
-![Saved search query start](http://assets.apps.investigativenewsnetwork.org/pmp/saved_search_query.png)
+![Saved search query start](/assets/img/search-chicago-pri.png)
 
-Once your have your query configured and are ready to save, click the "Save query" button.
+Once your have your query configured and are ready to save, click the "Save query" button. A modal window will appear, asking you to specify a title for the saved search query. 
 
-A modal window will appear, asking you to specify a title for the saved search query.
-
-You will also be presented the opportunity to specify what action to take with new results for the saved search query.
+You can specify what action to take with new results for the saved search query whenever it's run: create draft posts for review, publish posts immediately, or do nothing with the results which allows you to select posts from the results for creating drafts or posts.
 
 At this point, you might also like to [auto-assign categories to imported posts](#auto-assign-categories-to-imported-posts).
 
+![Saved search query modal](/assets/img/saving-a-pmp-search.png)
+
 Once you have specified a title and an action, click the "Save" button.
 
-See:
-
-![Saved search query modal](http://assets.apps.investigativenewsnetwork.org/pmp/saved_search_query_modal.png)
 
 #### Auto-assign categories to imported posts
 
