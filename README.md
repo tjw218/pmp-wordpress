@@ -319,17 +319,13 @@ For instance, if you wanted to change the action taken for new results for the s
 
 See:
 
-![Saved search query edit modal](http://assets.apps.investigativenewsnetwork.org/pmp/saved_search_query_edit_modal.png)
+![Saved search query edit modal](/assets/img/edit-news-search.png)
 
-### View all Saved Search Queries
+### View All Saved Search Queries
 
-To see all saved search queries, visit Public Media Platform > Manage saved searches link in the WordPress dashboard.
+To see all saved search queries, visit Public Media Platform > Manage saved searches link in the WordPress dashboard. From there, you see the complete list of saved search queries:
 
-![Manage saved searches](http://assets.apps.investigativenewsnetwork.org/pmp/manage_saved_searches.png)
-
-From there, you see the complete list of saved search queries:
-
-![Manage saved searches list](http://assets.apps.investigativenewsnetwork.org/pmp/manage_saved_searches_list.png)
+![Manage saved searches list](/assets/img/view-saved-searches.png)
 
 Actions you can take for each saved search query include:
 
@@ -340,4 +336,4 @@ Clicking "View and edit this search query" will land you on the page described i
 
 Clicking "Delete" will present you will a confirmation modal:
 
-![Delete a saved search query](http://assets.apps.investigativenewsnetwork.org/pmp/saved_search_delete_confirm.png)
+![Delete a saved search query](/assets/img/delete-search-dialogue.png)
