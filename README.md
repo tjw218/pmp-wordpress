@@ -129,7 +129,7 @@ If you would like to push the post to the PMP, click the "Push to PMP" button in
 
 ![After publishing the post Push to PMP is enabled](/assets/img/post-published-prepush-to-pmp.png)
 
-Once your post is published, if you make changes to it in WordPress and would like to push your changes to the PMP, click the "Push to PMP" button located in the "PMP: Document information" meta box.
+Once your post is published, if you make changes to it in WordPress and would like to push your changes to the PMP, click the "Push to PMP" button located in the **PMP: Document information** meta box. Note that the PMP guid for the post is displayed in the meta box (actually only part of the guid is displayed), with a link to the story on the PMP portal.
 
 ![Update the post and push the changes to the PMP](/assets/img/post-published-and-pushed-to-pmp.png)
 
@@ -203,7 +203,7 @@ Once you've added or removed users from a group, you must click the "Save" butto
 
 ## Series
 
-Series are somewhat loosely defined in the PMP as a collection of related stories. A series may correspond to a broadcast program, or reports on a particular topic or beat. 
+Series are somewhat loosely defined in the PMP as a collection of related stories. A series may correspond to a broadcast program, or reports on a particular topic or beat, or any other relationship between stories you care to make. 
 
 You can create a new Series in the PMP plugin, and add relevant Tags to it which become part of the series data in the PMP. The plugin will push new series and their tags to the PMP. You can edit the series name and its tags, and changes will propagate to the PMP. But like Groups you can’t delete a series in the plugin, you can only modify it.
 
