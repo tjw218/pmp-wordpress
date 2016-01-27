@@ -139,7 +139,7 @@ By default all content in the PMP is public, unless access is restricted by the 
 
 The PMP WordPress plugin allows you to create a Group which will get pushed to the PMP.  After you create a new Group you can add users to it. But note that you can only add existing PMP users, that is, people or organizations who have registered for a PMP account. You can add and delete users in a group and change the name of the group, and changes will propagate to the PMP. But you can’t delete a group from the PMP plugin once you create it. 
 
-Tip: You can see [all existing PMP users in the PMP Search portal](https://support.pmp.io/search?advanced=1&searchsort=date&profile=group).
+Tip: You can see [all existing PMP users in the PMP Search portal](https://support.pmp.io/search?advanced=1&searchsort=date&profile=user).
 
 ### Creating and Managing Groups
 
@@ -190,6 +190,8 @@ To add a new user, click on the text field towards the bottom of the prompt and 
 As you type a user's name, suggestions will appear below the text field. Add a user by clicking one of the suggestions that appears. The user's name will be added to the list above the search field:
 
 ![User added](/assets/img/pmp-user-added.png)
+
+If you have any problem finding registered PMP users, you can see the [complete list of users on the PMP search portal](https://support.pmp.io/search?advanced=1&searchsort=date&profile=user).
 
 #### Removing users
 
