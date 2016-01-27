@@ -73,7 +73,9 @@ Here's an example of search results for Chicago.  Since we didn't use a prefix, 
 
 ## Advanced Search
 
-You can further refine a search for PMP content by clicking "Show advanced options" and filtering by several options. Select a content creator, search by media type, tag, PMP GUID or PMP collection GUID (the GUIDS can be found using [the PMP search portal](https://support.pmp.io/)).
+You can further refine a search for PMP content by clicking "Show advanced options" and filtering by several options. Select a content creator, search by media type, tag, PMP GUID, or PMP collection GUID (the GUIDS can be found using [the PMP search portal](https://support.pmp.io/)). 
+
+You can filter by content creator and add a tag to refine your search even further:
 
 ![Advanced Search](/assets/img/pmp-advanced-search-in-largo.png)
 
