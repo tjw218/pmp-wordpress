@@ -125,7 +125,7 @@ To push a new story to the PMP, create and edit your new post as you would any o
 
 ![Before publishing Push to PMP is disabled](/assets/img/post-prepush-to-pmp.png)
 
-If you would like to push the post to the PMP, click the "Push to PMP" button in the "PMP: Document information" meta box after your post is published. Note that as you push the post to the PMP you have options to assign it to a Group, Series, or Property. We cover these things below.
+If you would like to push the post to the PMP, click the "Push to PMP" button in the **PMP: Document information** meta box after your post is published. Note that as you push the post to the PMP you have options to assign it to a Group, Series, or Property. We cover these things below.
 
 ![After publishing the post Push to PMP is enabled](/assets/img/post-published-prepush-to-pmp.png)
 
@@ -135,15 +135,19 @@ Once your post is published, if you make changes to it in WordPress and would li
 
 ## Groups & Permissions
 
-To manage PMP Groups & Permissions, navigate to Public Media Platform > Groups & Permissions in the WordPress dashboard.
+By default all content in the PMP is public, unless access is restricted by the publisher. Access can be limited by creating a Group, and then adding Users to the Group. See the [PMP Docs in permissions](https://support.pmp.io/guides#pmp-terminology-permissions) for more on how this works in the PMP.
 
-![Navigate to groups](http://assets.apps.investigativenewsnetwork.org/pmp/navigate-groups.png)
+The PMP WordPress plugin allows you to create a Group which will get pushed to the PMP.  After you create a new Group you can add users to it. But note that you can only add existing PMP users, that is, people or organizations who have registered for a PMP account. You can add and delete users in a group and change the name of the group, and changes will propagate to the PMP. But you can’t delete a group from the PMP plugin once you create it. 
 
-### Create a new group
+Tip: You can see [all existing PMP users in the PMP Search portal](https://support.pmp.io/search?advanced=1&searchsort=date&profile=group).
 
-To create a new group, click the "Create new group" button at the top of the Groups & Permissions page.
+### Creating and Managing Groups
 
-You'll be met with a "Create a group" prompt where you can specify your new group's title and tags.
+To manage your own PMP Groups & Permissions, navigate to **Public Media Platform** > **Groups & Permissions** in the WordPress dashboard.
+
+To create a new group, click the "Create new group" button at the top of the Groups & Permissions page. You'll be met with a "Create a group" prompt where you can specify your new group's title and tags.
+
+![creating a new PMP group](/assets/img/create-a-group-pmp-plugin.png)
 
 The title field is required.
 
@@ -153,7 +157,7 @@ The tags field should be a comma separated list. For example:
 
 ### Modify an existing group
 
-To modify the title or tags for an existing group, click the "Modify" link below the name of the group you wish to modify.
+To modify the title or tags for an existing group, click the "Modify" link below the name of the group you wish to modify. You can change the name of the group, and add users and tags, but once created you can't delete a group.
 
 ### Setting the default group for new content
 
@@ -161,11 +165,11 @@ To set the default group to which all new content pushed to PMP will be added, c
 
 You will asked to confirm your choice:
 
-![Confirm default group](http://assets.apps.investigativenewsnetwork.org/pmp/confirm-default-group.png)
+![Confirm default group](/assets/img/set-default-group-for-pmp-push.png)
 
 After clicking "Yes" to confirm, the confirmation prompt will close and the list of groups will update. The group you set as the default will appear with "(default)" near its name:
 
-![Default group set](http://assets.apps.investigativenewsnetwork.org/pmp/default-group-set.png)
+![Default group set](/assets/img/pmp-default-group.png)
 
 ### Managing users
 
