@@ -13,7 +13,7 @@ Built by the [INN Nerds](http://nerds.inn.org/).
 
 - [Installation](#installation)
 - [Settings](#settings)
-- [Search for content](#search-for-content)
+- [Pull Content from the PMP](#pull-content-from-the-pmp)
     - [Keyword search](#keyword-search)
 - [Import Content](#import-content)
 - [(Un)subscribe from content update](#unsubscribe-from-content-updates)
@@ -53,9 +53,9 @@ To use the PMP WordPress plugin, you'll need to specify a **Client ID** and **Cl
 
 If you don't yet have a Client ID and Client Secret, you'll probably need to [request an account with the PMP](https://support.pmp.io/register).
 
-## Pull content from the PMP
+## Pull Content from the PMP
 
-### Keyword search
+### Keyword Search
 
 Search for content by visiting the **Public Media Platform** > **Search** link in the WordPress dashboard. Perform a simple search by entering keywords in the search field. If you want to search by a specific phrase, use quotes around the phrase, like "Chicago fire".
 
@@ -93,7 +93,7 @@ If you want to see the full story on the public media site where it was original
 
 Note that you can [save a search query for reuse later](#saved-search-queries). So once you set up a search that returns stories for a particular content source or topic, you can run the saved search to import more matching stories in the future. 
 
-## Import content
+## Import Content
 
 Now to the important part: Pulling PMP content into your WordPress site from the search results. From the search results list, you can choose to create a draft post or choose to immediately publish a post based on a search result.
 
@@ -109,7 +109,7 @@ Upon confirming, a new post will be created and you will be redirected to the po
 
 You can now edit the PMP story in the usual WordPress way. Note that if you subscribe to updates for this post (which is enabled by default), any future changes to the PMP story will automatically overwrite your existing post.
 
-## (Un)Subscribe from content updates
+## (Un)Subscribe from Content Updates
 
 By default, the plugin periodically checks for updates to all content that you import from PMP. Any updates to stories in the PMP will automatically update the corresponding posts on your site. Typically this is useful, but if you've edited the post for your site you might want to disable PMP updates. 
 
@@ -119,7 +119,7 @@ You can disable automatic updates to each post via the **PMP: Document informati
 
 To unsubscribe to updates, simply uncheck "Subscribe to updates for this post" and then click "Publish", "Update" or "Save Draft" to save.
 
-## Pushing content to PMP
+## Pushing Content to PMP
 
 To push a new story to the PMP, create and edit your new post as you would any other. When you are ready to publish your post, click the "Publish" button as you normally would. Note that you can't push the post to the PMP until it's published on your site.
 
@@ -157,11 +157,11 @@ The tags field should be a comma separated list. For example:
 
 The tags will add to the data about the group in the PMP.
 
-### Modify an existing group
+### Modify an Existing Group
 
 To modify the title or tags for an existing group, click the "Modify" link below the name of the group you wish to modify. You can change the name of the group, and add users and tags, but once created you can't delete a group.
 
-### Setting the default group for new content
+### Setting the Default Group for New Content
 
 To set the default group to which all new content pushed to PMP will be added, click the "Set as default" link below the name of the group of your choice.
 
@@ -173,7 +173,7 @@ After clicking "Yes" to confirm, the confirmation prompt will close and the list
 
 ![Default group set](/assets/img/pmp-default-group.png)
 
-### Managing users
+### Managing Users
 
 To manage the users for a group, click the "Manage users" link below the group of your choice.
 
@@ -181,7 +181,7 @@ You'll see a user management prompt appear:
 
 ![Manage users](/assets/img/pmp-user-dialogue.png)
 
-#### Adding users
+#### Adding Users
 
 To add a new user, click on the text field towards the bottom of the prompt and start typing a user's name:
 
@@ -193,11 +193,11 @@ As you type a user's name, suggestions will appear below the text field. Add a u
 
 If you have any problem finding registered PMP users, you can see the [complete list of users on the PMP search portal](https://support.pmp.io/search?advanced=1&searchsort=date&profile=user).
 
-#### Removing users
+#### Removing Users
 
 To remove a user, click the "x" to the right of their name.
 
-#### Saving changes
+#### Saving Changes
 
 Once you've added or removed users from a group, you must click the "Save" button for your changes to take effect.
 
@@ -215,7 +215,7 @@ Creating a series is much like creating a group. Click the New Series button:
 
 ![creating a new series in the PMP plugin](/assets/img/create-a-series.png)
 
-### Setting the default series
+### Setting the Default Series
 
 To set the default series to which all new content pushed to PMP will be added, click the "Set as default" link below the series of your choice.
 
@@ -239,7 +239,7 @@ Create a new property by clicking the **Create new properties** button, then ent
 
 ![creating new PMP property](/assets/img/create-pmp-property.png)
 
-### Setting the default property
+### Setting the Default Property
 
 To set the default property to which all new content pushed to PMP will be added, click the "Set as default" link below the series of your choice.
 
@@ -251,9 +251,9 @@ After clicking "Yes" to confirm, the confirmation prompt will close and the list
 
 ![Default property set](/assets/img/default-property-set.png)
 
-## Saved search queries
+## Saved Search Queries
 
-### Automatically importing posts based on a saved search query
+### Automatically Importing Posts Based on a Saved Search query
 
 You can save search queries to make it easier to view results and import new content in the future.
 
@@ -264,9 +264,9 @@ Optionally, when saving or editing a search query, you can specify that new sear
 
 Note: the default behavior for saved search queries is to do nothing with search results.
 
-### Saving a search query
+### Saving a Search Query
 
-Start by visiting the Public Media Platform > Search link in the WordPress dashboard as you would to [search for content](#search-for-content).
+Start by visiting the **Public Media Platform** > **Search** link in the WordPress dashboard as you would to [search for content](#pull-content-from-the-pmp).
 
 Configure the search form to your liking. For example:
 
@@ -283,7 +283,7 @@ At this point, you might also like to [auto-assign categories to imported posts]
 Once you have specified a title and an action, click the "Save" button.
 
 
-#### Auto-assign categories to imported posts
+#### Auto-assign Categories to Imported Posts
 
 When saving a search query, you also have the opportunity to set categories to be applied to all posts automatically imported for said query.
 
@@ -297,7 +297,7 @@ See:
 
 ![Saved search query select categories](http://assets.apps.investigativenewsnetwork.org/pmp/saved_search_select_categories.png)
 
-### Viewing and editing a search query
+### Viewing and Editing a Search Query
 
 After clicking the "Save" button to save a search query, the page will automatically reload and present you with your newly saved query:
 
@@ -321,7 +321,7 @@ See:
 
 ![Saved search query edit modal](http://assets.apps.investigativenewsnetwork.org/pmp/saved_search_query_edit_modal.png)
 
-### View all saved search queries
+### View all Saved Search Queries
 
 To see all saved search queries, visit Public Media Platform > Manage saved searches link in the WordPress dashboard.
 
