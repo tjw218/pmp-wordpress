@@ -73,12 +73,23 @@ Here's an example of search results for Chicago.  Since we didn't use a prefix, 
 
 ## Advanced Search
 
-You can further refine a search for PMP content by clicking "Show advanced options" and filtering by several options. Select a content creator, search by media type, tag, PMP GUID, or PMP collection GUID (the GUIDS can be found using [the PMP search portal](https://support.pmp.io/)). 
+You can further refine a search for PMP content by clicking "Show advanced options" and filtering by several options. Select a content creator, search by media type, tag, PMP GUID, or PMP collection GUID (the GUIDs can be found using [the PMP search portal](https://support.pmp.io/)). 
 
 You can filter by content creator and add a tag to refine your search even further:
 
 ![Advanced Search](/assets/img/pmp-advanced-search-in-largo.png)
 
+The search results give you a pretty good preview of available stories. Each story has a link to its preview page on the PMP:
+
+![Story link to preview page on the PMP](/assets/img/pmp-story-in-largo-search-results-link.png)
+
+You can click this link to see the story summary on the PMP:
+
+![Story link to preview page on the PMP](/assets/img/search-result-on-pmp.png)
+
+If you want to see the full story on the public media site where it was original published, click the headline on the PMP story summary:
+
+![Story on the Hear and Now website](/assets/img/here-and-new-story.png)
 
 ## Import content
 
