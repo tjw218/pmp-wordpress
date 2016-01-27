@@ -19,7 +19,7 @@ Built by the [INN Nerds](http://nerds.inn.org/).
 - [(Un)subscribe from content update](#unsubscribe-from-content-updates)
 - [Pushing content to PMP](#pushing-content-to-pmp)
 - [Groups & permissions](#groups--permissions)
-    - [Create a new group](#create-a-new-group)
+    - [Create and managing groups](#creating-and-managing-groups)
     - [Modify an existing group](#modify-an-existing-group)
     - [Setting the default group for new content](#setting-the-default-group-for-new-content)
     - [Managing users](#managing-users)
@@ -253,7 +253,7 @@ After clicking "Yes" to confirm, the confirmation prompt will close and the list
 
 ## Saved Search Queries
 
-### Automatically Importing Posts Based on a Saved Search query
+### Automatically Importing Posts Based on a Saved Search Query
 
 You can save search queries to make it easier to view results and import new content in the future.
 
