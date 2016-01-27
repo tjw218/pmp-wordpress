@@ -125,7 +125,7 @@ To push a new story to the PMP, create and edit your new post as you would any o
 
 ![Before publishing Push to PMP is disabled](/assets/img/post-prepush-to-pmp.png)
 
-If you would like to push the post to the PMP, click the "Push to PMP" button in the **PMP: Document information** meta box after your post is published. Note that as you push the post to the PMP you have options to assign it to a Group, Series, or Property. We cover these things below.
+If you would like to push the post to the PMP, click the "Push to PMP" button in the **PMP: Document information** meta box after your post is published. Note that as you push the post to the PMP you have options to assign it to a Group, Series, or Property. We [cover these things below](#creating-and-managing-groups).
 
 ![After publishing the post Push to PMP is enabled](/assets/img/post-published-prepush-to-pmp.png)
 
@@ -191,7 +191,7 @@ As you type a user's name, suggestions will appear below the text field. Add a u
 
 ![User added](/assets/img/pmp-user-added.png)
 
-If you have any problem finding registered PMP users, you can see the [complete list of users on the PMP search portal](https://support.pmp.io/search?advanced=1&searchsort=date&profile=user).
+Tip: If you have any problem finding registered PMP users, you can see the [complete list of users on the PMP search portal](https://support.pmp.io/search?advanced=1&searchsort=date&profile=user).
 
 #### Removing Users
 
@@ -295,13 +295,13 @@ For example, if you want to construct a search query for "Chicago marketplace" a
 
 See:
 
-![Saved search query select categories](http://assets.apps.investigativenewsnetwork.org/pmp/saved_search_select_categories.png)
+![Saved search query select categories](/assets/img/saving-news-search.png)
 
 ### Viewing and Editing a Search Query
 
 After clicking the "Save" button to save a search query, the page will automatically reload and present you with your newly saved query:
 
-![Saved search query edit](http://assets.apps.investigativenewsnetwork.org/pmp/saved_search_query_edit.png)
+![Saved search query edit](/assets/img/saved-pmp-search.png)
 
 Note the notice above the search form that reads:
 
