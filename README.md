@@ -95,17 +95,18 @@ Note that you can [save a search query for reuse later](#saved-search-queries). 
 
 ## Import content
 
-From the search results list, you can choose to create a draft post or choose to immediately publish a post based on a search result.
+Now to the important part: Pulling PMP content into your WordPress site from the search results. From the search results list, you can choose to create a draft post or choose to immediately publish a post based on a search result.
 
 ![Search result](/assets/img/pmp-story-in-largo-search-results.png)
 
 After clicking one of the "Create draft" or "Publish" links, you'll see a confirmation dialog:
 
-![Create draft](http://assets.apps.investigativenewsnetwork.org/pmp/draft_story.png)
+![Search result dialogue box](/assets/img/save-draft-dialogue-pmp-largo.png)
 
 Upon confirming, a new post will be created and you will be redirected to the post's edit page:
 
-![Edit draft](http://assets.apps.investigativenewsnetwork.org/pmp/draft_created.png)
+![Editing draft of PMP story in WordPress](/assets/img/draft-pmp-post-in-largo.png)
+
 
 
 ## (Un)Subscribe from content updates
