@@ -155,6 +155,8 @@ The tags field should be a comma separated list. For example:
 
     my_first_tag, another tag, yet-another-tag
 
+The tags will add to the data about the group in the PMP.
+
 ### Modify an existing group
 
 To modify the title or tags for an existing group, click the "Modify" link below the name of the group you wish to modify. You can change the name of the group, and add users and tags, but once created you can't delete a group.
@@ -177,17 +179,17 @@ To manage the users for a group, click the "Manage users" link below the group o
 
 You'll see a user management prompt appear:
 
-![Manage users](http://assets.apps.investigativenewsnetwork.org/pmp/manage-users.png)
+![Manage users](/assets/img/pmp-user-dialogue.png)
 
 #### Adding users
 
 To add a new user, click on the text field towards the bottom of the prompt and start typing a user's name:
 
-![Search users](http://assets.apps.investigativenewsnetwork.org/pmp/search-users.png)
+![Search users](/assets/img/pmp-add-user.png)
 
 As you type a user's name, suggestions will appear below the text field. Add a user by clicking one of the suggestions that appears. The user's name will be added to the list above the search field:
 
-![User added](http://assets.apps.investigativenewsnetwork.org/pmp/new-user-added.png)
+![User added](/assets/img/pmp-user-added.png)
 
 #### Removing users
 
