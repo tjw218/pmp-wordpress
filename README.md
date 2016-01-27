@@ -53,7 +53,7 @@ To use the PMP WordPress plugin, you'll need to specify a **Client ID** and **Cl
 
 If you don't yet have a Client ID and Client Secret, you'll probably need to [request an account with the PMP](https://support.pmp.io/register).
 
-## Search for content
+## Pull content from the PMP
 
 ### Keyword search
 
@@ -61,7 +61,7 @@ Search for content by visiting the Public Media Platform > Search link in the Wo
 
 Example of search results:
 
-![Search results](http://assets.apps.investigativenewsnetwork.org/pmp/search_results.png)
+![Search results](/assets/img/pmp-search-in-largo-chicago.png)
 
 
 ## Import content
