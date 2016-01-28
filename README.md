@@ -141,7 +141,7 @@ Note that any WordPress Tags you add to the post will be pushed to the PMP. Like
 
 ## Groups & Permissions
 
-By default all content in the PMP is public, unless access is restricted by the publisher. Access can be limited by creating a Group, and then adding Users to the Group. See the [PMP Docs in permissions](https://support.pmp.io/guides#pmp-terminology-permissions) for more on how this works in the PMP.
+By default all content in the PMP is public, unless access is restricted by the publisher. Access can be limited by creating a Group, and then adding Users to the Group. See the [PMP Docs on permissions](https://support.pmp.io/guides#pmp-terminology-permissions) for more on how this works in the PMP.
 
 The PMP WordPress plugin allows you to create a Group which will get pushed to the PMP.  After you create a new Group you can add users to it. But note that you can only add existing PMP users, that is, people or organizations who have registered for a PMP account. You can add and delete users in a group and change the name of the group, and changes will propagate to the PMP. But you can’t delete a group from the PMP plugin once you create it. 
 
