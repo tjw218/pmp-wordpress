@@ -133,6 +133,10 @@ Once your post is published, if you make changes to it in WordPress and would li
 
 ![Update the post and push the changes to the PMP](/assets/img/post-published-and-pushed-to-pmp.png)
 
+After pushing a post to the PMP it will appear on that platform within seconds where other PMP users can discover and reuse it, depending on the permissions you set for it.
+
+![A post pushed to the PMP](/assets/img/pmp-story-bradbury.png)
+
 ## Groups & Permissions
 
 By default all content in the PMP is public, unless access is restricted by the publisher. Access can be limited by creating a Group, and then adding Users to the Group. See the [PMP Docs in permissions](https://support.pmp.io/guides#pmp-terminology-permissions) for more on how this works in the PMP.
