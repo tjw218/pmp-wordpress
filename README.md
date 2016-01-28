@@ -137,6 +137,8 @@ After pushing a post to the PMP it will appear on that platform within seconds w
 
 ![A post pushed to the PMP](/assets/img/pmp-story-bradbury.png)
 
+Note that any WordPress Tags you add to the post will be pushed to the PMP. Likewise if you assign a Group, Series, or Property to the post they will become part of the data associated with the post when pushed to the PMP.
+
 ## Groups & Permissions
 
 By default all content in the PMP is public, unless access is restricted by the publisher. Access can be limited by creating a Group, and then adding Users to the Group. See the [PMP Docs in permissions](https://support.pmp.io/guides#pmp-terminology-permissions) for more on how this works in the PMP.
