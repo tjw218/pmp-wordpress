@@ -47,7 +47,7 @@ Once the plugin files are installed, activate the plugin via the WordPress dashb
 
 ## Settings
 
-To use the PMP WordPress plugin, you'll need to specify a **Client ID** and **Client Secret** via the Public Media Platform > Settings page in the WordPress dashboard. In the PMP Environment dropdown select Production unless you are setting up a sandbox environment for testing. If you want to automatically pull updates if a story is revised in the PMP, check the Enable box.
+To use the PMP WordPress plugin, you'll need to specify a **Client ID** and **Client Secret** via the **Public Media Platform** > **Settings** page in the WordPress dashboard. In the PMP Environment dropdown select Production unless you are setting up a sandbox environment for testing. If you want to automatically pull updates if a story is revised in the PMP, check the Enable box.
 
 ![Settings](/assets/img/largo-PMP-settings-blank.png)
 
