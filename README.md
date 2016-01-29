@@ -346,4 +346,4 @@ Clicking "Delete" will present you will a confirmation modal:
 
 ## All Set
 
-Now you're all set to pull great content from the PMP for use on your WordPress site, and push you own fine work to the PMP for others in the PMP ecosystem to share with their digital audiences. Do great things!
+Now you're ready pull great content from the PMP for use on your WordPress site, and push you own fine work to the PMP for others in the public media ecosystem to share with their digital audiences. Do great things!
