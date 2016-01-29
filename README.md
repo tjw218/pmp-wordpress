@@ -343,3 +343,7 @@ Clicking "View and edit this search query" will land you on the page described i
 Clicking "Delete" will present you will a confirmation modal:
 
 ![Delete a saved search query](/assets/img/delete-search-dialogue.png)
+
+## All Set
+
+Now you're all set to pull great content from the PMP for use on your WordPress site, and push you own fine work to the PMP for others in the PMP ecosystem to share with their digital audiences. Do great things!
