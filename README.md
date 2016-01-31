@@ -13,11 +13,11 @@ Built by the [INN Nerds](http://nerds.inn.org/).
 
 - [Installation and Settings](/docs/installation.md)
 - [Pulling Content from the PMP](/docs/pulling-content.md)
-- [Pushing content to PMP](/docs/puching-content.md)
+- [Pushing content to PMP](/docs/pushing-content.md)
 - [Groups & permissions](/docs/creating-and-managing-groups.md)
 - [PMP Series](/docs/series.md)
 - [PMP Properties](/docs/properties.md)
-- [Saved search queries](/docs/search.md)
+- [Saved search queries](/docs/saved-search.md)
 
 ## All Set
 
