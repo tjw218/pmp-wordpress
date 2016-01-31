@@ -2,7 +2,7 @@
 
 Properties are defined in the PMP as the highest level of organization for a collection of content. It could be akin to a brand for a broadcast program, or an entire news organization. (See the [Terminology section of the PMP User Docs](https://support.pmp.io/guides#pmp-terminology) for more on what a Property is in the PMP.)
 
-Like Series and Groups, you can create new Properties in the PMP plugin and add tags to them, and they will propagate to the PMP. You can modify the title and tags of a property in the plugin, and this will update the PMP. You can’t delete properties in the PMP plugin once they are created, you can only modify them to suit your needs.
+Like Series and Groups, you can create new Properties in the PMP plugin and add tags to them, and they will propagate to the PMP. You can modify the title and tags of a property in the plugin, and this will update the PMP. You can’t delete properties in the PMP plugin once they are created, but you can modify them to suit your needs.
 
 To manage properties, navigate to **Public Media Platform** > **Properties** in the WordPress dashboard.
 
