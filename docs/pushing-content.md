@@ -4,7 +4,7 @@ To push a new story to the PMP, create and edit your new post as you would any o
 
 ![Before publishing Push to PMP is disabled](/assets/img/post-prepush-to-pmp.png)
 
-If you would like to push the post to the PMP, click the "Push to PMP" button in the **PMP: Document information** meta box after your post is published. Note that as you push the post to the PMP you have options to assign it to a Group, Series, or Property. (/creating-and-managing-groups.md).
+If you would like to push the post to the PMP, click the "Push to PMP" button in the **PMP: Document information** meta box after your post is published. Note that as you push the post to the PMP you have options to [assign it to a Group, Series, or Property](/docs/creating-and-managing-groups.md).
 
 ![After publishing the post Push to PMP is enabled](/assets/img/post-published-prepush-to-pmp.png)
 
