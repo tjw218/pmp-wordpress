@@ -58,6 +58,12 @@ class TestSDKWrapper extends WP_UnitTestCase {
 	}
 
 	function test_href4guid() {
+		if (empty($this->sdk_wrapper)) {
+			$this->markTestSkipped(
+				'This test requires site options `pmp_api_url`, `pmp_client_id` and `pmp_client_secret`');
+			return;
+		}
+
 		$test_guid = 'test-guid-does-not-matter';
 		$href = $this->sdk_wrapper->href4guid($test_guid);
 		$this->assertTrue((bool) strpos($href, $test_guid));
