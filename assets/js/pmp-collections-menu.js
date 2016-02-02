@@ -78,7 +78,7 @@ var PMP = PMP || {};
                 });
 
             if (!this.collection_default_modal)
-                this.collection_default_modal = new PMP.DefaultCollectionModal({ collection: collection});
+                this.collection_default_modal = new PMP.DefaultCollectionModal({ collection: collection });
             else
                 this.collection_default_modal.collection = collection;
 
@@ -203,6 +203,15 @@ var PMP = PMP || {};
             var template = _.template($('#pmp-default-collection-form-tmpl').html());
             this.content = template({ collection: this.collection });
             PMP.Modal.prototype.render.apply(this, arguments);
+        }
+    });
+
+    PMP.CollectionPermissionsModal = PMP.BaseCollectionModal.extend({
+        action: 'pmp_collection_permissions',
+
+        actions: {
+          'Save': 'savePermissions',
+          'Cancel': 'close'
         }
     });
 

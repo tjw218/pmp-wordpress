@@ -71,7 +71,7 @@ class TestCron extends WP_UnitTestCase {
 		// Using the story we originally fetched to determine if the WP Post
 		// needs updated. They should be the same, so $ret should be false.
 		$ret = pmp_needs_update($pmp_post, $this->pmp_story);
-		$this->assertTrue(!$ret);
+		$this->assertFalse($ret);
 	}
 
 	function test_pmp_update_post() {

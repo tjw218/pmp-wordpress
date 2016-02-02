@@ -296,7 +296,7 @@ function pmp_handle_push($post_id) {
 		$obj->links->collection = array();
 
 		foreach (array('series', 'property') as $collection) {
-			$collection_override = pmp_get_collection_override_value($post_id, $collection_override);
+			$collection_override = pmp_get_collection_override_value($post_id, $collection);
 
 			if (!empty($collection_override)) {
 				if (!is_array($collection_override))

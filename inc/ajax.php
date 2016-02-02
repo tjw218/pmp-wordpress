@@ -132,12 +132,12 @@ function pmp_save_users() {
 	$group_data = json_decode(stripslashes($_POST['data']));
 
 	$sdk = new SDKWrapper();
-	$group = $sdk->fetchDoc($group_data->group_guid);
+	$group = $sdk->fetchDoc($group_data->collection_guid);
 
-	if (!empty($group_data->user_guids)) {
+	if (!empty($group_data->items_guids)) {
 		$group->links->item = array();
 
-		foreach ($group_data->user_guids as $user_guid) {
+		foreach ($group_data->items_guids as $user_guid) {
 			$link_item = new \stdClass();
 			$link_item->href = $sdk->href4guid($user_guid);
 			$group->links->item[] = $link_item;

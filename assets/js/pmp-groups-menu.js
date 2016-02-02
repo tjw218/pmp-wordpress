@@ -4,11 +4,17 @@ var PMP = PMP || {};
     var $ = jQuery;
 
     // Models & Collections
-    PMP.GroupCollection = PMP.DocCollection.extend({
+    PMP.WriteableCollection = PMP.DocCollection.extend({
+
+        initialize: function(models, options) {
+            this.profile = options.profile;
+            PMP.DocCollection.prototype.initialize.apply(this, arguments);
+        },
+
         search: function(query) {
             query = _.defaults(query || {}, {
                 writeable: 'true',
-                profile: 'group',
+                profile: this.profile,
                 limit: 9999
             });
             PMP.DocCollection.prototype.search.apply(this, [query, ]);
@@ -28,7 +34,7 @@ var PMP = PMP || {};
 
         initialize: function(options) {
             options = options || {};
-            this.collection = options.collection || new PMP.GroupCollection();
+            this.collection = options.collection || new PMP.WriteableCollection([], { profile: 'group' });
             this.collection.on('reset', this.render.bind(this));
 
             this.showSpinner();
@@ -79,8 +85,8 @@ var PMP = PMP || {};
 
             if (typeof this.modals[group.get('attributes').guid] == 'undefined')
                 this.modals[group.get('attributes').guid] = new PMP.ManageUsersModal({
-                    group: group,
-                    groupList: this
+                    collection: group,
+                    collectionList: this
                 });
 
             this.modals[group.get('attributes').guid].render();
@@ -206,33 +212,43 @@ var PMP = PMP || {};
         }
     });
 
-    PMP.ManageUsersModal = PMP.Modal.extend({
-        className: 'pmp-group-modal',
+    PMP.ManageItemsModal = PMP.Modal.extend({
+        className: 'pmp-manage-items-modal',
 
-        allUsers: new Backbone.Collection(PMP.users.items),
+        /**
+         * Should be a Backbone Collection of all the items that can be managed
+         * (i.e., added or removed from some other Document collection or
+         * permissions array)
+         */
+        allItems: new Backbone.Collection(),
+
+        /**
+         * A string -- the ajax action name to call for the set of items in question.
+         */
+        action: 'pmp_not_implemented',
 
         events: {
-            'typeahead:selected': 'addUser',
-            "click .close": "close",
-            "click .remove": 'removeUser'
+          'typeahead:selected': 'addItem',
+          'click .close': 'close',
+          'click .remove': 'removeItem'
         },
 
         content: '<h2>Loading...</h2>',
 
-        action: 'pmp_save_users',
-
         actions: {
-            'Save': 'saveUsers',
+            'Save': 'saveItems',
             'Cancel': 'close'
         },
 
         unsavedChanges: false,
 
+        type: null,
+
         initialize: function(options) {
             var self = this;
-            this.group = options.group;
-            this.groupList = options.groupList;
-            this.on('usersChange', function() { self.unsavedChanges = true; });
+            this.collection = options.collection;
+            this.collectionList = options.collectionList;
+            this.on('itemsChange', function() { self.unsavedChanges = true; });
             PMP.Modal.prototype.initialize.apply(this, arguments);
         },
 
@@ -247,51 +263,19 @@ var PMP = PMP || {};
                 return PMP.Modal.prototype.close.apply(this, arguments);
         },
 
-        render: function() {
-            var self = this,
-                template = _.template($('#pmp-manage-users-tmpl').html());
-
-            if (!this.users) {
-                this.users = new PMP.GroupCollection([]);
-                this.users.on('reset', function() {
-                    self.content = template({
-                        group: self.group,
-                        users: self.users
-                    });
-                    PMP.Modal.prototype.render.apply(self);
-
-                    self.$el.find('a.Save').addClass('disabled');
-                    self.on('usersChange', self.usersChange.bind(self));
-
-                    self.setupTypeahead.apply(self);
-                    self.hideSpinner();
-                });
-                PMP.Modal.prototype.render.apply(self);
-                this.showSpinner();
-                this.users.search({ guid: this.group.get('attributes').guid });
-            } else {
-                PMP.Modal.prototype.render.apply(self);
-                this.setupTypeahead();
-            }
+        removeItem: function(e) {
+            var target = $(e.currentTarget);
+                target.parent().remove();
+            this.trigger('itemsChange');
         },
 
-        setupTypeahead: function() {
-            this.searchForm = this.$el.find('#pmp-user-search').typeahead({
-                minLength: 3, highlight: true
-            }, {
-                name: 'pmp-users',
-                source: this.userSearch.bind(this),
-                displayKey: 'title'
-            });
-        },
-
-        userSearch: function(query, cb) {
+        itemSearch: function(query, cb) {
             var regex = new RegExp(query, 'gi');
-                map = this.allUsers.map(function(user) {
-                    if (regex.test(user.get('attributes').title)) {
+                map = this.allItems.map(function(item) {
+                    if (regex.test(item.get('attributes').title)) {
                         return {
-                            title: user.get('attributes').title,
-                            value: user.get('attributes').guid
+                            title: item.get('attributes').title,
+                            value: item.get('attributes').guid
                         };
                     }
                     return null;
@@ -301,30 +285,64 @@ var PMP = PMP || {};
             return cb(results);
         },
 
-        addUser: function(event, obj, selector) {
-            var list = this.$el.find('#pmp-users-list'),
-                tmpl = _.template('<div class="pmp-user"><%= obj.title %>' +
-                                  '<input type="hidden" name="pmp-users" value="<%= obj.value %>" />' +
+        setupTypeahead: function() {
+            this.searchForm = this.$el.find('#pmp-item-search').typeahead({
+                minLength: 3, highlight: true
+            }, {
+                name: 'pmp-items',
+                source: this.itemSearch.bind(this),
+                displayKey: 'title'
+            });
+        },
+
+        render: function() {
+            var self = this,
+                template = _.template($('#pmp-manage-items-tmpl').html());
+
+            if (!this.items) {
+                this.items = new PMP.WriteableCollection([], { profile: this.profile });
+                this.items.on('reset', function() {
+                    self.content = template({
+                        collection: self.collection,
+                        items: self.items,
+                        profile: self.profile,
+                        itemType: self.itemType
+                    });
+                    PMP.Modal.prototype.render.apply(self);
+
+                    self.$el.find('a.Save').addClass('disabled');
+                    self.on('itemsChange', self.itemsChange.bind(self));
+
+                    self.setupTypeahead.apply(self);
+                    self.hideSpinner();
+                });
+                PMP.Modal.prototype.render.apply(self);
+                this.showSpinner();
+                this.items.search({ guid: this.collection.get('attributes').guid });
+            } else {
+                PMP.Modal.prototype.render.apply(self);
+                this.setupTypeahead();
+            }
+        },
+
+        addItem: function(event, obj, selector) {
+            var list = this.$el.find('#pmp-items-list'),
+                tmpl = _.template('<div class="pmp-item"><%= obj.title %>' +
+                                  '<input type="hidden" name="pmp-items" value="<%= obj.value %>" />' +
                                   '<span class="remove">&#10005;</span></div>');
 
             this.$el.find('.error').remove();
             if (list.find('input[value="' + obj.value + '"]').length > 0) {
-                list.after('<p class="error">User: "' + obj.title + '" already exists in this group.</p>');
+                list.after('<p class="error">"' + obj.title + '" already exists.</p>');
                 return false;
             }
 
-            this.$el.find('#pmp-users-form').append(tmpl({ obj: obj }));
+            this.$el.find('#pmp-items-form').append(tmpl({ obj: obj }));
             this.searchForm.typeahead('val', null);
-            this.trigger('usersChange');
+            this.trigger('itemsChange');
         },
 
-        removeUser: function(e) {
-            var target = $(e.currentTarget);
-                target.parent().remove();
-            this.trigger('usersChange');
-        },
-
-        saveUsers: function(e) {
+        saveItems: function(e) {
             if (typeof this.ongoing !== 'undefined' && $.inArray(this.ongoing.state(), ['resolved', 'rejected']) == -1)
                 return false;
 
@@ -332,17 +350,17 @@ var PMP = PMP || {};
             if (target.hasClass('disabled'))
                 return false;
 
-            var serialized = this.$el.find('form#pmp-users-form').serializeArray(),
-                user_guids = _.map(serialized, function(item) { return item.value; }),
-                group_guid = this.group.get('attributes').guid;
+            var serialized = this.$el.find('form#pmp-items-form').serializeArray(),
+                items_guids = _.map(serialized, function(item) { return item.value; }),
+                collection_guid = this.collection.get('attributes').guid;
 
             var self = this,
                 data = {
                     action: this.action,
                     security: PMP.ajax_nonce,
                     data: JSON.stringify({
-                        group_guid: group_guid,
-                        user_guids: user_guids
+                        collection_guid: collection_guid,
+                        items_guids: items_guids
                     })
                 };
 
@@ -355,7 +373,7 @@ var PMP = PMP || {};
                     self.hideSpinner();
                     self.unsavedChanges = false;
                     self.close();
-                    delete(self.groupList.modals[group_guid]);
+                    delete(self.collectionList.modals[collection_guid]);
                 },
                 error: function() {
                     self.hideSpinner();
@@ -368,10 +386,25 @@ var PMP = PMP || {};
             return this.ongoing;
         },
 
-        usersChange: function(e) {
+        itemsChange: function(e) {
             this.$el.find('a.Save').removeClass('disabled');
             return false;
         }
+
+    });
+
+    PMP.ManageUsersModal = PMP.ManageItemsModal.extend({
+        className: 'pmp-group-modal',
+
+        allItems: new Backbone.Collection(PMP.users.items),
+
+        action: 'pmp_save_users',
+
+        unsavedChanges: false,
+
+        profile: 'group',
+
+        itemType: 'users'
     });
 
     $(document).ready(function() {
@@ -379,7 +412,7 @@ var PMP = PMP || {};
 
         PMP.instances.group_list = new PMP.GroupList({
             el: $('#pmp-groups-container'),
-            collection: new PMP.GroupCollection((PMP.groups)? PMP.groups.items:[])
+            collection: new PMP.WriteableCollection((PMP.groups)? PMP.groups.items:[], { profile: 'group' })
         });
 
         PMP.instances.group_list.render();

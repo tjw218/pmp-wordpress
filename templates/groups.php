@@ -63,29 +63,29 @@
 	</div>
 </script>
 
-<script type="text/template" id="pmp-manage-users-tmpl">
-	<div class="pmp-manage-users-container">
-		<p class="pmp-label">Manage users for group:</p>
-		<h2><%= group.get('attributes').title %></h2>
-		<div id="pmp-users-list">
-			<form id="pmp-users-form">
-			<% if (users.first().get('items').length > 0) { %>
-					<% users.first().get('items').each(function(user) { %>
-						<div class="pmp-user">
-							<%= user.get('attributes').title %>
-							<input type="hidden" name="pmp-users" value="<%= user.get('attributes').guid %>" />
+<script type="text/template" id="pmp-manage-items-tmpl">
+	<div class="pmp-manage-items-container">
+		<p class="pmp-label">Manage <%= itemType %> for <%= profile %>:</p>
+		<h2><%= collection.get('attributes').title %></h2>
+		<div id="pmp-items-list">
+			<form id="pmp-items-form">
+			<% if (items.first().get('items').length > 0) { %>
+					<% items.first().get('items').each(function(item) { %>
+						<div class="pmp-item">
+							<%= item.get('attributes').title %>
+							<input type="hidden" name="pmp-items" value="<%= item.get('attributes').guid %>" />
 							<span class="remove">&#10005;</span>
 						</div>
 					<% }); %>
 			<% } else { %>
-				<p class="error">No users found.</p>
+				<p class="error">No <%= itemType %> found.</p>
 			<% } %>
 			</form>
 		</div>
-		<div id="pmp-add-users">
-			<p class="pmp-label">Add users</p>
-			<form id="pmp-add-users-form">
-				<input type="text" id="pmp-user-search" name="pmp-user-search" placeholder="Start typing a user's name">
+		<div id="pmp-add-items">
+			<p class="pmp-label">Add <%= itemType %></p>
+			<form id="pmp-add-items-form">
+				<input type="text" id="pmp-item-search" name="pmp-item-search" placeholder="Search for a <%= itemType %>">
 			</form>
 		</div>
 	</div>
