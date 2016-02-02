@@ -567,7 +567,7 @@ function pmp_get_collection_override_value($post, $type) {
 	} else
 		$value = $override;
 
-	return $value;
+	return maybe_unserialize($value);
 }
 
 if (!function_exists('var_log')) {
