@@ -128,7 +128,7 @@ function pmp_enqueue_assets() {
 
 		if ($page == 'pmp-manage-saved-searches') {
 			wp_enqueue_style('pmp-common');
-			wp_enqueue_style('pmp-manage-searches');
+			wp_enqueue_script('pmp-manage-searches');
 		}
 
 		return;
