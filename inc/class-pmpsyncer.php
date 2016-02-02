@@ -324,18 +324,36 @@ abstract class PmpSyncer {
     $this->doc->links->collection = array();
     $series = pmp_get_collection_override_value($top_level_id, 'series');
     $property = pmp_get_collection_override_value($top_level_id, 'property');
-    if (!empty($series)) {
-      $this->doc->links->collection[] = $this->get_collection_link($series, 'series');
+	if (!empty($series)) {
+		if (is_array($series)) {
+			foreach ($series as $ser) {
+				$this->doc->links->collection[] = $this->get_collection_link($ser, 'series');
+			}
+		} else {
+			$this->doc->links->collection[] = $this->get_collection_link($series, 'series');
+		}
     }
-    if (!empty($property)) {
-      $this->doc->links->collection[] = $this->get_collection_link($property, 'property');
+	if (!empty($property)) {
+		if (is_array($property)) {
+			foreach ($property as $prop) {
+				$this->doc->links->collection[] = $this->get_collection_link($prop, 'property');
+			}
+		} else {
+			$this->doc->links->collection[] = $this->get_collection_link($property, 'property');
+		}
     }
 
     // permissions
     $this->doc->links->permission = array();
     $group = pmp_get_collection_override_value($top_level_id, 'group');
-    if (!empty($group)) {
-      $this->doc->links->permission[] = $this->get_group_link($group);
+	if (!empty($group)) {
+		if (is_array($group)) {
+			foreach ($group as $grp) {
+				$this->doc->links->permission[] = $this->get_group_link($grp);
+			}
+		} else {
+			$this->doc->links->permission[] = $this->get_group_link($group);
+		}
     }
   }
 
