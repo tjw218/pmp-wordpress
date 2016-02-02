@@ -1,6 +1,7 @@
 <?php
 
 include_once __DIR__ . '/class-sdkwrapper.php';
+include_once __DIR__ . '/class-pmppost.php';
 
 /**
  * Ajax search functionality
@@ -51,7 +52,13 @@ add_action('wp_ajax_pmp_search', 'pmp_search');
  */
 function pmp_draft_post() {
 	check_ajax_referer('pmp_ajax_nonce', 'security');
-	_pmp_ajax_create_post(true);
+	if (!current_user_can('edit_posts')) {
+		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+	}
+	else {
+		print json_encode(_pmp_ajax_create_post(true));
+		wp_die();
+	}
 }
 add_action('wp_ajax_pmp_draft_post', 'pmp_draft_post');
 
@@ -62,7 +69,13 @@ add_action('wp_ajax_pmp_draft_post', 'pmp_draft_post');
  */
 function pmp_publish_post() {
 	check_ajax_referer('pmp_ajax_nonce', 'security');
-	_pmp_ajax_create_post();
+	if (!current_user_can('edit_posts')) {
+		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+	}
+	else {
+		print json_encode(_pmp_ajax_create_post());
+		wp_die();
+	}
 }
 add_action('wp_ajax_pmp_publish_post', 'pmp_publish_post');
 
@@ -308,151 +321,38 @@ function _pmp_modify_doc($data) {
 	return $doc;
 }
 
-function _pmp_ajax_create_post($draft=false) {
-	if (!current_user_can('edit_posts'))
-		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
-
-	print json_encode(_pmp_create_post($draft));
-	wp_die();
-}
-
-function _pmp_create_post($draft=false, $doc=null) {
+function _pmp_ajax_create_post($is_draft=false) {
 	$sdk = new SDKWrapper();
-	if (empty($doc))
-		$data = $sdk->newDoc('story', json_decode(stripslashes($_POST['post_data'])));
-	else
-		$data = $doc;
 
-	$post_data = array_merge(pmp_get_post_data_from_pmp_doc($data), array(
-		'post_author' => get_current_user_id(),
-		'post_status' => (!empty($draft))? 'draft' : 'publish'
-	));
-
-	$guid = ($data) ? $data->attributes->guid : 'unknown';
-	pmp_debug("---------- create-post [$guid] ----------");
-
-	// audio shortcodes (hash guid/modified for later)
-	$audio_guid_to_modified = array();
-	$audio_codes = _pmp_get_audio_shortcodes($data);
-	foreach ($audio_codes as $audio_data) {
-		$post_data['post_content'] = $audio_data['shortcode'] . "\n" . $post_data['post_content'];
-		$audio_guid_to_modified[$audio_data['guid']] = $audio_data['modified'];
-	}
-
-	// insert the post
-	$new_post = wp_insert_post($post_data);
-	if (is_wp_error($new_post)) {
-		var_log('wp_insert_post ERROR: ' . $new_post->get_error_message());
+	// make sure we don't search for a blank string
+	$guid = empty($_POST['pmp_guid']) ? 'nothing' : $_POST['pmp_guid'];
+	$doc = $sdk->fetchDoc($guid);
+	if (empty($doc)) {
 		return array(
-			"success" => false,
-			"message" => $new_post->get_error_message()
+			'success' => false,
+			'message' => "Cannot find PMP document {$guid}",
 		);
 	}
-
-	// update post metadata
-	$post_meta = pmp_get_post_meta_from_pmp_doc($data);
-	foreach ($post_meta as $key => $value) {
-		update_post_meta($new_post, $key, $value);
-	}
-	update_post_meta($new_post, 'pmp_audio', $audio_guid_to_modified);
-
-	// download/sideload images
-	$have_set_featured = false;
-	$image_datas = _pmp_get_image_datas($data);
-	foreach ($image_datas as $image_guid => $metadata) {
-		$new_attachment = _pmp_create_image_attachment($new_post, $metadata);
-		if (is_wp_error($new_attachment)) {
-			var_log('pmp_media_sideload_image ERROR: ' . $new_attachment->get_error_message());
-		}
-		else if (!$have_set_featured) {
-			update_post_meta($new_post, '_thumbnail_id', $new_attachment);
-			$have_set_featured = true;
-		}
-	}
-
-	// structured success
-	return array(
-		"success" => true,
-		"data" => array(
-			"edit_url" => html_entity_decode(get_edit_post_link($new_post)),
-			"post_id" => $new_post
-		)
-	);
-}
-
-/**
- * Extract audio shortcodes from a PMP document
- *
- * @param $doc the PMP document
- * @return array() a list of audio guid/modified/shortcode data
- * @since 0.3
- */
-function _pmp_get_audio_shortcodes($doc) {
-	$audio_metas = array();
-	$audios = SDKWrapper::getAudios($doc);
-	if (empty($audios)) {
-		pmp_debug('  -- NO AUDIO');
-	}
 	else {
-		pmp_debug("  -- shortcoding {$audios->count()} audios");
-		foreach ($audios as $audio) {
-			$url = SDKWrapper::getPlayableUrl($audio);
-			$audio_metas[] = array(
-				'guid' => $audio->attributes->guid,
-				'modified' => $audio->attributes->modified,
-				'shortcode' => $url ? ('[audio src="' . $url . '"]') : '',
+		$syncer = PmpPost::fromDoc($doc);
+
+		// pull from PMP
+		if ($syncer->pull()) {
+			return array(
+				'success' => true,
+				'data' => array(
+					'edit_url' => html_entity_decode(get_edit_post_link($syncer->post->ID)),
+					'post_id' => $syncer->post->ID,
+				),
+			);
+		}
+		else {
+			return array(
+				'success' => false,
+				'message' => "Error: unable to pull PMP document {$guid}",
 			);
 		}
 	}
-	return $audio_metas;
-}
-
-/**
- * Extract image metadata from a PMP document
- *
- * @param $doc the PMP document
- * @return array() a hash of image guids to metadata
- * @since 0.3
- */
-function _pmp_get_image_datas($doc) {
-	$metadatas = array();
-	$images = SDKWrapper::getImages($doc);
-	if (empty($images)) {
-		pmp_debug('  -- NO IMAGES');
-	}
-	else {
-		pmp_debug("  -- metadata-ing {$images->count()} images");
-		foreach ($images as $image) {
-			$data = SDKWrapper::getViewableImage($image);
-			if ($data) {
-				$metadatas[$image->attributes->guid] = $data;
-			}
-		}
-	}
-	return $metadatas;
-}
-
-/**
- * Sideload and attach a new image to a Post
- *
- * @param $post_id the parent post
- * @param $metadata the image data object (from _pmp_get_image_datas)
- */
-function _pmp_create_image_attachment($post_id, $metadata) {
-	$new_image = pmp_media_sideload_image($metadata['url'], $post_id, $metadata['caption']);
-
-	// on success, update basic/extended fields for the new image/attachment
-	if (!is_wp_error($new_image)) {
-		wp_update_post(array(
-			'ID' => $new_image,
-			'post_excerpt' => $metadata['caption'],
-			'post_title' => $metadata['alt'],
-		));
-		foreach ($metadata['post_meta'] as $image_meta_key => $image_meta_value) {
-			update_post_meta($new_image, $image_meta_key, $image_meta_value);
-		}
-	}
-	return $new_image;
 }
 
 /**

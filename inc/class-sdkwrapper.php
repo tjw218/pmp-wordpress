@@ -77,14 +77,16 @@ class SDKWrapper {
 	}
 
 	/**
-	 * Get the `post_id` and `pmp_guid` for all existing posts that originate from the PMP
+	 * Get the `post_id` and `pmp_guid` for all top-level posts that originate from the PMP
 	 *
 	 * @since 0.3
 	 */
 	public function getPmpPostIdsAndGuids() {
 		global $wpdb;
 		return $wpdb->get_results(
-			"select post_id, meta_value from {$wpdb->postmeta} where meta_key = 'pmp_guid'", ARRAY_A);
+			"select post_id, meta_value " .
+			"from {$wpdb->posts} join {$wpdb->postmeta} on (ID = post_id) " .
+			"where post_parent = 0 and meta_key = 'pmp_guid'", ARRAY_A);
 	}
 
 	/**
@@ -195,32 +197,6 @@ class SDKWrapper {
 	}
 
 	/**
-	 * Get any image items for a Doc
-	 *
-	 * @since 0.2
-	 */
-	public static function getImages($doc) {
-		$images = $doc->items('image');
-		if ($doc->getProfileAlias() == 'image'){
-			$images[] = $doc;
-		}
-		return $images;
-	}
-
-	/**
-	 * Get any audio items for a Doc
-	 *
-	 * @since 0.2
-	 */
-	public static function getAudios($doc) {
-		$audios = $doc->items('audio');
-		if ($doc->getProfileAlias() == 'audio'){
-			$audios[] = $doc;
-		}
-		return $audios;
-	}
-
-	/**
 	 * Get the first valid audio-enclosure-url from an audio doc
 	 *
 	 * @since 0.2
@@ -229,7 +205,7 @@ class SDKWrapper {
 		$guid      = $audio_doc->attributes->guid;
 		$enclosure = $audio_doc->links('enclosure')->first();
 		if (!$enclosure) {
-			pmp_debug("  -- NO ENCLOSURES for audio[$guid]");
+			pmp_debug("      ** NO ENCLOSURES for audio[$guid]");
 			return null;
 		}
 
@@ -239,13 +215,13 @@ class SDKWrapper {
 		$uri_parts = parse_url($href);
 		$extension = pathinfo($uri_parts['path'], PATHINFO_EXTENSION);
 		if (!in_array($uri_parts['scheme'], array('http', 'https'))) {
-			pmp_debug("  -- INVALID ENCLOSURE HREF ($href) for audio[$guid]");
+			pmp_debug("      ** INVALID ENCLOSURE HREF ($href) for audio[$guid]");
 			return null;
 		}
 
 		// dereference playlists (m3u)
 		if ($type == 'audio/m3u' || $extension == 'm3u') {
-			pmp_debug("  -- dereferencing playlist for audio[$guid]");
+			pmp_debug("      ** dereferencing playlist for audio[$guid]");
 			$response = wp_remote_get($href);
 			$lines = explode("\n", $response['body']);
 			$href = $lines[0];
@@ -254,63 +230,43 @@ class SDKWrapper {
 			$type = null; // we don't know this anymore
 		}
 
-		// check for "known" types
+		// check for "known" types that start with audio/*
 		if ($type && in_array($type, array_values(get_allowed_mime_types()))) {
-			pmp_debug("  -- known mime type for audio[$guid]");
-			return $href;
+			if (preg_match('/^audio/', $type)) {
+				pmp_debug("      ** known mime type '$type' for audio[$guid]");
+				return $href;
+			}
 		}
 		if (in_array($extension, wp_get_audio_extensions())) {
-			pmp_debug("  -- known extension for audio[$guid]");
+			pmp_debug("      ** known extension '$extension' for audio[$guid]");
 			return $href;
 		}
 
 		// not sure what this is
-		pmp_debug("  -- UNABLE TO PLAY enclosure ($href) for audio[$guid]");
+		pmp_debug("      ** UNABLE TO PLAY enclosure ($href) for audio[$guid]");
 		return null;
 	}
 
 	/**
 	 * Get the "best" enclosure metadata from an image doc
+	 * (this replaces the above function - returning the enclosure itself)
 	 *
-	 * @since 0.2
+	 * @since 0.4
 	 */
-	public static function getViewableImage($image_doc) {
-		$data = array(
-			'post_meta' => pmp_get_post_meta_from_pmp_doc($image_doc),
-			'alt'       => $image_doc->attributes->title,
-			'caption'   => isset($image_doc->attributes->description) ? $image_doc->attributes->description : '',
-			'credit'    => isset($image_doc->attributes->byline) ? $image_doc->attributes->byline : '',
-			'url'       => null,
-		);
+	public static function getImageEnclosure($image_doc) {
+		$preferred = array('primary', 'standard', 'large');
 
-		// also set the post/image alt
-		$data['post_meta']['_wp_attachment_image_alt'] = $data['alt'];
-
-		// look for the best crop
-		$best_enclosure = $image_doc->links('enclosure')->first();
-		foreach ($image_doc->links('enclosure') as $enc) {
-			if (isset($enc->meta) && isset($enc->meta->crop)) {
-				if ($enc->meta->crop == 'primary') {
-					$best_enclosure = $enc;
-					break;
-				}
-				else if ($enc->meta->crop == 'standard') {
-					$best_enclosure = $enc;
-					break;
+		// first look for a preferred crop size
+		foreach ($preferred as $crop) {
+			foreach ($image_doc->links('enclosure') as $enc) {
+				if (isset($enc->meta) && isset($enc->meta->crop) && $enc->meta->crop == $crop) {
+					return $enc;
 				}
 			}
 		}
 
-		// only return the struct if we've got a url
-		if ($best_enclosure) {
-			pmp_debug("  -- got enclosure for image[{$image_doc->attributes->guid}]");
-			$data['url'] = $best_enclosure->href;
-			$data['post_meta']['pmp_image_url'] = $best_enclosure->href;
-			return $data;
-		}
-		else {
-			return null;
-		}
+		// fall back to the first enclosure
+		return $image_doc->links('enclosure')->first();
 	}
 
 }

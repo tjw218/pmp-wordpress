@@ -47,6 +47,38 @@ function pmp_get_profiles() {
 }
 
 /**
+ * Clean up post_content before sending to the PMP
+ *
+ * @param string $content the original wp_content
+ * @param boolean $tagless whether to also strip tags from the content
+ * @return string the sanitized content
+ */
+function pmp_sanitize_content($content, $tagless = false) {
+	global $shortcode_tags;
+
+	// remove audio shortcodes
+	$stack = $shortcode_tags;
+	$shortcode_tags = array('audio' => 1);
+	$content = strip_shortcodes($content);
+	$shortcode_tags = $stack;
+
+	// convert remaining shortcodes to html
+	$content = apply_filters('the_content', $content);
+
+	// strip newlines (convert to spaces, if non-html)
+	if ($tagless) {
+		$content = str_replace('&nbsp;', ' ', $content); // these are weird
+		$content = strip_tags(html_entity_decode($content));
+		$content = trim(preg_replace("/[\n\r]+/", ' ', $content));
+	}
+	else {
+		$content = trim(preg_replace("/[\n\r]/", '', $content));
+	}
+
+	return $content;
+}
+
+/**
  * Similar to `media_sideload_image` except that it simply returns the attachment's ID on success
  *
  * @param (string) $file the url of the image to download and attach to the post
@@ -57,7 +89,7 @@ function pmp_get_profiles() {
  */
 function pmp_media_sideload_image($file, $post_id, $desc=null) {
 	if (!empty($file)) {
-		pmp_debug("  -- sideloading-image $file for post[$post_id]");
+		pmp_debug("      ** sideloading-image $file for post[$post_id]");
 		include_once ABSPATH . 'wp-admin/includes/image.php';
 		include_once ABSPATH . 'wp-admin/includes/file.php';
 		include_once ABSPATH . 'wp-admin/includes/media.php';
@@ -65,7 +97,12 @@ function pmp_media_sideload_image($file, $post_id, $desc=null) {
 		// Set variables for storage, fix file filename for query strings.
 		preg_match('/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', $file, $matches);
 		$file_array = array();
-		$file_array['name'] = basename($matches[0]);
+		if (empty($matches)) {
+			$file_array['name'] = basename($file);
+		}
+		else {
+			$file_array['name'] = basename($matches[0]);
+		}
 
 		// Download file to temp location.
 		$file_array['tmp_name'] = download_url($file);
@@ -101,7 +138,7 @@ function pmp_get_pmp_attachments($parent_id) {
 			'compare' => 'EXISTS'
 		),
 		'posts_per_page' => -1,
-		'post_type' => 'attachment',
+		'post_type' => array('attachment', 'pmp_attachment'),
 		'post_status' => 'any',
 		'post_parent' => $parent_id,
 	));
@@ -253,128 +290,13 @@ add_action('save_post', 'pmp_push_to_pmp', 11);
  */
 function pmp_handle_push($post_id) {
 	$post = get_post($post_id);
-	$author = get_user_by('id', $post->post_author);
-
-	$pmp_guid = get_post_meta($post->ID, 'pmp_guid', true);
-
-	$sdk = new SDKWrapper();
-
-	$obj = new \StdClass();
-	$obj->attributes = (object) array(
-		'published' => date('c', strtotime($post->post_date))
-	);
-
-	if ($post->post_type == 'post') {
-		$obj->attributes = (object) array_merge((array) $obj->attributes, array(
-			'description' => strip_tags(apply_filters('the_content', $post->post_content)),
-			'title' => $post->post_title,
-			'byline' => $author->display_name,
-			'contentencoded' => apply_filters('the_content', $post->post_content),
-			'teaser' => $post->post_excerpt
-		));
-	} else if ($post->post_type == 'attachment') {
-		$alt_text = get_post_meta($post_id, '_wp_attachment_image_alt', true);
-		$obj->attributes = (object) array_merge((array) $obj->attributes, array(
-			'title' => (!empty($alt_text))? $alt_text : $post->post_title,
-			'description' => $post->post_excerpt
-		));
+	$syncer = PmpPost::fromPost($post);
+	if ($syncer->push()) {
+		return $syncer->doc->attributes->guid;
 	}
-
-	// Set default collections (series & property), permissions group or the appropriate override
-	$obj->links = new \StdClass();
-
-	// Set the alternate link
-	if ($post->post_type == 'post')
-		$alternate = get_permalink($post->ID);
-	else if ($post->post_type == 'attachment')
-		$alternate = wp_get_attachment_url($post->ID);
-
-	$obj->links->alternate[] = (object) array('href' => $alternate);
-
-	// Build out the collection array
-	if ($post->post_type == 'post') {
-		$obj->links->collection = array();
-
-		foreach (array('series', 'property') as $collection) {
-			$collection_override = pmp_get_collection_override_value($post_id, $collection);
-
-			if (!empty($collection_override)) {
-				if (!is_array($collection_override))
-					$collection_override = array($collection_override);
-
-				foreach ($collection_override as $guid) {
-					$obj->links->collection[] = (object) array(
-						'href' => $sdk->href4guid($guid),
-						'rels' => array('urn:collectiondoc:collection:' . $collection)
-					);
-				}
-			}
-		}
+	else {
+		return null;
 	}
-
-	// Build out the permissions group profile array
-	$obj->links->permission = array();
-	$groups = pmp_get_collection_override_value($post_id, 'group');
-	if (!empty($groups)) {
-		if (!is_array($groups))
-			$groups = array($groups);
-
-		foreach ($groups as $group_guid)
-			$obj->links->permission[] = (object) array('href' => $sdk->href4guid($group_guid));
-	}
-
-	// If this is a post with a featured image, push the featured image as a PMP Doc and include
-	// it as a link in the Doc.
-	if ($post->post_type == 'post' && has_post_thumbnail($post->ID)) {
-		$featured_img_guid = pmp_handle_push(get_post_thumbnail_id($post->ID));
-
-		$obj->links->item = array();
-
-		if (!empty($featured_img_guid))
-			$obj->links->item[] = (object) array(
-				'href' => $sdk->href4guid($featured_img_guid),
-				'rels' => array('urn:collectiondoc:image', 'urn:collectiondoc:image:featured'),
-			);
-	}
-
-	// If this is an attachment post, build out the enclosures array to be sent over the wire.
-	if ($post->post_type == 'attachment') {
-		$obj->links->enclosure = pmp_enclosures_for_media($post->ID);
-	}
-
-	if (!empty($pmp_guid)) {
-		$doc = $sdk->fetchDoc($pmp_guid);
-		$doc->attributes = (object) array_merge((array) $doc->attributes, (array) $obj->attributes);
-		$doc->links = (object) array_merge((array) $doc->links, (array) $obj->links);
-	} else {
-		if ($post->post_type == 'post')
-			$doc = $sdk->newDoc('story', $obj);
-		else if ($post->post_type == 'attachment')
-			$doc = $sdk->newDoc('image', $obj);
-	}
-
-	if (empty($doc->attributes->itags))
-		$doc->attributes->itags = array();
-
-	if (!in_array('wp_pmp_push', $doc->attributes->itags))
-		$doc->attributes->itags = array_merge($doc->attributes->itags, array('wp_pmp_push'));
-
-	$doc = apply_filters('pmp_before_push', $doc, $post->ID);
-	$doc->save();
-	do_action('pmp_after_push', $doc, $post->ID);
-
-	$post_meta = pmp_get_post_meta_from_pmp_doc($doc);
-
-	if ($post->post_type == 'attachment') {
-		$post_meta = array_merge($post_meta, array(
-			'_wp_attachment_image_alt' => $doc->attributes->title, // alt text
-		));
-	}
-
-	foreach ($post_meta as $key => $value)
-		update_post_meta($post->ID, $key, $value);
-
-	return $doc->attributes->guid;
 }
 
 /**
@@ -422,57 +344,50 @@ function pmp_enclosures_for_media($media_id) {
 }
 
 /**
+ * Build an array of enclosures for a given "audio" attachment post.
+ *
+ * @since 0.4
+ */
+function pmp_enclosures_for_audio($audio_id) {
+	$audio_metadata = wp_get_attachment_metadata($audio_id);
+	$enclosure = array(
+		'href' => wp_get_attachment_url($audio_id),
+		'type' => $audio_metadata['mime_type'],
+		'meta' => array(
+			'duration' => $audio_metadata['length'],
+		),
+	);
+	return array($enclosure);
+}
+
+/**
  * Find out if your PMP API user is the owner of a given post/PMP Doc
  *
  * @since 0.2
  */
 function pmp_post_is_mine($post_id) {
+	$pmp_guid = get_post_meta($post_id, 'pmp_guid', true);
+	if (empty($pmp_guid))
+		return true;
+
+	// check for the new "last_pushed" timestamp
+	$pmp_last_pushed = get_post_meta($post_id, 'pmp_last_pushed', true);
+	if (!empty($pmp_last_pushed))
+		return true;
+
+	// BACKWARDS COMPATIBILITY: set pmp_last_pushed from pmp_owner
 	$pmp_owner = get_post_meta($post_id, 'pmp_owner', true);
-	if (!empty($pmp_owner))
-		return ($pmp_owner == pmp_get_my_guid());
+  if (!empty($pmp_owner)) {
+  	delete_post_meta($post_id, 'pmp_owner');
+    if ($pmp_owner == pmp_get_my_guid()) {
+    	$date = get_post_meta($post_id, 'pmp_modified', true);
+    	$date = $date ? $date : date('c', time());
+      update_post_meta($post_id, 'pmp_last_pushed', $date);
+      return true;
+    }
+  }
 
-	return true;
-}
-
-/**
- * Build an associatvie array of post data from a PMP Doc suitable for use with wp_insert_post or
- * wp_update_post.
- *
- * @since 0.2
- */
-function pmp_get_post_data_from_pmp_doc($pmp_doc) {
-	$data = json_decode(json_encode($pmp_doc), true);
-
-	$post_data = array(
-		'post_title' => $data['attributes']['title'],
-		'post_content' => $data['attributes']['contentencoded'],
-		'post_excerpt' => (isset($data['attributes']['teaser']))? $data['attributes']['teaser'] : '',
-		'post_date' => date('Y-m-d H:i:s', strtotime($data['attributes']['published']))
-	);
-
-	return $post_data;
-}
-
-/**
- * Build an associative array of post meta based on a PMP Doc suitable for use in saving post meta.
- *
- * @since 0.2
- */
-function pmp_get_post_meta_from_pmp_doc($pmp_doc) {
-	$data = json_decode(json_encode($pmp_doc), true);
-
-	$post_meta = array(
-		'pmp_guid' => $data['attributes']['guid'],
-		'pmp_created' => $data['attributes']['created'],
-		'pmp_modified' => $data['attributes']['modified'],
-		'pmp_published' => $data['attributes']['published'],
-		'pmp_owner' => SDKWrapper::guid4href($data['links']['owner'][0]['href'])
-	);
-
-	if (!empty($data['attributes']['byline']))
-		$post_meta['pmp_byline'] = $data['attributes']['byline'];
-
-	return $post_meta;
+  return false;
 }
 
 /**
@@ -484,11 +399,10 @@ function pmp_get_post_meta_from_pmp_doc($pmp_doc) {
 function pmp_filter_media_library($wp_query) {
 	if (isset($_POST['action']) && $_POST['action'] == 'query-attachments') {
 		$pmp_guid = get_post_meta($_POST['post_id'], 'pmp_guid', true);
-		$pmp_owner = get_post_meta($_POST['post_id'], 'pmp_owner', true);
-		$my_guid = pmp_get_my_guid();
+		$pmp_last_pushed = get_post_meta($_POST['post_id'], 'pmp_last_pushed', true);
 
 		// filter PMP-sourced docs separately from local/owned stuff
-		if ($pmp_guid && $pmp_owner !== $my_guid) {
+		if ($pmp_guid && empty($pmp_last_pushed)) {
 			$wp_query->set('post_parent', $_POST['post_id']);
 		}
 		else {
@@ -496,12 +410,11 @@ function pmp_filter_media_library($wp_query) {
 				'relation' => 'OR',
 				array(
 					'key' => 'pmp_guid',
-					'compare' => 'NOT EXISTS'
+					'compare' => 'NOT EXISTS',
 				),
 				array(
-					'key' => 'pmp_owner',
-					'compare' => '==',
-					'value' => pmp_get_my_guid()
+					'key' => 'pmp_last_pushed',
+					'compare' => 'EXISTS',
 				),
 			));
 		}
@@ -664,7 +577,12 @@ if (!function_exists('var_log')) {
 	 * @param mixed $stuff the data structure to send to the error log.
 	 * @since 0.2
 	 */
-	function var_log($stuff) { error_log(var_export($stuff, true)); }
+	function var_log($stuff) {
+		if (!is_string($stuff)) {
+			$stuff = var_export($stuff, true);
+		}
+		error_log($stuff);
+	}
 }
 
 /**

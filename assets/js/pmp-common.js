@@ -137,11 +137,8 @@ var PMP = PMP || {};
                 data = {
                     action: action,
                     security: PMP.ajax_nonce,
+                    pmp_guid: this.attributes.attributes.guid
                 };
-
-            var post_data = this.toJSON();
-            post_data.attachment = (this.getImage())? this.getImage().toJSON() : null;
-            data.post_data = JSON.stringify(post_data);
 
             var opts = {
                 url: ajaxurl,
