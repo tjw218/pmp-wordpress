@@ -172,7 +172,9 @@ class TestAjax extends WP_Ajax_UnitTestCase {
 
 		$_POST['data'] = addslashes(json_encode(array(
 			'collection_guid' => $GLOBALS['pmp_stash']['test_group_guid'],
-			'items_guids' => array(pmp_get_my_guid())
+			'values' => array(
+				'pmp-item-guids' => array(pmp_get_my_guid())
+			)
 		)));
 		$_POST['security'] = wp_create_nonce('pmp_ajax_nonce');
 

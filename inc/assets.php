@@ -24,7 +24,7 @@ function pmp_register_assets() {
 		array(
 			'pmp-common',
 			PMP_PLUGIN_DIR_URI . '/assets/js/pmp-common.js',
-			array('pmp-utils', 'underscore', 'backbone'),
+			array('pmp-utils', 'pmp-typeahead', 'underscore', 'backbone'),
 			PMP_VERSION,
 			true
 		),
@@ -45,7 +45,7 @@ function pmp_register_assets() {
 		array(
 			'pmp-groups-menu',
 			PMP_PLUGIN_DIR_URI . '/assets/js/pmp-groups-menu.js',
-			array('pmp-common','pmp-typeahead'),
+			array('pmp-common'),
 			PMP_VERSION,
 			true
 		),
@@ -243,6 +243,84 @@ function pmp_async_select_template() { ?>
 			<% }) %>
 		</select>
 	</script><?php
+}
+
+/**
+ * Output the underscore template used for the item management modal (i.e., users, series, properties, groups, etc)
+ *
+ * since 0.3
+ */
+function pmp_manage_items_underscore_template() { ?>
+<script type="text/template" id="pmp-manage-items-tmpl">
+	<div class="pmp-manage-items-container">
+		<p class="pmp-label">Manage <%= itemType %> for <%= profile %>:</p>
+		<h2><%= collection.get('attributes').title %></h2>
+		<div id="pmp-items-list">
+			<form id="pmp-items-form">
+			<% if (items.first().get('items').length > 0) { %>
+					<% items.first().get('items').each(function(item) { %>
+						<div class="pmp-item">
+							<%= item.get('attributes').title %>
+							<input type="hidden" name="pmp-item-guids" value="<%= item.get('attributes').guid %>" />
+							<span class="remove">&#10005;</span>
+						</div>
+					<% }); %>
+			<% } else { %>
+				<p class="error">No <%= itemType %> found.</p>
+			<% } %>
+				<?php do_action('pmp_manage_items_form_extras'); ?>
+			</form>
+		</div>
+		<div id="pmp-add-items">
+			<p class="pmp-label">Add <%= itemType %></p>
+			<form id="pmp-add-items-form">
+				<input type="text" id="pmp-item-search" name="pmp-item-search" placeholder="Search for a <%= itemType %>">
+			</form>
+		</div>
+	</div>
+</script>
+<?php
+}
+
+function pmp_manage_permissions_underscore_template() { ?>
+<script type="text/template" id="pmp-manage-items-tmpl">
+	<div class="pmp-manage-items-container">
+		<p class="pmp-label">Manage <%= itemType %> for <%= profile %>:</p>
+		<h2><%= collection.get('attributes').title %></h2>
+		<div id="pmp-items-list">
+			<form id="pmp-items-form">
+			<% if (typeof items !== 'undefined' && items.length > 0) { %>
+					<% items.each(function(item) { %>
+						<div class="pmp-item">
+							<%= item.get('attributes').title %>
+							<input type="hidden" name="pmp-item-guids" value="<%= item.get('attributes').guid %>" />
+							<span class="remove">&#10005;</span>
+						</div>
+					<% }); %>
+			<% } else { %>
+				<p class="error">No <%= itemType %> found.</p>
+			<% } %>
+				<p>Allowed operation:</p>
+				<select name="pmp-collection-operation">
+					<% if (typeof items !== 'undefined' && items.length > 0) { %>
+						<option <% if (items.first().get('operation') == 'read' ) { %>selected<% } %> value="read">Read</option>
+						<option <% if (items.first().get('operation') == 'write' ) { %>selected<% } %> value="write">Write</option>
+					<% } else { %>
+						<option value="read">Read</option>
+						<option value="write">Write</option>
+					<% } %>
+				</select>
+			</form>
+		</div>
+		<div id="pmp-add-items">
+			<p class="pmp-label">Add <%= itemType %></p>
+			<form id="pmp-add-items-form">
+				<input type="text" id="pmp-item-search" name="pmp-item-search" placeholder="Search for a <%= itemType %>">
+			</form>
+		</div>
+	</div>
+</script>
+<?php
 }
 
 /**

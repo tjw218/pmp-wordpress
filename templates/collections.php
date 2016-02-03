@@ -76,6 +76,9 @@
 					<li>
 						<a class="pmp-collection-modify" data-guid="<%= item.get('attributes').guid %>" href="#">Modify</a>
 					</li>
+					<li>
+						<a class="pmp-collection-permissions" data-guid="<%= item.get('attributes').guid %>" href="#">Permissions</a>
+					</li>
 					<% if (item.get('attributes').guid !== PMP.default_collection) { %>
 					<li>
 						<a class="pmp-collection-default" data-guid="<%= item.get('attributes').guid %>" href="#">Set as default</a>
@@ -86,6 +89,8 @@
 		</div>
 	<% }); %>
 </script>
+
+<?php pmp_manage_permissions_underscore_template(); ?>
 
 <script type="text/javascript">
 	var PMP = <?php echo json_encode($PMP); ?>;
