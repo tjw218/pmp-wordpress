@@ -118,25 +118,12 @@ function pmp_collections_page() {
 		'limit' => 9999
 	));
 
-	$pmp_users = $sdk->query2json('queryDocs', array(
-		'profile' => 'user',
-		'limit' => 9999
-	));
-
-	$pmp_groups = $sdk->query2json('queryDocs', array(
-		'profile' => 'group',
-		'writeable' => 'true',
-		'limit' => 9999
-	));
-
 	$context = array(
 		'PMP' => pmp_json_obj(array(
 			'default_collection' => get_option('pmp_default_' . $profile, false),
 			'pmp_collection' => $pmp_collection,
 			'profile' => $profile,
-			'name' => $name,
-			'users' => $pmp_users,
-			'groups' => $pmp_groups
+			'name' => $name
 		)),
 		'name' => $name,
 		'profile' => $profile

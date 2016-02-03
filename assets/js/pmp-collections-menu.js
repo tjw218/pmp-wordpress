@@ -18,11 +18,8 @@ var PMP = PMP || {};
     // Views
     PMP.CollectionList = PMP.BaseView.extend({
 
-        modals: {},
-
         events: {
             'click .pmp-collection-modify': 'modify_collection',
-            'click .pmp-collection-permissions': 'modify_permissions',
             'click .pmp-collection-default': 'set_default',
         },
 
@@ -56,23 +53,6 @@ var PMP = PMP || {};
             return this;
         },
 
-        modify_permissions: function(e) {
-            var target = e.currentTarget,
-                guid = $(target).data('guid'),
-                collection = this.collection.find(function(g) {
-                    return g.get('attributes').guid == guid;
-                });
-
-          if (typeof this.modals[collection.get('attributes').guid] == 'undefined') {
-            this.modals[collection.get('attributes').guid] = new PMP.ManageCollectionPermissionsModal({
-              collectionList: this,
-              collection: collection
-            });
-          }
-
-          this.modals[collection.get('attributes').guid].render();
-        },
-
         modify_collection: function(e) {
             var target = e.currentTarget,
                 guid = $(target).data('guid'),
@@ -103,6 +83,70 @@ var PMP = PMP || {};
                 this.collection_default_modal.collection = collection;
 
             this.collection_default_modal.render();
+        }
+    });
+
+    PMP.BaseCollectionModal = PMP.Modal.extend({
+        className: 'pmp-collection-modal',
+
+        saveCollection: function() {
+            if (typeof this.ongoing !== 'undefined' && $.inArray(this.ongoing.state(), ['resolved', 'rejected']) == -1)
+                return false;
+
+            var valid = this.validate();
+            if (!valid) {
+                alert('Please complete all required fields before submitting.');
+                return false;
+            }
+
+            var serialized = this.$el.find('form').serializeArray();
+
+            var collection = {};
+            _.each(serialized, function(val, idx) {
+                if (val.value !== '')
+                    collection[val.name] = val.value;
+            });
+
+            var self = this,
+                data = {
+                    action: this.action,
+                    security: PMP.ajax_nonce,
+                    collection: JSON.stringify({ attributes: collection }),
+                    profile: PMP.profile
+                };
+
+            var opts = {
+                url: ajaxurl,
+                dataType: 'json',
+                data: data,
+                method: 'post',
+                success: function(data) {
+                    self.hideSpinner();
+                    self.close();
+                    PMP.instances.collection_list.showSpinner();
+                    PMP.instances.collection_list.collection.search();
+                },
+                error: function() {
+                    self.hideSpinner();
+                    alert('Something went wrong. Please try again.');
+                }
+            };
+
+            this.showSpinner();
+            this.ongoing = $.ajax(opts);
+            return this.ongoing;
+        },
+
+        validate: function() {
+            var inputs = this.$el.find('form input'),
+                valid = true;
+
+            _.each(inputs, function(v, i) {
+                if (!v.validity.valid)
+                    valid = false;
+            });
+
+            return valid;
         }
     });
 
@@ -159,70 +203,6 @@ var PMP = PMP || {};
             var template = _.template($('#pmp-default-collection-form-tmpl').html());
             this.content = template({ collection: this.collection });
             PMP.Modal.prototype.render.apply(this, arguments);
-        }
-    });
-
-    PMP.ManageCollectionPermissionsModal = PMP.ManageItemsModal.extend({
-        className: 'pmp-collection-permissions-modal',
-
-        allItems: new Backbone.Collection(PMP.users.items.concat(PMP.groups.items)),
-
-        action: 'pmp_save_collection_permissions',
-
-        unsavedChanges: false,
-
-        profile: 'series',
-
-        itemType: 'users',
-
-        getModelsForPermissionLinks: function() {
-          var result = [],
-              self = this;
-
-          this.items.each(function(item, idx) {
-            if (typeof item.get('links').permission !== 'undefined' && item.get('links').permission.length > 0) {
-              _.each(item.get('links').permission, function(obj) {
-                self.allItems.each(function(item) {
-                  if (obj.href.indexOf(item.get('attributes').guid) >= 0) {
-                    item.set(obj);
-                    result.push(item);
-                  }
-                });
-              })
-            }
-          });
-
-          return new Backbone.Collection(result);
-        },
-
-        render: function() {
-            var self = this,
-                template = _.template($('#pmp-manage-items-tmpl').html());
-
-            if (!this.items) {
-                this.items = new PMP.WriteableCollection([], { profile: this.profile });
-                this.items.on('reset', function() {
-                    self.content = template({
-                        collection: self.collection,
-                        items: self.getModelsForPermissionLinks(self.items),
-                        profile: self.profile,
-                        itemType: self.itemType
-                    });
-                    PMP.Modal.prototype.render.apply(self);
-
-                    self.$el.find('a.Save').addClass('disabled');
-                    self.on('itemsChange', self.itemsChange.bind(self));
-
-                    self.setupTypeahead.apply(self);
-                    self.hideSpinner();
-                });
-                PMP.Modal.prototype.render.apply(self);
-                this.showSpinner();
-                this.items.search({ guid: this.collection.get('attributes').guid });
-            } else {
-                PMP.Modal.prototype.render.apply(self);
-                this.setupTypeahead();
-            }
         }
     });
 

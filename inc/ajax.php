@@ -147,10 +147,10 @@ function pmp_save_users() {
 	$sdk = new SDKWrapper();
 	$group = $sdk->fetchDoc($group_data->collection_guid);
 
-	if (!empty($group_data->values->{'pmp-item-guids'})) {
+	if (!empty($group_data->items_guids)) {
 		$group->links->item = array();
 
-		foreach ((array) $group_data->values->{'pmp-item-guids'} as $user_guid) {
+		foreach ($group_data->items_guids as $user_guid) {
 			$link_item = new \stdClass();
 			$link_item->href = $sdk->href4guid($user_guid);
 			$group->links->item[] = $link_item;
@@ -294,41 +294,6 @@ function pmp_get_select_options() {
 	wp_die();
 }
 add_action('wp_ajax_pmp_get_select_options', 'pmp_get_select_options');
-
-/**
- * Ajax function to process permissions configuration for collections (series, properties)
- *
- * @since 0.3
- */
-function pmp_save_collection_permissions() {
-	check_ajax_referer('pmp_ajax_nonce', 'security');
-
-	$collection_data = json_decode(stripslashes($_POST['data']));
-
-	$sdk = new SDKWrapper();
-	$collection = $sdk->fetchDoc($collection_data->collection_guid);
-
-	if (!empty($collection_data->values->{'pmp-item-guids'})) {
-		$collection->links->permission = array();
-
-		foreach ((array) $collection_data->values->{'pmp-item-guids'} as $user_guid) {
-			$link_item = new \stdClass();
-			$link_item->href = $sdk->href4guid($user_guid);
-			$link_item->operation = $collection_data->values->{'pmp-collection-operation'};
-			$collection->links->permission[] = $link_item;
-		}
-	} else
-		unset($collection->links->permission);
-
-	$collection->save();
-
-	print json_encode(array(
-		"success" => true,
-		"data" => SDKWrapper::prepFetchData($collection)
-	));
-	wp_die();
-}
-add_action('wp_ajax_pmp_save_collection_permissions', 'pmp_save_collection_permissions');
 
 /* Helper functions */
 function _pmp_create_doc($type, $data) {

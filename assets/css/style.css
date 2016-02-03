@@ -297,24 +297,20 @@ p.error {
   margin-right: 1em;
 }
 .pmp-collection-modal .pmp-modal-content,
-.pmp-collection-permissions-modal .pmp-modal-content,
 .pmp-group-modal .pmp-modal-content {
   text-align: left;
 }
 .pmp-collection-modal h2,
-.pmp-collection-permissions-modal h2,
 .pmp-group-modal h2 {
   margin: 0 0 20px 0;
   line-height: 1.2em;
 }
 .pmp-collection-modal form label,
-.pmp-collection-permissions-modal form label,
 .pmp-group-modal form label {
   margin: 10px 0;
   display: block;
 }
 .pmp-collection-modal form input,
-.pmp-collection-permissions-modal form input,
 .pmp-group-modal form input {
   width: 100%;
 }
