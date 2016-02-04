@@ -13,8 +13,10 @@
 			<span id="pmp-show-advanced"><a href="#">Show advanced options</a></span>
 			<div id="pmp-advanced-search">
 				<div class="left">
+					<?php do_action('pmp_search_before_primary'); ?>
+
 					<!-- Creator search (editable dropdown w/ 5 partners) -->
-					<label for="profile">Content creator:</label>
+					<label for="creator">Content creator:</label>
 					<select name="creator">
 						<option value="">Any</option>
 						<?php foreach ($creators as $name => $guid) { ?>
@@ -40,8 +42,12 @@
 							<option value="video">Video</option>
 						</select>
 					</div>
+
+					<?php do_action('pmp_search_after_primary'); ?>
 				</div>
 				<div class="right">
+					<?php do_action('pmp_search_before_secondary'); ?>
+
 					<!-- Collection search (text-field) -->
 					<label for="collection">Search by collection GUID:</label>
 					<input type="text" name="collection" placeholder="Search by collection GUID"></input>
@@ -53,6 +59,8 @@
 					<!-- GUID search -->
 					<label for="guid">Search by GUID:</label>
 					<input type="text" name="guid" placeholder="Search by GUID"></input>
+
+					<?php do_action('pmp_search_after_secondary'); ?>
 				</div>
 			</div>
 			<p class="submit">
