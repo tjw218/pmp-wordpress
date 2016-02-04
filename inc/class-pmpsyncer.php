@@ -321,39 +321,46 @@ abstract class PmpSyncer {
     $top_level_id = ($this->post->post_parent > 0) ? $this->post->post_parent : $this->post->ID;
 
     // collections
+    if (!empty($this->doc->links->collection)) {
+        $previous_collection = $this->doc->links->collection;
+    }
     $this->doc->links->collection = array();
+
     $series = pmp_get_collection_override_value($top_level_id, 'series');
+    if (!empty($series)) {
+        if (is_array($series)) {
+            foreach ($series as $ser) {
+                $this->doc->links->collection[] = $this->get_collection_link($ser, 'series');
+            }
+        } else {
+            $this->doc->links->collection[] = $this->get_collection_link($series, 'series');
+        }
+    }
+
     $property = pmp_get_collection_override_value($top_level_id, 'property');
-	if (!empty($series)) {
-		if (is_array($series)) {
-			foreach ($series as $ser) {
-				$this->doc->links->collection[] = $this->get_collection_link($ser, 'series');
-			}
-		} else {
-			$this->doc->links->collection[] = $this->get_collection_link($series, 'series');
-		}
+    if (!empty($property)) {
+        if (is_array($property)) {
+            foreach ($property as $prop) {
+                $this->doc->links->collection[] = $this->get_collection_link($prop, 'property');
+            }
+        } else {
+            $this->doc->links->collection[] = $this->get_collection_link($property, 'property');
+        }
     }
-	if (!empty($property)) {
-		if (is_array($property)) {
-			foreach ($property as $prop) {
-				$this->doc->links->collection[] = $this->get_collection_link($prop, 'property');
-			}
-		} else {
-			$this->doc->links->collection[] = $this->get_collection_link($property, 'property');
-		}
-    }
+
+    $this->doc = apply_filters('pmp_set_doc_collection', $this->doc, $previous_collection, $this->post);
 
     // permissions
     $this->doc->links->permission = array();
     $group = pmp_get_collection_override_value($top_level_id, 'group');
-	if (!empty($group)) {
-		if (is_array($group)) {
-			foreach ($group as $grp) {
-				$this->doc->links->permission[] = $this->get_group_link($grp);
-			}
-		} else {
-			$this->doc->links->permission[] = $this->get_group_link($group);
-		}
+    if (!empty($group)) {
+        if (is_array($group)) {
+            foreach ($group as $grp) {
+                $this->doc->links->permission[] = $this->get_group_link($grp);
+            }
+        } else {
+            $this->doc->links->permission[] = $this->get_group_link($group);
+        }
     }
   }
 
