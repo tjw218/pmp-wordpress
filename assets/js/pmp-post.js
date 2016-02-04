@@ -13,6 +13,8 @@ var PMP = PMP || {};
 
     PMP.AsyncMenu = PMP.BaseView.extend({
 
+        action: 'pmp_get_select_options',
+
         initialize: function(options) {
             PMP.BaseView.prototype.initialize.apply(this, arguments);
             this.type = options.type;
@@ -26,7 +28,7 @@ var PMP = PMP || {};
             this.showSpinner();
 
             var self = this,
-            action = 'pmp_get_select_options',
+            action = this.action,
             data = {
                 action: action,
                 security: PMP.ajax_nonce,

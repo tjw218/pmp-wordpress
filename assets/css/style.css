@@ -441,21 +441,26 @@ p.error {
 #pmp-subscribe-to-updates { padding: 0 8px 16px 8px; }
 #pmp_document_meta .inside { padding: 4px; }
 
+.async-menu-container,
 #pmp-override-defaults {
   padding: 8px 8px 16px 8px;
   border-bottom: 1px solid #ccc;
   margin-bottom: 14px;
 }
+.async-menu-container strong,
 #pmp-override-defaults strong {
   display: block;
   margin: 4px 0;
 }
+.async-menu-container select,
 #pmp-override-defaults select {
   width: 100%;
 }
+.async-menu-container .async-menu-option,
 #pmp-override-defaults .pmp-override-for-post {
   min-height: 56px;
 }
+.async-menu-container .async-menu-option .spinner,
 #pmp-override-defaults .pmp-override-for-post .spinner {
   background-position: center center;
   width: 100%;
