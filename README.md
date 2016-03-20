@@ -18,6 +18,7 @@ Built by the [INN Nerds](http://nerds.inn.org/).
 - [PMP Series](/docs/series.md)
 - [PMP Properties](/docs/properties.md)
 - [Saved search queries](/docs/saved-search.md)
+- [PMP Distributor Plugin and Settings](/docs/distributor-settings.md)
 
 ## All Set
 
