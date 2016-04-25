@@ -70,7 +70,7 @@ See:
 
 ## View All Saved Search Queries
 
-To see all saved search queries, visit Public Media Platform > Manage saved searches link in the WordPress dashboard. From there, you see the complete list of saved search queries:
+To see all saved search queries, visit **Public Media Platform > Manage saved searche** link in the WordPress dashboard. From there, you see the complete list of saved search queries:
 
 ![Manage saved searches list](/assets/img/view-saved-searches.png)
 
