@@ -151,7 +151,7 @@ var PMP = PMP || {};
     });
 
     PMP.CreateCollectionModal = PMP.BaseCollectionModal.extend({
-        content: _.template($('#pmp-create-new-collection-form-tmpl').html(), {}),
+        content: _.template($('#pmp-create-new-collection-form-tmpl').html())(),
 
         action: 'pmp_create_collection',
 

@@ -157,7 +157,7 @@ var PMP = PMP || {};
     });
 
     PMP.CreateGroupModal = PMP.BaseGroupModal.extend({
-        content: _.template($('#pmp-create-new-group-form-tmpl').html(), {}),
+        content: _.template($('#pmp-create-new-group-form-tmpl').html())(),
 
         action: 'pmp_create_group',
 
