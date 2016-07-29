@@ -323,6 +323,8 @@ abstract class PmpSyncer {
     // collections
     if (!empty($this->doc->links->collection)) {
         $previous_collection = $this->doc->links->collection;
+    } else {
+        $previous_collection = array();
     }
     $this->doc->links->collection = array();
 
