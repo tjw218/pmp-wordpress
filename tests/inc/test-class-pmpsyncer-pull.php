@@ -186,7 +186,7 @@ class TestPmpSyncerPull extends PMP_SyncerTestCase {
     $this->assertEquals($syncer->attachment_syncers[0]->post->ID, get_post_meta($syncer->post->ID, '_thumbnail_id', true));
 
     // invalid enclosures hrefs just end up deleting the image altogether
-    $syncer->attachment_syncers[0]->doc->links->enclosure[0]->href = 'http://foo.bar';
+    $syncer->attachment_syncers[0]->doc->links->enclosure[0]->href = 'http://example.org';
     $this->assertTrue($syncer->pull(true));
     $this->assertFalse($syncer->attachment_syncers[0]->pull(true));
     $this->assertNull($syncer->attachment_syncers[0]->post);
