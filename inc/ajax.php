@@ -145,12 +145,12 @@ function pmp_save_users() {
 	$group_data = json_decode(stripslashes($_POST['data']));
 
 	$sdk = new SDKWrapper();
-	$group = $sdk->fetchDoc($group_data->group_guid);
+	$group = $sdk->fetchDoc($group_data->collection_guid);
 
-	if (!empty($group_data->user_guids)) {
+	if (!empty($group_data->items_guids)) {
 		$group->links->item = array();
 
-		foreach ($group_data->user_guids as $user_guid) {
+		foreach ($group_data->items_guids as $user_guid) {
 			$link_item = new \stdClass();
 			$link_item->href = $sdk->href4guid($user_guid);
 			$group->links->item[] = $link_item;
@@ -275,7 +275,7 @@ function pmp_delete_saved_query() {
 add_action('wp_ajax_pmp_delete_saved_query', 'pmp_delete_saved_query');
 
 /**
- * Ajax function returns data structure describing select menu for Group, Series, Propert for
+ * Ajax function returns data structure describing select/checklist menu for Group, Series, Propert for
  * a post
  *
  * @since 0.3
@@ -356,7 +356,7 @@ function _pmp_ajax_create_post($is_draft=false) {
 }
 
 /**
- * Builds a data structure that describes a select menu for the post based on the $type
+ * Builds a data structure that describes a select/checklist menu for the post based on the $type
  *
  * @param $type (string) The document option to create a select menu for
  * (i.e., 'group', 'property' or 'series').
@@ -375,23 +375,30 @@ function _pmp_select_for_post($post, $type) {
 		'limit' => 9999
 	));
 
-	$override = pmp_get_collection_override_value($post, $type);
 	$options = array();
 
-	// Pad the options with an empty value
-	$options[] = array(
-		'selected' => selected($override, false, false),
-		'guid' => '',
-		'title' => '--- No ' . $type . ' ---'
-	);
+	$override_value = pmp_get_collection_override_value($post, $type);
+
+	if (!is_array($override_value)) {
+		// Pad the options with an empty value
+		$options[] = array(
+			'selected' => selected($override_value, false, false),
+			'guid' => '',
+			'title' => '--- No ' . $type . ' ---'
+		);
+		$overrides = array($override_value);
+	} else
+		$overrides = $override_value;
 
 	if (!empty($pmp_things['items'])) {
 		foreach ($pmp_things['items'] as $thing) {
-			if (!empty($override))
-				$selected = selected($override, $thing['attributes']['guid'], false);
+			if (in_array($thing['attributes']['guid'], $overrides))
+				$selected = true;
+			else
+				$selected = false;
 
 			$option = array(
-				'selected' => (isset($selected))? $selected : '',
+				'selected' => $selected,
 				'guid' => $thing['attributes']['guid'],
 				'title' => $thing['attributes']['title']
 			);

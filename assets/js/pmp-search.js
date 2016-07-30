@@ -199,7 +199,7 @@ var PMP = PMP || {};
 
             this.$el.html('');
             this.$el.append(
-                _.template($('#pmp-search-results-pagination-tmpl').html(), {})
+                _.template($('#pmp-search-results-pagination-tmpl').html())()
             );
 
             if (typeof attrs.get('total') == 'undefined')
@@ -357,7 +357,7 @@ var PMP = PMP || {};
             PMP.Modal.prototype.initialize.apply(this, arguments);
         },
 
-        content: _.template($('#pmp-save-query-tmpl').html(), {}),
+        content: _.template($('#pmp-save-query-tmpl').html())(),
 
         render: function() {
             PMP.Modal.prototype.render.apply(this, arguments);

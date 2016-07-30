@@ -52,6 +52,8 @@ function pmp_init() {
 
 	foreach ($includes as $include)
 		include_once PMP_PLUGIN_DIR . '/' . $include;
+
+	do_action('pmp_after_init');
 }
 add_action('widgets_init', 'pmp_init');
 

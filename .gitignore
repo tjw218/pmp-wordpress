@@ -11,3 +11,7 @@
 # ignore all composer stuff, except the phar
 /vendor
 !/vendor/pmpsdk.phar
+
+# Bower
+bower_components
+/assets/js/vendor

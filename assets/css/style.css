@@ -340,7 +340,7 @@ p.error {
   font-size: 12px;
   margin: 0 0 8px 0;
 }
-#pmp-users-list {
+#pmp-items-list {
   margin: 10px 0;
   border-bottom: 1px solid #eee;
   border-top: 1px solid #eee;
@@ -348,38 +348,38 @@ p.error {
   max-height: 380px;
   overflow-y: scroll;
 }
-#pmp-users-list .spinner {
+#pmp-items-list .spinner {
   float: left;
   margin: 5px 0 10px 0;
   display: block;
 }
-#pmp-users-form p {
+#pmp-items-form p {
   font-size: 16px;
 }
-#pmp-users-form .pmp-user {
+#pmp-items-form .pmp-item {
   display: block;
   padding: 10px 5px;
 }
-#pmp-users-form .pmp-user .remove {
+#pmp-items-form .pmp-item .remove {
   float: right;
   margin-right: 5px;
   font-size: 14px;
 }
-#pmp-users-form .pmp-user .remove:hover {
+#pmp-items-form .pmp-item.remove:hover {
   cursor: pointer;
 }
-#pmp-users-form .pmp-user:nth-child(odd) {
+#pmp-items-form .pmp-item:nth-child(odd) {
   background: #efefef;
 }
 
-/* User typeahead search */
+/* Item typeahead search */
 .twitter-typeahead {
   width: 100%;
 }
-#pmp-add-users input {
+#pmp-add-items input {
   width: 50%;
 }
-.tt-dropdown-menu {
+.tt-menu {
   background: #f1f1f1;
   border: 1px solid #ccc;
   padding: 0;
@@ -441,22 +441,27 @@ p.error {
 #pmp-subscribe-to-updates { padding: 0 8px 16px 8px; }
 #pmp_document_meta .inside { padding: 4px; }
 
+.async-menu-container,
 #pmp-override-defaults {
   padding: 8px 8px 16px 8px;
   border-bottom: 1px solid #ccc;
   margin-bottom: 14px;
 }
+.async-menu-container strong,
 #pmp-override-defaults strong {
   display: block;
   margin: 4px 0;
 }
+.async-menu-container select,
 #pmp-override-defaults select {
   width: 100%;
 }
-#pmp-override-defaults .pmp-select-for-post {
+.async-menu-container .async-menu-option,
+#pmp-override-defaults .pmp-override-for-post {
   min-height: 56px;
 }
-#pmp-override-defaults .pmp-select-for-post .spinner {
+.async-menu-container .async-menu-option .spinner,
+#pmp-override-defaults .pmp-override-for-post .spinner {
   background-position: center center;
   width: 100%;
 }

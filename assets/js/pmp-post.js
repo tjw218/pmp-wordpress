@@ -11,12 +11,15 @@ var PMP = PMP || {};
     var $ = jQuery,
         pmpsubmit = $('#pmp_document_meta');
 
-    PMP.AsyncSelectMenu = PMP.BaseView.extend({
+    PMP.AsyncMenu = PMP.BaseView.extend({
+
+        action: 'pmp_get_select_options',
 
         initialize: function(options) {
             PMP.BaseView.prototype.initialize.apply(this, arguments);
             this.type = options.type;
-            this.template = _.template($('#pmp-async-select-tmpl').html());
+            this.template = _.template($(options.template).html());
+            this.multiSelect = (typeof options.multiSelect !== 'undefined')? options.multiSelect : false;
             this.getOptions();
             return this;
         },
@@ -25,7 +28,7 @@ var PMP = PMP || {};
             this.showSpinner();
 
             var self = this,
-            action = 'pmp_get_select_options',
+            action = this.action,
             data = {
                 action: action,
                 security: PMP.ajax_nonce,
@@ -57,35 +60,35 @@ var PMP = PMP || {};
 
         render: function() {
             var markup = $('<div />');
+
+            var renderedTmpl = this.template(_.extend(
+              this.optionData, { multiSelect: this.multiSelect }
+            ));
+
             markup
-                .append(this.template(this.optionData))
+                .append(renderedTmpl)
                 .hide()
                 .appendTo(this.$el)
                 .fadeIn(500);
+
+            this.$el.find('select').chosen({disable_search_threshold: 10});
+
             return this;
         }
     });
 
     $(document).ready(function() {
-        var menus = [
-            {
-                type: 'group',
-                el: '#pmp-group-select-for-post'
-            },
-            {
-                type: 'series',
-                el: '#pmp-series-select-for-post'
-            },
-            {
-                type: 'property',
-                el: '#pmp-property-select-for-post'
-            }
-        ];
+        var menus = $('[data-pmp-override-type]');
 
         if ($('#pmp-override-defaults').length > 0) {
-            _.each(menus, function(menu, idx) {
-                new PMP.AsyncSelectMenu({
-                    type: menu.type, el: $(menu.el)
+            menus.each(function(idx, el) {
+                var type = $(el).data('pmp-override-type');
+
+                var menu = new PMP.AsyncMenu({
+                    type: type,
+                    el: $(el),
+                    template: '#pmp-async-select-tmpl',
+                    multiSelect: true
                 });
             });
         }

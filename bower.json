@@ -1,0 +1,29 @@
+{
+  "name": "pmp-wordpress",
+  "version": "0.2.7",
+  "homepage": "https://github.com/publicmediaplatform/pmp-wordpress",
+  "authors": [
+    "Ryan Nagle",
+    "Ryan Cavis"
+  ],
+  "description": "Wordpress plugin for integrating with the Public Media Platform (pmp.io)",
+  "main": "assets/js/pmp-common.js",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "typeahead.js": "~0.11.1",
+    "chosen": "~1.4.2"
+  }
+}

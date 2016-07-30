@@ -6,6 +6,9 @@
  * @since 0.3
  */
 function pmp_mega_meta_box($post) {
+
+	do_action('pmp_before_mega_meta_box_content', $post);
+
 	wp_nonce_field('pmp_mega_meta_box', 'pmp_mega_meta_box_nonce');
 
 	$pmp_guid = get_post_meta($post->ID, 'pmp_guid', true);
@@ -18,12 +21,14 @@ function pmp_mega_meta_box($post) {
 		/*
 		 * Container elements for async select menus for Groups, Series and Property for the post
 		 */
-		if ($post->post_status == 'publish') {
-		?>
+		if ($post->post_status == 'publish') { ?>
 		 <div id="pmp-override-defaults">
 			<p>Modify the Group, Series and Property settings for this post.</p>
 			<?php foreach (array('group', 'series', 'property') as $type) { ?>
-			<div id="pmp-<?php echo $type; ?>-select-for-post" class="pmp-select-for-post">
+			<div
+				id="pmp-<?php echo $type; ?>-for-post"
+				class="pmp-override-for-post"
+				data-pmp-override-type="<?php echo $type; ?>">
 				<span class="spinner"></span>
 			</div>
 			<?php } ?>
@@ -41,6 +46,8 @@ function pmp_mega_meta_box($post) {
 
 		pmp_async_select_template();
 	}
+
+	do_action('pmp_after_mega_meta_box_content', $post);
 }
 
 /**
@@ -95,16 +102,14 @@ function pmp_save_override_defaults($post_id) {
 		$meta_key = 'pmp_' . $type . '_override';
 		$default_guid = get_option('pmp_default_' . $type, false);
 
-		if (isset($_POST[$meta_key])) {
+		// Indicate that the $type was explicitly net to false
+		if (!isset($_POST[$meta_key]) || empty($_POST[$meta_key]))
+			$override_guid = false;
+		else
 			$override_guid = $_POST[$meta_key];
 
-			// Indicate that the $type was explicitly net to false
-			if (empty($override_guid))
-				$override_guid = false;
-
-			// Otherwise, set the override meta
-			update_post_meta($post_id, $meta_key, $override_guid);
-		}
+		// Otherwise, set the override meta
+		update_post_meta($post_id, $meta_key, $override_guid);
 	}
 }
 
