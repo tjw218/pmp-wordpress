@@ -1,5 +1,5 @@
 === Public Media Platform ===
-Contributors: publicmediaplatform
+Contributors: publicmediaplatform, inn_nerds
 Tags: pmp,pubmedia,publicmediaplatform,apm,npr,pri,prx,pbs,media,news
 Requires at least: 3.9
 Tested up to: 4.3
