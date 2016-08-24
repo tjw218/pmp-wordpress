@@ -30,7 +30,7 @@ before_script:
 - export SLUG=$(basename $(pwd))
 - export WP_TESTS_DIR=/tmp/wordpress/tests/phpunit
 - export WP_CORE_DIR=/tmp/wordpress/
-- svn co --quiet http://develop.svn.wordpress.org/tags/$WP_VERSION $WP_CORE_DIR
+- git clone --depth=1 --branch="$WP_VERSION" git://develop.git.wordpress.org/ $WP_CORE_DIR
 - cd ..
 - mv $SLUG "$WP_CORE_DIR/src/wp-content/plugins/$SLUG"
 - cd $WP_CORE_DIR
