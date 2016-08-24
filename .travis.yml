@@ -20,8 +20,6 @@ env:
 - WP_VERSION=4.3
 - WP_VERSION=4.2
 - WP_VERSION=4.1
-- WP_TESTS_DIR=/tmp/wordpress/tests/phpunit
-- WP_CORE_DIR=/tmp/wordpress
 
 branches:
   only:
@@ -30,6 +28,8 @@ branches:
 # Clones WordPress and configures our testing environment
 before_script:
 - export SLUG=$(basename $(pwd))
+- export WP_TESTS_DIR=/tmp/wordpress/tests/phpunit
+- export WP_CORE_DIR=/tmp/wordpress/
 - svn co --quiet http://develop.svn.wordpress.org/tags/$WP_VERSION $WP_CORE_DIR
 - cd ..
 - mv $SLUG "$WP_CORE_DIR/src/wp-content/plugins/$SLUG"
