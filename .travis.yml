@@ -1,15 +1,33 @@
+# Travis CI Configuration File
+
+# Tell Travis CI we're using PHP
 language: php
+
+# PHP version used in first build configuration.
 php:
 - 5.3
 - 5.4
 - 5.5
 - 5.6
+
 sudo: false
+
 env:
-- WP_VERSION=4.1.1 WP_TESTS_DIR=/tmp/wordpress/tests/phpunit WP_CORE_DIR=/tmp/wordpress
+- WP_VERSION=master
+- WP_VERSION=4.6
+- WP_VERSION=4.5
+- WP_VERSION=4.4
+- WP_VERSION=4.3
+- WP_VERSION=4.2
+- WP_VERSION=4.1
+- WP_TESTS_DIR=/tmp/wordpress/tests/phpunit
+- WP_CORE_DIR=/tmp/wordpress
+
 branches:
   only:
-  - master
+    - master
+
+# Clones WordPress and configures our testing environment
 before_script:
 - export SLUG=$(basename $(pwd))
 - svn co --quiet http://develop.svn.wordpress.org/tags/$WP_VERSION $WP_CORE_DIR
@@ -24,7 +42,9 @@ before_script:
 - sed -i "s/yourpasswordhere//" wp-tests-config.php
 - mv wp-tests-config.php "$WP_TESTS_DIR/wp-tests-config.php"
 - cd "$WP_CORE_DIR/src/wp-content/plugins/$SLUG"
+
 script: phpunit
+
 notifications:
   slack:
     secure: Iji+RK3PdJbN1/aMBEnLxJ+D1LJCd9wOe7ka+y5TtFq8EMZXy8S/m8IxS+mqSvZUOhGwfgBXL9jsyCPVkqpkNNwY/34QDC8iQQU8e10TpVuD5YUfSOo6Fa/RtQik1gYUFbrxt9OCt4CaMEcyDdVTNb5A/cIoisaqk5xmCeXSvJc=
