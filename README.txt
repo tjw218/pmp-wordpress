@@ -54,6 +54,10 @@ See the [documentation on Github](https://github.com/publicmediaplatform/pmp-wor
 
 == Changelog ==
 
+= 0.2.10 =
+
+- version number bump to fix the wordpress.org plugin listing
+
 = 0.2.9 =
 
 - Allow user to set multiple groups for a story or document
