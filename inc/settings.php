@@ -20,8 +20,27 @@ function pmp_admin_init(){
 	add_settings_field(
 		'pmp_use_api_notifications', 'Allow PMP API to send content updates?',
 		'pmp_use_api_notifications_input', 'pmp_settings', 'pmp_cron');
+		
+	// add http proxy input support
+	add_settings_field(
+		'pmp_http_proxy', 'HTTP Proxy',
+		'pmp_http_proxy_input', 'pmp_settings', 'pmp_main');		
+		
 }
 add_action('admin_init', 'pmp_admin_init');
+
+/**
+ * Input field for http proxy
+ *
+ * @since 0.?
+ */
+function pmp_http_proxy_input() {
+	$options = get_option('pmp_settings');
+	?>
+		<input id="pmp_http_proxy" name="pmp_settings[pmp_http_proxy]" type="text" value="<?php echo $options['pmp_http_proxy']; ?>" />
+	<?php    
+}
+
 
 /**
  * Input field for PMP API notifications on/off

@@ -11,11 +11,18 @@ class SDKWrapper {
 
 	public function __construct() {
 		$settings = get_option('pmp_settings');
-
+		
+		// build opts
+		$opts = array
+		(
+		    'pmp_http_proxy' => $settings['pmp_http_proxy'],
+		);
+		
 		$this->sdk = new \Pmp\Sdk(
 			$settings['pmp_api_url'],
 			$settings['pmp_client_id'],
-			$settings['pmp_client_secret']
+			$settings['pmp_client_secret'],
+			$opts
 		);
 	}
 
